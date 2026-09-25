@@ -16,3 +16,6 @@ next-env.d.ts
 
 # Bloc de variables destiné à Vercel, contient des secrets.
 vercel-env.txt
+
+.vercel
+.env*
