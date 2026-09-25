@@ -5,18 +5,20 @@
 # occupées de Google Calendar. Sans appel régulier, un créneau réservé mais
 # jamais payé reste bloqué indéfiniment.
 #
-# GitHub Actions sert d'ordonnanceur parce que l'offre Vercel Hobby plafonne
-# ses propres tâches planifiées à une par jour, ce qui est bien trop espacé.
+# Ce workflow ne tourne QUE sur demande, depuis l'onglet Actions. La
+# planification régulière est confiée à un ordonnanceur externe.
+#
+# Une planification toutes les 5 minutes est hors de question ici : sur un
+# dépôt privé, GitHub facture chaque exécution à la minute entamée, soit
+# environ 8 600 minutes par mois pour 2 000 offertes. Le quota n'est illimité
+# que sur les dépôts publics.
+#
+# Il reste utile pour forcer un passage à la main, par exemple après avoir
+# corrigé une configuration d'envoi d'e-mails.
 
-name: Tâches planifiées
+name: Maintenance (manuel)
 
 on:
-  schedule:
-    # Toutes les 5 minutes. GitHub peut décaler l'exécution quand ses files
-    # sont chargées ; les tâches sont idempotentes, un retard ne fait que
-    # retarder d'autant la libération des créneaux.
-    - cron: "*/5 * * * *"
-  # Permet de déclencher un passage à la main depuis l'onglet Actions.
   workflow_dispatch:
 
 # Une exécution à la fois : deux passages simultanés se disputeraient les
