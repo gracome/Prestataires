@@ -1,0 +1,60 @@
+# Tâches planifiées de l'application.
+#
+# POST /api/jobs/run libère les créneaux dont le délai de paiement a expiré,
+# clôt les rendez-vous passés, envoie les rappels et rafraîchit les périodes
+# occupées de Google Calendar. Sans appel régulier, un créneau réservé mais
+# jamais payé reste bloqué indéfiniment.
+#
+# GitHub Actions sert d'ordonnanceur parce que l'offre Vercel Hobby plafonne
+# ses propres tâches planifiées à une par jour, ce qui est bien trop espacé.
+
+name: Tâches planifiées
+
+on:
+  schedule:
+    # Toutes les 5 minutes. GitHub peut décaler l'exécution quand ses files
+    # sont chargées ; les tâches sont idempotentes, un retard ne fait que
+    # retarder d'autant la libération des créneaux.
+    - cron: "*/5 * * * *"
+  # Permet de déclencher un passage à la main depuis l'onglet Actions.
+  workflow_dispatch:
+
+# Une exécution à la fois : deux passages simultanés se disputeraient les
+# mêmes rendez-vous.
+concurrency:
+  group: scheduled-jobs
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Appeler l'endpoint de maintenance
+        env:
+          APP_URL: https://prestataires-gracias-projects-47149017.vercel.app
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::error::Le secret CRON_SECRET n'est pas défini sur le dépôt."
+            exit 1
+          fi
+
+          status=$(curl --silent --show-error --fail-with-body \
+            --max-time 120 --retry 2 --retry-delay 10 \
+            --output response.json --write-out '%{http_code}' \
+            --request POST "$APP_URL/api/jobs/run" \
+            --header "authorization: Bearer $CRON_SECRET") || {
+              echo "::error::Appel échoué (HTTP $status)"
+              cat response.json
+              exit 1
+            }
+
+          cat response.json
+
+          # L'endpoint répond 200 même quand une tâche isolée a échoué, en
+          # listant les problèmes. On les remonte pour qu'ils soient visibles
+          # sans avoir à lire le journal ligne à ligne.
+          if ! grep -q '"errors":\[\]' response.json; then
+            echo "::warning::Des tâches ont signalé des erreurs, voir la réponse ci-dessus."
+          fi
