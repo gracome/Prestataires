@@ -1,0 +1,11 @@
+-- AlterTable
+ALTER TABLE "themes" ADD COLUMN     "adminAccent" TEXT NOT NULL DEFAULT '#8A5D5E',
+ADD COLUMN     "adminBackground" TEXT NOT NULL DEFAULT '#F6F5F4',
+ADD COLUMN     "adminBorder" TEXT NOT NULL DEFAULT '#E6E1DE',
+ADD COLUMN     "adminFont" TEXT NOT NULL DEFAULT 'Inter',
+ADD COLUMN     "adminMuted" TEXT NOT NULL DEFAULT '#6F6763',
+ADD COLUMN     "adminPreset" TEXT NOT NULL DEFAULT 'neutral',
+ADD COLUMN     "adminRadius" TEXT NOT NULL DEFAULT 'medium',
+ADD COLUMN     "adminSurface" TEXT NOT NULL DEFAULT '#FFFFFF',
+ADD COLUMN     "adminText" TEXT NOT NULL DEFAULT '#23201F';
+
