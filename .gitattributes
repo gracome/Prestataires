@@ -1,0 +1,9 @@
+# Normalise line endings: the working copy follows the platform, the repository
+# always stores LF. Without this, a Windows checkout rewrites every file and
+# turns each commit into a whole-file diff.
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.webp binary
+*.pdf binary

@@ -1,0 +1,994 @@
+// Prestataire App - multi-tenant booking platform for appointment-based businesses.
+//
+// Money is stored in MINOR UNITS of the provider currency (see src/lib/money.ts).
+// XOF / FCFA has 0 decimals, so 8000 FCFA is stored as 8000.
+//
+// All DateTime columns are stored in UTC. Wall-clock rules (working hours) are
+// stored as minutes-from-midnight in the provider own IANA timezone.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+
+  // Migrations need a session-mode connection: Prisma Migrate takes an
+  // advisory lock, which a transaction-mode pooler such as Neon's pooled
+  // endpoint or PgBouncer cannot hold. The application itself runs fine
+  // behind the pooler; only migrate deploy and db push use this one.
+  // Prisma has no fallback here, so DIRECT_URL must always be set: in
+  // development, point it at the same string as DATABASE_URL.
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum UserRole {
+  PROVIDER
+  STAFF
+  PLATFORM_ADMIN
+}
+
+enum ProviderStatus {
+  DRAFT
+  ACTIVE
+  SUSPENDED
+}
+
+/// How a booking gets validated. V1 ships NO_DEPOSIT and MANUAL_PAYMENT.
+/// ONLINE_PAYMENT exists so a payment aggregator can be added without
+/// reworking the booking state machine (cahier des charges section 28).
+enum ValidationMethod {
+  NO_DEPOSIT
+  MANUAL_PAYMENT
+  ONLINE_PAYMENT
+}
+
+/// How money actually came in at the counter.
+enum PaymentMethod {
+  CASH
+  MOBILE_MONEY
+  CARD
+  BANK_TRANSFER
+  OTHER
+}
+
+enum PriceType {
+  FIXED
+  STARTING_FROM
+  QUOTE_ONLY
+}
+
+enum DepositType {
+  NONE
+  FIXED
+  PERCENTAGE
+}
+
+/// Lifecycle of one appointment row.
+///
+/// The AVAILABLE state from the cahier des charges is a property of a *slot*,
+/// not of a row: a slot is AVAILABLE when no appointment in a blocking status
+/// and no time block covers it. See src/lib/booking/state-machine.ts.
+enum AppointmentStatus {
+  TEMPORARILY_RESERVED
+  AWAITING_PAYMENT
+  PAYMENT_PROOF_SUBMITTED
+  CONFIRMED
+  PAYMENT_REJECTED
+  CANCELLED
+  EXPIRED
+  COMPLETED
+  NO_SHOW
+}
+
+enum PaymentStatus {
+  NOT_REQUIRED
+  PENDING
+  PROOF_SUBMITTED
+  VERIFIED
+  REJECTED
+}
+
+enum ProofStatus {
+  SUBMITTED
+  ACCEPTED
+  REJECTED
+  SUPERSEDED
+}
+
+enum TimeBlockType {
+  TIME_OFF
+  HOLIDAY
+  MANUAL_BLOCK
+  EXTERNAL_CALENDAR
+}
+
+enum QuoteRequestStatus {
+  NEW
+  IN_PROGRESS
+  ANSWERED
+  CLOSED
+}
+
+enum QuoteQuestionKind {
+  SINGLE_CHOICE
+  MULTI_CHOICE
+}
+
+enum NotificationChannel {
+  EMAIL
+  WHATSAPP
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  FAILED
+  SKIPPED
+}
+
+enum CancelledBy {
+  CUSTOMER
+  PROVIDER
+  SYSTEM
+}
+
+// ---------------------------------------------------------------------------
+// Tenancy and identity
+// ---------------------------------------------------------------------------
+
+model Provider {
+  id     String         @id @default(cuid())
+  slug   String         @unique
+  status ProviderStatus @default(DRAFT)
+
+  // Identity
+  businessName  String
+  ownerName     String
+  tagline       String?
+  description   String? @db.Text
+  logoUrl       String?
+  coverImageUrl String?
+
+  // Contact
+  email           String
+  phone           String?
+  whatsappPhone   String?
+  whatsappPrefill String? @db.Text
+
+  // Location
+  addressLine String?
+  city        String?
+  country     String?
+  mapsUrl     String?
+  latitude    Float?
+  longitude   Float?
+
+  // Locale
+  timezone String @default("Africa/Porto-Novo")
+  locale   String @default("fr")
+  currency String @default("XOF")
+
+  customDomain String? @unique
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  users               User[]
+  services            Service[]
+  categories          Category[]
+  workingHours        WorkingHours[]
+  timeBlocks          TimeBlock[]
+  appointments        Appointment[]
+  paymentInstructions PaymentInstruction[]
+  sales               Sale[]
+  calendarConnection  CalendarConnection?
+  bookingSettings     BookingSettings?
+  theme               Theme?
+  siteSettings        SiteSettings?
+  galleryImages       GalleryImage[]
+  highlights          ProviderHighlight[]
+  faqItems            FaqItem[]
+  socialLinks         SocialLink[]
+  quoteRequests       QuoteRequest[]
+  quoteSettings       QuoteSettings?
+  notifications       NotificationLog[]
+  auditLogs           AuditLog[]
+
+  @@index([status])
+  @@map("providers")
+}
+
+model User {
+  id         String    @id @default(cuid())
+  providerId String?
+  provider   Provider? @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         UserRole @default(PROVIDER)
+  active       Boolean  @default(true)
+
+  failedLoginCount Int       @default(0)
+  lockedUntil      DateTime? @db.Timestamptz(3)
+  lastLoginAt      DateTime? @db.Timestamptz(3)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  sessions  Session[] @relation("SessionUser")
+  auditLogs AuditLog[]
+
+  /// Sessions this account opened on someone else’s behalf, for support.
+  impersonatedSessions Session[] @relation("SessionImpersonator")
+
+  /// Till entries keyed in by this account.
+  recordedSales Sale[] @relation("SaleRecordedBy")
+
+  @@index([providerId])
+  @@map("users")
+}
+
+/// Server-side sessions so a login can be revoked immediately.
+/// Only the SHA-256 hash of the cookie token is stored.
+model Session {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation("SessionUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Set when a platform administrator opened this session to help the
+  /// provider. Support access is never anonymous: the provider can see who
+  /// came in and when.
+  impersonatorId String?
+  impersonator   User?   @relation("SessionImpersonator", fields: [impersonatorId], references: [id], onDelete: SetNull)
+  tokenHash String    @unique
+  userAgent String?
+  ipAddress String?
+  expiresAt DateTime  @db.Timestamptz(3)
+  revokedAt DateTime? @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([impersonatorId])
+  @@map("sessions")
+}
+
+// ---------------------------------------------------------------------------
+// Configuration
+// ---------------------------------------------------------------------------
+
+model BookingSettings {
+  id         String   @id @default(cuid())
+  providerId String   @unique
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  /// Whether online booking is open at all.
+  bookingEnabled         Boolean @default(true)
+  /// Grid step for proposed start times, in minutes (e.g. 15 or 30).
+  slotGranularityMinutes Int     @default(30)
+  /// Gap automatically kept after each appointment, in minutes.
+  bufferAfterMinutes     Int     @default(0)
+  /// Earliest a customer may book, in minutes from now.
+  minLeadTimeMinutes     Int     @default(120)
+  /// Furthest a customer may book, in days.
+  maxAdvanceDays         Int     @default(60)
+
+  /// Section 11 - temporary hold while the customer finishes the flow.
+  holdDurationMinutes         Int @default(30)
+  /// Section 12 case 1 - time allowed to upload the proof.
+  proofDeadlineMinutes        Int @default(30)
+  /// Section 12 case 3 - time the provider has to verify a submitted proof.
+  verificationDeadlineMinutes Int @default(120)
+
+  /// Whether a confirmed appointment is pushed to Google Calendar.
+  syncToGoogleCalendar Boolean @default(true)
+  /// Whether busy periods from Google Calendar block slots.
+  blockOnGoogleBusy    Boolean @default(true)
+
+  requireCustomerEmail      Boolean @default(true)
+  allowCustomerCancellation Boolean @default(true)
+  cancellationNoticeHours   Int     @default(24)
+  cancellationPolicy        String? @db.Text
+  bookingTerms              String? @db.Text
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("booking_settings")
+}
+
+model Theme {
+  id         String   @id @default(cuid())
+  providerId String   @unique
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  primaryColor    String @default("#B0797A")
+  secondaryColor  String @default("#2F2A2B")
+  accentColor     String @default("#E8C7A8")
+  backgroundColor String @default("#FBF8F6")
+  surfaceColor    String @default("#FFFFFF")
+  textColor       String @default("#2B2422")
+  mutedTextColor  String @default("#6B5F5A")
+
+  headingFont   String @default("Playfair Display")
+  bodyFont      String @default("Inter")
+  buttonRadius  String @default("full")
+  layoutVariant String @default("classic")
+
+  /// Palette of the provider's own workspace, kept separate from the public
+  /// site: a bright site does not have to mean a bright dashboard, and she is
+  /// the one looking at it all day.
+  /// "neutral", "site", "dark" or "custom" - a preset fills the fields below.
+  adminPreset     String @default("neutral")
+  adminBackground String @default("#F6F5F4")
+  adminSurface    String @default("#FFFFFF")
+  adminText       String @default("#23201F")
+  adminMuted      String @default("#6F6763")
+  adminBorder     String @default("#E6E1DE")
+  adminAccent     String @default("#8A5D5E")
+  adminFont       String @default("Inter")
+  adminRadius     String @default("medium")
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("themes")
+}
+
+/// Which public sections are visible, plus SEO fields (sections 4 and 25).
+model SiteSettings {
+  id         String   @id @default(cuid())
+  providerId String   @unique
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  showAbout        Boolean @default(true)
+  showServices     Boolean @default(true)
+  showPricing      Boolean @default(true)
+  showGallery      Boolean @default(true)
+  showHours        Boolean @default(true)
+  showLocation     Boolean @default(true)
+  showBooking      Boolean @default(true)
+  showContact      Boolean @default(true)
+  showFaq          Boolean @default(true)
+  showQuoteRequest Boolean @default(false)
+  /// The dedicated portfolio page at /{slug}/realisations.
+  showRealisations Boolean @default(true)
+
+  heroHeadline    String?
+  heroSubheadline String? @db.Text
+  /// Short line above the headline, such as the trade and the city.
+  heroEyebrow     String?
+  /// Label of the main hero button, when "Prendre rendez-vous" is not right.
+  heroCtaLabel    String?
+
+  aboutTitle       String?
+  aboutBody        String? @db.Text
+  /// Portrait of the provider, shown beside the about text.
+  aboutPortraitUrl String?
+  /// One sentence in her own words, set as a pull quote.
+  aboutQuote       String? @db.Text
+
+  /// Intro paragraphs for the two dedicated pages.
+  servicesIntro     String? @db.Text
+  realisationsIntro String? @db.Text
+
+  seoTitle       String?
+  seoDescription String? @db.Text
+  ogImageUrl     String?
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("site_settings")
+}
+
+model SocialLink {
+  id         String   @id @default(cuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  platform   String
+  url        String
+  position   Int      @default(0)
+
+  @@index([providerId])
+  @@map("social_links")
+}
+
+model FaqItem {
+  id         String   @id @default(cuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  question   String
+  answer     String   @db.Text
+  position   Int      @default(0)
+  active     Boolean  @default(true)
+
+  @@index([providerId])
+  @@map("faq_items")
+}
+
+/// A finished piece of work. The portfolio page lists these, and the ones
+/// attached to a prestation also appear on that prestation's own page.
+model GalleryImage {
+  id         String   @id @default(cuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  /// Optional link to the prestation this result came from.
+  serviceId String?
+  service   Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+
+  url     String
+  caption String?
+
+  /// Shared with the prestations, so a photo and a prestation can carry the
+  /// same grouping without the name being typed twice.
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  /// Shown first, and used for the portfolio teaser on the home page.
+  featured   Boolean   @default(false)
+  position   Int       @default(0)
+  active     Boolean   @default(true)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([providerId, active])
+  @@index([serviceId])
+  @@index([categoryId])
+  @@map("gallery_images")
+}
+
+enum HighlightKind {
+  COMMITMENT
+  CREDENTIAL
+}
+
+/// Short claims shown on the home page and the about section: what the
+/// provider commits to, and the training that backs it up.
+model ProviderHighlight {
+  id         String   @id @default(cuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  kind        HighlightKind @default(COMMITMENT)
+  title       String
+  description String?       @db.Text
+  /// Year for a credential, or a short figure for a commitment.
+  meta        String?
+  position    Int           @default(0)
+
+  @@index([providerId, kind])
+  @@map("provider_highlights")
+}
+
+// ---------------------------------------------------------------------------
+// Catalogue
+// ---------------------------------------------------------------------------
+
+model Service {
+  id         String   @id @default(cuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  name        String
+  slug        String
+  description String? @db.Text
+  imageUrl    String?
+
+  /// Grouping on the public catalogue. Optional: a prestation may stand alone.
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  /// One plain sentence for the catalogue card. Customers often do not know
+  /// the trade name of a prestation, so this says what it is in everyday words.
+  shortDescription String?
+  /// "Idéal pour vous si..." - who the prestation suits, in plain language.
+  idealFor         String? @db.Text
+  /// What the price covers.
+  included         String? @db.Text
+  /// How the customer should arrive.
+  preparation      String? @db.Text
+  /// How to keep the result once she leaves.
+  aftercare        String? @db.Text
+  /// Highlighted in the catalogue as a popular choice.
+  popular          Boolean @default(false)
+
+  /// Price in minor units of the provider currency.
+  price     Int       @default(0)
+  priceType PriceType @default(FIXED)
+
+  /// Billable duration in minutes; drives slot computation.
+  durationMinutes    Int
+  /// Extra minutes reserved after the service (cleanup, drying...).
+  bufferAfterMinutes Int @default(0)
+
+  depositRequired Boolean     @default(false)
+  depositType     DepositType @default(NONE)
+  /// Fixed deposit in minor units, or percentage points when type is PERCENTAGE.
+  depositValue    Int         @default(0)
+
+  active   Boolean @default(true)
+  position Int     @default(0)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  appointments  Appointment[]
+  quoteRequests QuoteRequest[]
+  steps         ServiceStep[]
+  galleryImages GalleryImage[]
+
+  @@unique([providerId, slug])
+  @@index([providerId, active])
+  @@index([categoryId])
+  @@map("services")
+  sales Sale[]
+}
+
+/// One shared grouping, used by prestations and by portfolio photos.
+///
+/// The provider orders them once: the order decides the headings on the public
+/// catalogue and the order of the filters on the portfolio page.
+model Category {
+  id         String   @id @default(cuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String? @db.Text
+  position    Int     @default(0)
+  active      Boolean @default(true)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  services      Service[]
+  galleryImages GalleryImage[]
+
+  @@unique([providerId, name])
+  @@index([providerId, position])
+  @@map("categories")
+}
+
+/// One step of the procedure, shown numbered on the prestation page.
+/// This is what turns a price line into something a first-time customer
+/// can actually picture before booking.
+model ServiceStep {
+  id        String  @id @default(cuid())
+  serviceId String
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  position        Int     @default(0)
+  title           String
+  description     String? @db.Text
+  /// Roughly how long this step takes, when it helps set expectations.
+  durationMinutes Int?
+  imageUrl        String?
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([serviceId, position])
+  @@map("service_steps")
+}
+
+// ---------------------------------------------------------------------------
+// Availability
+// ---------------------------------------------------------------------------
+
+/// One weekly opening rule. Times are minutes from local midnight
+/// in the provider timezone (540 = 09:00).
+model WorkingHours {
+  id         String   @id @default(cuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  /// 0 = Sunday ... 6 = Saturday (JS getDay convention).
+  dayOfWeek        Int
+  openMinute       Int
+  closeMinute      Int
+  breakStartMinute Int?
+  breakEndMinute   Int?
+  active           Boolean @default(true)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@unique([providerId, dayOfWeek])
+  @@index([providerId])
+  @@map("working_hours")
+}
+
+/// Anything that removes time from the calendar: holidays, days off,
+/// a manually blocked slot, or a busy period mirrored from Google Calendar.
+model TimeBlock {
+  id         String   @id @default(cuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  type     TimeBlockType @default(MANUAL_BLOCK)
+  startsAt DateTime      @db.Timestamptz(3)
+  endsAt   DateTime      @db.Timestamptz(3)
+  reason   String?
+  allDay   Boolean       @default(false)
+
+  /// Set when the block mirrors an external calendar event, so the sync
+  /// can update or remove it later.
+  externalEventId String?
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@unique([providerId, externalEventId])
+  @@index([providerId, startsAt, endsAt])
+  @@map("time_blocks")
+}
+
+// ---------------------------------------------------------------------------
+// Appointments
+// ---------------------------------------------------------------------------
+
+model Appointment {
+  id        String @id @default(cuid())
+  reference String @unique
+
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  serviceId  String
+  service    Service  @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  customerName  String
+  customerPhone String
+  customerEmail String?
+  customerNote  String? @db.Text
+
+  /// Reserved window, buffer included. serviceEndsAt is the customer-facing end.
+  startsAt      DateTime @db.Timestamptz(3)
+  endsAt        DateTime @db.Timestamptz(3)
+  serviceEndsAt DateTime @db.Timestamptz(3)
+
+  status           AppointmentStatus @default(TEMPORARILY_RESERVED)
+  validationMethod ValidationMethod  @default(NO_DEPOSIT)
+
+  /// Snapshot of pricing at booking time, in minor units.
+  currency      String @default("XOF")
+  totalAmount   Int    @default(0)
+  depositAmount Int    @default(0)
+  balanceAmount Int    @default(0)
+
+  paymentStatus          PaymentStatus @default(NOT_REQUIRED)
+  paymentSubmittedAt     DateTime?     @db.Timestamptz(3)
+  paymentVerifiedAt      DateTime?     @db.Timestamptz(3)
+  paymentRejectedAt      DateTime?     @db.Timestamptz(3)
+  paymentRejectionReason String?       @db.Text
+
+  /// Deadline for the current status; null when the row no longer expires.
+  expiresAt DateTime? @db.Timestamptz(3)
+
+  googleEventId String?
+
+  cancelledAt        DateTime?    @db.Timestamptz(3)
+  cancelledBy        CancelledBy?
+  cancellationReason String?      @db.Text
+
+  /// Opaque token that lets the customer reach their own booking page
+  /// without an account. Never guessable, never listed publicly.
+  accessToken String @unique
+
+  providerNote String? @db.Text
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  paymentProofs PaymentProof[]
+  events        AppointmentEvent[]
+  notifications NotificationLog[]
+
+  @@index([providerId, startsAt])
+  @@index([providerId, status])
+  @@index([status, expiresAt])
+  @@map("appointments")
+}
+
+/// Append-only history of every state transition (section 13).
+model AppointmentEvent {
+  id            String      @id @default(cuid())
+  appointmentId String
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  fromStatus AppointmentStatus?
+  toStatus   AppointmentStatus
+  actor      String
+  reason     String?            @db.Text
+  metadata   Json?
+  createdAt  DateTime           @default(now()) @db.Timestamptz(3)
+
+  @@index([appointmentId, createdAt])
+  @@map("appointment_events")
+}
+
+/// Uploaded proof of a manual deposit. The file itself never sits under a
+/// public URL: only storageKey is kept and it is served by an authorised
+/// route (section 23).
+model PaymentProof {
+  id            String      @id @default(cuid())
+  appointmentId String
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+
+  storageKey   String
+  originalName String
+  mimeType     String
+  sizeBytes    Int
+  checksum     String?
+
+  status          ProofStatus @default(SUBMITTED)
+  rejectionReason String?     @db.Text
+
+  submittedAt      DateTime  @default(now()) @db.Timestamptz(3)
+  reviewedAt       DateTime? @db.Timestamptz(3)
+  reviewedByUserId String?
+
+  @@index([appointmentId])
+  @@map("payment_proofs")
+}
+
+model PaymentInstruction {
+  id         String   @id @default(cuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  /// Free-form label such as "MTN MoMo" or "Moov Money".
+  paymentMethod String
+  accountNumber String
+  accountName   String
+  instructions  String? @db.Text
+  active        Boolean @default(true)
+  position      Int     @default(0)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([providerId, active])
+  @@map("payment_instructions")
+}
+
+// ---------------------------------------------------------------------------
+// Integrations and operations
+// ---------------------------------------------------------------------------
+
+model CalendarConnection {
+  id         String   @id @default(cuid())
+  providerId String   @unique
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  googleAccount String
+  /// Tokens are encrypted at rest with AES-256-GCM (src/lib/crypto.ts).
+  accessToken   String   @db.Text
+  refreshToken  String   @db.Text
+  tokenExpiry   DateTime @db.Timestamptz(3)
+  scope         String?
+  calendarId    String   @default("primary")
+
+  syncEnabled   Boolean   @default(true)
+  lastSyncedAt  DateTime? @db.Timestamptz(3)
+  lastSyncError String?   @db.Text
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("calendar_connections")
+}
+
+/// Configuration of the guided estimator (cahier des charges section 18).
+///
+/// A quote request is not a blank form: the customer answers a few questions
+/// and sees an approximate price before sending. This row holds the starting
+/// point and how wide the announced range is.
+model QuoteSettings {
+  id         String   @id @default(cuid())
+  providerId String   @unique
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  /// Whether the estimator is shown. Without it the page is a plain form.
+  estimatorEnabled    Boolean @default(false)
+  /// Floor of every estimate, in minor units.
+  basePrice           Int     @default(0)
+  baseDurationMinutes Int     @default(60)
+  /// Half-width of the announced range, in percent. 15 turns 10 000 into
+  /// "entre 8 500 et 11 500".
+  marginPercent       Int     @default(15)
+
+  intro      String? @db.Text
+  disclaimer String? @db.Text
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  questions QuoteQuestion[]
+
+  @@map("quote_settings")
+}
+
+model QuoteQuestion {
+  id         String        @id @default(cuid())
+  settingsId String
+  settings   QuoteSettings @relation(fields: [settingsId], references: [id], onDelete: Cascade)
+
+  label    String
+  helpText String?           @db.Text
+  kind     QuoteQuestionKind @default(SINGLE_CHOICE)
+  required Boolean           @default(true)
+  position Int               @default(0)
+
+  options QuoteOption[]
+
+  @@index([settingsId, position])
+  @@map("quote_questions")
+}
+
+model QuoteOption {
+  id         String        @id @default(cuid())
+  questionId String
+  question   QuoteQuestion @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  label              String
+  description        String? @db.Text
+  /// Added to the estimate when chosen, in minor units. May be negative.
+  priceAdjustment    Int     @default(0)
+  /// Added to the estimated duration, in minutes.
+  durationAdjustment Int     @default(0)
+  position           Int     @default(0)
+
+  @@index([questionId, position])
+  @@map("quote_options")
+}
+
+model QuoteRequest {
+  id         String   @id @default(cuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  serviceId  String?
+  service    Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+
+  customerName  String
+  customerPhone String
+  customerEmail String?
+  description   String    @db.Text
+  budgetAmount  Int?
+  preferredDate DateTime? @db.Timestamptz(3)
+  attachmentKey String?
+
+  /// The estimate the customer was shown, recomputed on the server so it
+  /// always matches what the provider had configured at that moment.
+  estimateMin     Int?
+  estimateMax     Int?
+  estimateMinutes Int?
+  /// The chosen options, kept as labels so the provider reads the request
+  /// even after she edits or deletes a question.
+  estimateAnswers Json?
+
+  status       QuoteRequestStatus @default(NEW)
+  providerNote String?            @db.Text
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([providerId, status])
+  @@map("quote_requests")
+}
+
+/// One row per outbound notification, used for delivery reporting and to
+/// make sends idempotent via the unique dedupe key.
+model NotificationLog {
+  id            String       @id @default(cuid())
+  providerId    String
+  provider      Provider     @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  appointmentId String?
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id], onDelete: SetNull)
+
+  channel   NotificationChannel @default(EMAIL)
+  template  String
+  recipient String
+  subject   String?
+  status    NotificationStatus  @default(PENDING)
+  error     String?             @db.Text
+  dedupeKey String              @unique
+
+  sentAt    DateTime? @db.Timestamptz(3)
+  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+
+  @@index([providerId, createdAt])
+  @@map("notification_logs")
+}
+
+model AuditLog {
+  id         String    @id @default(cuid())
+  providerId String?
+  provider   Provider? @relation(fields: [providerId], references: [id], onDelete: SetNull)
+  userId     String?
+  user       User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  action     String
+  entityType String
+  entityId   String?
+  metadata   Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([providerId, createdAt])
+  @@map("audit_logs")
+}
+
+/// Bookkeeping for scheduled jobs.
+model JobRun {
+  id         String    @id @default(cuid())
+  name       String
+  startedAt  DateTime  @default(now()) @db.Timestamptz(3)
+  finishedAt DateTime? @db.Timestamptz(3)
+  succeeded  Boolean?
+  detail     Json?
+
+  @@index([name, startedAt])
+  @@map("job_runs")
+}
+
+// ---------------------------------------------------------------------------
+// Till
+// ---------------------------------------------------------------------------
+
+/// A prestation carried out and paid for outside the online booking journey.
+///
+/// Walk-ins, regulars who call, the neighbour who comes by: most of a small
+/// salon's day never passes through the booking form, and a provider whose
+/// reports only counted online bookings would be reading a fraction of her own
+/// business. One row here is one amount actually taken in.
+///
+/// It stands alone rather than hanging off an appointment: these sales have no
+/// slot, no hold and no cancellation, and forcing them into the appointment
+/// table would drag the whole state machine along for nothing.
+model Sale {
+  id         String   @id @default(cuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  /// The catalogue entry it came from, when it came from one. Kept nullable so
+  /// deleting a prestation never erases the day it was sold.
+  serviceId String?
+  service   Service? @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+
+  /// What was sold, written down at the time. Denormalised on purpose: renaming
+  /// or repricing a prestation must not rewrite last month's till.
+  label    String
+  amount   Int
+  currency String
+
+  method PaymentMethod @default(CASH)
+
+  /// Optional: a walk-in is often anonymous, and asking for a name to record a
+  /// sale would make the screen too slow to use between two customers.
+  customerName String?
+
+  /// When the money came in, in the provider's own timezone.
+  occurredAt DateTime @db.Timestamptz(3)
+
+  note String? @db.Text
+
+  /// Who keyed it in, so a disputed line can be traced back.
+  recordedById String?
+  recordedBy   User?   @relation("SaleRecordedBy", fields: [recordedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([providerId, occurredAt])
+  @@index([serviceId])
+  @@index([recordedById])
+  @@map("sales")
+}
