@@ -7,6 +7,7 @@ import { z } from "zod";
 import { requirePlatformAdminApi } from "@/lib/auth/guard";
 import { prisma } from "@/lib/db";
 import { recordSubscriptionPayment } from "@/lib/plans/subscription";
+import { expandRequirements } from "@/lib/plans/catalogue";
 import {
   createSession,
   destroySession,
@@ -436,8 +437,10 @@ export async function setSubscriptionAction(
     return { status: "error", message: "Requête invalide." };
   }
 
-  const extraModules = FEATURE_VALUES.filter(
-    (feature) => formData.get(`module:${feature}`) === "on",
+  // A module arrives with whatever it depends on, so a stored subscription is
+  // never a combination that cannot work.
+  const extraModules = expandRequirements(
+    FEATURE_VALUES.filter((feature) => formData.get(`module:${feature}`) === "on"),
   );
 
   const provider = await prisma.provider.findUnique({

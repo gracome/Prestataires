@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { pushAppointmentAlert } from "@/lib/notifications/push";
 import { hasFeature } from "@/lib/auth/features";
 import { BookingError, createBooking } from "@/lib/booking/reservation";
 import { AvailabilityError } from "@/lib/booking/availability-service";
@@ -121,6 +122,7 @@ export async function POST(
     dispatchInBackground(
       async () => {
         await notifyAppointment("provider.booking.created", appointment.id);
+        await pushAppointmentAlert("booking.created", appointment.id);
         if (requiresDeposit) {
           await notifyAppointment("customer.booking.awaiting_payment", appointment.id);
         } else {

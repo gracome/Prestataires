@@ -42,6 +42,12 @@ type FeatureDefinition = {
   sellable: boolean;
   /** Shown in the administration screen, to explain what switching it off does. */
   covers: string;
+  /**
+   * Modules this one is useless without. Online payment with no deposit to
+   * take collects nothing; a deposit with no booking attaches to nothing.
+   * Buying one therefore buys what it stands on, and is charged for it.
+   */
+  requires?: readonly PlanFeature[];
 };
 
 export const FEATURES: Record<PlanFeature, FeatureDefinition> = {
@@ -68,12 +74,14 @@ export const FEATURES: Record<PlanFeature, FeatureDefinition> = {
     monthly: 1500,
     sellable: true,
     covers: "Acomptes, instructions de paiement et preuves de paiement",
+    requires: ["BOOKING"],
   },
   GOOGLE_CALENDAR: {
     label: "Google Calendar",
     monthly: 1000,
     sellable: true,
     covers: "Synchronisation avec l'agenda Google",
+    requires: ["BOOKING"],
   },
   QUOTES: {
     label: "Demandes de devis",
@@ -92,6 +100,7 @@ export const FEATURES: Record<PlanFeature, FeatureDefinition> = {
     monthly: 1000,
     sellable: true,
     covers: "Rappels envoyés aux clientes avant la séance",
+    requires: ["BOOKING"],
   },
   ONLINE_PAYMENT: {
     label: "Paiement en ligne",
@@ -99,6 +108,7 @@ export const FEATURES: Record<PlanFeature, FeatureDefinition> = {
     sellable: true,
     covers:
       "Acomptes réglés par carte ou mobile money, encaissés sur le compte FedaPay du prestataire",
+    requires: ["DEPOSITS"],
   },
   CUSTOM_DOMAIN: {
     label: "Domaine personnalisé",
@@ -153,15 +163,21 @@ export const PLANS: Record<Plan, PlanDefinition> = {
   RENDEZ_VOUS: {
     name: "Rendez-vous",
     emoji: "📅",
-    monthly: 7500,
-    pitch: "Pour gérer facilement les prises de rendez-vous.",
+    monthly: 8000,
+    pitch: "Pour prendre des rendez-vous et encaisser les acomptes.",
     extends: "ESSENTIEL",
     recommended: true,
-    grants: ["BOOKING", "GOOGLE_CALENDAR"],
+    grants: [
+      "BOOKING",
+      "GOOGLE_CALENDAR",
+      "DEPOSITS",
+      "ONLINE_PAYMENT",
+      "REMINDERS",
+    ],
     extras: [
       "Gestion des disponibilités et du calendrier",
       "Confirmation et refus des rendez-vous",
-      "Confirmations par email",
+      "Confirmations et rappels par email",
       "Historique des rendez-vous",
     ],
   },
@@ -174,16 +190,16 @@ export const PLANS: Record<Plan, PlanDefinition> = {
     grants: [
       "BOOKING",
       "GOOGLE_CALENDAR",
-      "TILL",
       "DEPOSITS",
+      "ONLINE_PAYMENT",
+      "REMINDERS",
+      "TILL",
       "STAFF",
       "QUOTES",
       "REPORTS",
-      "REMINDERS",
     ],
     extras: [
       "Ventes au comptoir, tous moyens de paiement",
-      "Réception et vérification des preuves de paiement",
       "Suivi des clients",
     ],
   },
@@ -220,11 +236,43 @@ export function priceFor(
   extraModules: readonly PlanFeature[] = [],
 ): number {
   const granted = new Set(PLANS[plan].grants);
+  // What a module stands on is billed with it, unless the package already
+  // covers it — otherwise the cheap module would be a way in to the dear one.
   const monthly =
     PLANS[plan].monthly +
-    extraModules
+    expandRequirements(extraModules)
       .filter((feature) => !granted.has(feature))
       .reduce((total, feature) => total + FEATURES[feature].monthly, 0);
 
   return period === "YEARLY" ? yearlyPrice(monthly) : monthly;
+}
+
+/**
+ * Close a set of modules over its dependencies.
+ *
+ * Buying online payment without deposits would collect nothing, and a deposit
+ * with no booking attaches to nothing. Rather than letting someone assemble a
+ * combination that cannot work, what a module stands on comes with it — and is
+ * charged for, so the cheaper item is not a way in through the back door.
+ */
+export function expandRequirements(
+  features: readonly PlanFeature[],
+): PlanFeature[] {
+  const resolved = new Set<PlanFeature>();
+
+  const visit = (feature: PlanFeature) => {
+    if (resolved.has(feature)) return;
+    resolved.add(feature);
+    for (const required of FEATURES[feature].requires ?? []) visit(required);
+  };
+
+  for (const feature of features) visit(feature);
+  return [...resolved];
+}
+
+/** What a module needs, named for a screen or a price list. */
+export function requirementLabels(feature: PlanFeature): string[] {
+  return expandRequirements([feature])
+    .filter((other) => other !== feature)
+    .map((other) => FEATURES[other].label);
 }

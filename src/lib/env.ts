@@ -48,6 +48,15 @@ const schema = z.object({
   SMTP_PASSWORD: z.string().optional(),
   RESEND_API_KEY: z.string().optional(),
 
+  // --- Web push -----------------------------------------------------------
+  // A VAPID key pair identifies this application to the browsers' push
+  // services. Generate one with: npm run push:keys
+  // Absent, the application runs and simply never offers notifications.
+  VAPID_PUBLIC_KEY: z.string().optional(),
+  VAPID_PRIVATE_KEY: z.string().optional(),
+  /// mailto: address a push service can reach you on if it needs to.
+  VAPID_SUBJECT: z.string().optional(),
+
   // --- Google Calendar ----------------------------------------------------
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),

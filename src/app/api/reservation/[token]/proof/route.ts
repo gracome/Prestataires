@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { pushAppointmentAlert } from "@/lib/notifications/push";
 import { BookingError, submitPaymentProof } from "@/lib/booking/reservation";
 import {
   MAX_PROOF_BYTES,
@@ -117,12 +118,12 @@ export async function POST(
       checksum: stored.checksum,
     });
 
-    dispatchInBackground(
-      () => notifyAppointment("provider.proof.submitted", updated.id, {
+    dispatchInBackground(async () => {
+      await notifyAppointment("provider.proof.submitted", updated.id, {
         discriminator: String(updated.paymentSubmittedAt?.getTime() ?? ""),
-      }),
-      `proof ${updated.reference}`,
-    );
+      });
+      await pushAppointmentAlert("proof.submitted", updated.id);
+    }, `proof ${updated.reference}`);
 
     return NextResponse.json({ status: updated.status });
   } catch (error) {
