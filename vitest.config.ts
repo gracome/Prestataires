@@ -7,6 +7,9 @@ export default defineConfig({
     include: ["tests/**/*.test.ts"],
     // The suite covers the pure booking logic, which needs no database.
     setupFiles: ["tests/setup.ts"],
+    // Transforming the modules is the bulk of a run and the sources rarely
+    // change between two, so the result is kept on disk.
+    fsModuleCache: true,
   },
   resolve: {
     alias: {

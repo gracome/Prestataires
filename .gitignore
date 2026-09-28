@@ -19,3 +19,7 @@ vercel-env.txt
 
 .vercel
 .env*
+
+# Cache de transformation de vitest.
+.vitest-cache/
+node_modules/.vite/
