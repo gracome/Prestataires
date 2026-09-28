@@ -6,6 +6,7 @@ import type {
 } from "@prisma/client";
 import { isSlotConflictError, prisma } from "@/lib/db";
 import { hasFeature } from "@/lib/auth/features";
+import { onlinePaymentAvailable } from "@/lib/payments/gateway";
 import { bookingReference } from "@/lib/ids";
 import { randomToken } from "@/lib/crypto";
 import { computeDeposit } from "@/lib/money";
@@ -106,7 +107,12 @@ export async function createBooking(
       })
     : 0;
 
-  const validationMethod = resolveValidationMethod(depositAmount);
+  // Asked only when there is a deposit to take, so a salon that takes none
+  // never pays for a round trip to the gateway on every booking.
+  const payOnline =
+    depositAmount > 0 && (await onlinePaymentAvailable(input.providerId));
+
+  const validationMethod = resolveValidationMethod(depositAmount, payOnline);
   const requiresDeposit = validationMethod !== "NO_DEPOSIT";
 
   try {
@@ -592,6 +598,48 @@ export async function confirmWithoutDeposit(params: {
       { kind: "provider", userId: params.userId },
       { paymentStatus: "NOT_REQUIRED", expiresAt: null },
       "Confirmed by the provider without a deposit",
+    );
+  });
+}
+
+/**
+ * The gateway says the deposit was paid.
+ *
+ * Distinct from confirmPayment, which records a human deciding that a
+ * screenshot is genuine. Here nobody decided anything: the money arrived, and
+ * the actor is the system.
+ *
+ * Idempotent on purpose. A gateway will happily deliver the same webhook
+ * twice, and a customer who reloads the return page asks the same question
+ * again, so an appointment that is already confirmed is returned untouched
+ * rather than pushed through a transition it has already made.
+ */
+export async function confirmOnlinePayment(params: {
+  appointmentId: string;
+  transactionId: string;
+  now?: Date;
+}): Promise<Appointment> {
+  const now = params.now ?? new Date();
+
+  return prisma.$transaction(async (tx) => {
+    const appointment = await loadForTransition(tx, params.appointmentId);
+
+    if (appointment.status === "CONFIRMED") return appointment;
+
+    return applyTransition(
+      tx,
+      appointment,
+      "CONFIRMED",
+      { kind: "system" },
+      {
+        paymentStatus: "VERIFIED",
+        paymentVerifiedAt: now,
+        paymentRejectedAt: null,
+        paymentRejectionReason: null,
+        expiresAt: null,
+        gatewayTransactionId: params.transactionId,
+      },
+      "Deposit paid online and confirmed by the gateway",
     );
   });
 }

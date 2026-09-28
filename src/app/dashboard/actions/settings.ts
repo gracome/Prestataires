@@ -2,7 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { encryptSecret } from "@/lib/crypto";
+import { checkCredentials, FedaPayError } from "@/lib/payments/fedapay";
+import { loadGatewayAccountRaw } from "@/lib/payments/gateway";
+import { env } from "@/lib/env";
 import { requireProviderApi, assertFeature } from "@/lib/auth/guard";
 import { hashPassword, verifyPassword, checkPasswordStrength } from "@/lib/auth/password";
 import { revokeAllSessions } from "@/lib/auth/session";
@@ -657,5 +662,248 @@ export async function resetTeamPasswordAction(
   return {
     status: "success",
     message: `Nouveau mot de passe pour ${target.name} : ${password} — ses sessions ouvertes sont fermées.`,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Custom domain
+// ---------------------------------------------------------------------------
+
+/**
+ * A hostname, as a customer would type it.
+ *
+ * Deliberately narrow: labels of letters, digits and hyphens, at least two of
+ * them, no scheme, no path, no port. Anything looser and the middleware would
+ * be asked to match on something that can never arrive in a Host header.
+ */
+const HOSTNAME =
+  /^[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?(\.[a-z0-9]([a-z0-9-]{0,61}[a-z0-9])?)+$/;
+
+const domainSchema = z.object({
+  domain: z
+    .string()
+    .trim()
+    .toLowerCase()
+    // A pasted address is the common case, so take the host out of it rather
+    // than refusing something the provider reasonably considers her domain.
+    .transform((value) => value.replace(/^https?:\/\//, "").replace(/\/.*$/, ""))
+    .transform((value) => value.replace(/^www\./, ""))
+    .refine((value) => value === "" || HOSTNAME.test(value), {
+      message: "Indiquez un domaine valide, par exemple mon-salon.com",
+    }),
+});
+
+export async function setCustomDomainAction(
+  _state: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const { provider } = await requireProviderApi("settings");
+  assertFeature(provider, "CUSTOM_DOMAIN");
+
+  const parsed = domainSchema.safeParse({ domain: formData.get("domain") });
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: parsed.error.issues[0].message,
+      errors: fieldErrors(parsed.error),
+    };
+  }
+
+  const domain = parsed.data.domain || null;
+
+  if (domain) {
+    // The platform's own host would make the site route to itself and take
+    // every other provider down with it.
+    const platformHost = new URL(env().APP_URL).host
+      .toLowerCase()
+      .replace(/^www\./, "");
+    if (domain === platformHost || domain.endsWith(".vercel.app")) {
+      return {
+        status: "error",
+        message: "Ce domaine est celui de la plateforme.",
+      };
+    }
+  }
+
+  try {
+    await prisma.provider.update({
+      where: { id: provider.id },
+      data: { customDomain: domain },
+    });
+  } catch (error) {
+    // Unique violation: another account already claims it.
+    if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      return {
+        status: "error",
+        message: "Ce domaine est déjà utilisé par une autre activité.",
+      };
+    }
+    throw error;
+  }
+
+  revalidatePath("/dashboard/parametres");
+
+  return {
+    status: "success",
+    message: domain
+      ? `${domain} est enregistré. Il faudra encore configurer le DNS chez votre registrar.`
+      : "Domaine personnalisé retiré.",
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Payment gateway
+// ---------------------------------------------------------------------------
+
+const gatewaySchema = z.object({
+  mode: z.enum(["SANDBOX", "LIVE"]),
+  publicKey: z.string().trim().min(8, "Clé publique manquante."),
+  secretKey: z.string().trim().optional(),
+  webhookSecret: z.string().trim().optional(),
+});
+
+/**
+ * Save the provider's own FedaPay keys.
+ *
+ * Saving never switches the gateway on. Keys are recorded, then tested, then
+ * enabled — so no customer is ever sent to a payment page that has not been
+ * proven to work.
+ *
+ * A blank secret means "leave the one already stored": the form cannot show it
+ * back, and asking for it again on every edit would invite pasting the wrong
+ * one.
+ */
+export async function saveGatewayAction(
+  _state: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const { provider } = await requireProviderApi("settings");
+  assertFeature(provider, "ONLINE_PAYMENT");
+
+  const parsed = gatewaySchema.safeParse({
+    mode: formData.get("mode"),
+    publicKey: formData.get("publicKey"),
+    secretKey: formData.get("secretKey") || undefined,
+    webhookSecret: formData.get("webhookSecret") || undefined,
+  });
+
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: parsed.error.issues[0].message,
+      errors: fieldErrors(parsed.error),
+    };
+  }
+
+  const existing = await prisma.paymentGatewayAccount.findUnique({
+    where: { providerId: provider.id },
+    select: { id: true },
+  });
+
+  if (!existing && !parsed.data.secretKey) {
+    return { status: "error", message: "Clé secrète manquante." };
+  }
+
+  const secrets = {
+    ...(parsed.data.secretKey
+      ? { secretKeyEncrypted: encryptSecret(parsed.data.secretKey) }
+      : {}),
+    ...(parsed.data.webhookSecret
+      ? { webhookSecretEncrypted: encryptSecret(parsed.data.webhookSecret) }
+      : {}),
+  };
+
+  await prisma.paymentGatewayAccount.upsert({
+    where: { providerId: provider.id },
+    create: {
+      providerId: provider.id,
+      mode: parsed.data.mode,
+      publicKey: parsed.data.publicKey,
+      secretKeyEncrypted: encryptSecret(parsed.data.secretKey!),
+      ...(parsed.data.webhookSecret
+        ? { webhookSecretEncrypted: encryptSecret(parsed.data.webhookSecret) }
+        : {}),
+    },
+    update: {
+      mode: parsed.data.mode,
+      publicKey: parsed.data.publicKey,
+      // Changed keys are unproven again, so the gateway goes back off rather
+      // than staying live on credentials nobody has tested.
+      ...(Object.keys(secrets).length > 0 ? { enabled: false } : {}),
+      lastError: null,
+      ...secrets,
+    },
+  });
+
+  revalidatePath("/dashboard/parametres");
+  return { status: "success", message: "Clés enregistrées." };
+}
+
+/**
+ * Try the keys against FedaPay, and switch the gateway on if they work.
+ *
+ * The one button a provider presses. Testing and enabling are the same act
+ * because enabling without testing is the mistake worth designing out.
+ */
+export async function testGatewayAction(
+  _state: ActionState,
+  _formData: FormData,
+): Promise<ActionState> {
+  const { provider } = await requireProviderApi("settings");
+  assertFeature(provider, "ONLINE_PAYMENT");
+
+  const account = await loadGatewayAccountRaw(provider.id);
+  if (!account) {
+    return { status: "error", message: "Enregistrez d'abord vos clés." };
+  }
+
+  try {
+    await checkCredentials(account);
+  } catch (error) {
+    const message =
+      error instanceof FedaPayError
+        ? error.message
+        : "FedaPay n'a pas répondu comme attendu.";
+
+    await prisma.paymentGatewayAccount.update({
+      where: { providerId: provider.id },
+      data: { enabled: false, lastError: message, lastCheckedAt: new Date() },
+    });
+
+    revalidatePath("/dashboard/parametres");
+    return { status: "error", message };
+  }
+
+  await prisma.paymentGatewayAccount.update({
+    where: { providerId: provider.id },
+    data: { enabled: true, lastError: null, lastCheckedAt: new Date() },
+  });
+
+  revalidatePath("/dashboard/parametres");
+  return {
+    status: "success",
+    message:
+      account.mode === "LIVE"
+        ? "Paiement en ligne activé. Vos clientes peuvent régler leur acompte."
+        : "Clés valides en environnement de test. Passez en mode réel quand vous êtes prête.",
+  };
+}
+
+/** Stop sending customers to the gateway, without losing the keys. */
+export async function disableGatewayAction(): Promise<ActionState> {
+  const { provider } = await requireProviderApi("settings");
+
+  await prisma.paymentGatewayAccount.updateMany({
+    where: { providerId: provider.id },
+    data: { enabled: false },
+  });
+
+  revalidatePath("/dashboard/parametres");
+  return {
+    status: "success",
+    message: "Paiement en ligne désactivé. Les acomptes repassent par dépôt.",
   };
 }
