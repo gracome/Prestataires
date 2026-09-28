@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { requireSection } from "@/lib/auth/guard";
+import { ModuleNotice } from "@/components/dashboard/ModuleNotice";
 import { prisma } from "@/lib/db";
 import { releaseExpiredAppointments } from "@/lib/booking/expiration";
 import { BLOCKING_STATUSES } from "@/lib/booking/state-machine";
@@ -49,7 +50,7 @@ import { PeriodBar } from "@/components/dashboard/PeriodBar";
 
 export const dynamic = "force-dynamic";
 
-type Query = { periode?: string; du?: string; au?: string };
+type Query = { periode?: string; du?: string; au?: string; module?: string };
 
 export default async function DashboardHome({
   searchParams,
@@ -74,6 +75,11 @@ export default async function DashboardHome({
         title={`Bonjour ${provider.ownerName.split(" ")[0]}`}
         description={formatLongDateFr(new Date(), provider.timezone)}
       />
+
+      {/* The guard sends people here when they ask for a screen their
+          subscription does not cover. Arriving with no explanation would read
+          as a fault, so the reason travels with the redirect. */}
+      <ModuleNotice feature={query.module} />
 
       <PeriodBar
         presets={presets}
