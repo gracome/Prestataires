@@ -13,6 +13,9 @@ import {
   PasswordForm,
   SiteStatusPanel,
 } from "@/components/dashboard/SettingsForms";
+import { PaymentGatewayForm } from "@/components/dashboard/PaymentGatewayForm";
+import { CustomDomainForm } from "@/components/dashboard/CustomDomainForm";
+import { featuresOf } from "@/lib/auth/features";
 
 export const dynamic = "force-dynamic";
 
@@ -40,10 +43,13 @@ export default async function ParametresPage({
   const { provider, user } = await requireSection("settings");
   const { google } = await searchParams;
 
-  const [settings, connection] = await Promise.all([
+  const [settings, connection, gateway] = await Promise.all([
     prisma.bookingSettings.findUnique({ where: { providerId: provider.id } }),
     prisma.calendarConnection.findUnique({ where: { providerId: provider.id } }),
+    prisma.paymentGatewayAccount.findUnique({ where: { providerId: provider.id } }),
   ]);
+
+  const features = featuresOf(provider);
 
   const notice = google ? GOOGLE_MESSAGES[google] : undefined;
 
@@ -106,6 +112,39 @@ export default async function ParametresPage({
         />
       </Section>
 
+      {features.has("ONLINE_PAYMENT") ? (
+        <Section
+          title="Paiement en ligne"
+          description="Vos clientes règlent leur acompte par carte ou mobile money, directement sur votre compte FedaPay."
+        >
+          <PaymentGatewayForm
+            webhookUrl={appUrl(`/api/payments/fedapay/${provider.id}`)}
+            account={
+              gateway
+                ? {
+                    mode: gateway.mode,
+                    publicKey: gateway.publicKey,
+                    enabled: gateway.enabled,
+                    hasWebhookSecret: gateway.webhookSecretEncrypted !== null,
+                    lastError: gateway.lastError,
+                  }
+                : null
+            }
+          />
+        </Section>
+      ) : null}
+
+      {features.has("CUSTOM_DOMAIN") ? (
+        <Section
+          title="Domaine personnalisé"
+          description="Servez votre site sur votre propre adresse plutôt que sur celle de la plateforme."
+        >
+          <CustomDomainForm
+            domain={provider.customDomain}
+            platformHost={new URL(appUrl("/")).host}
+          />
+        </Section>
+      ) : null}
       <Section title="Mot de passe">
         <PasswordForm />
       </Section>
