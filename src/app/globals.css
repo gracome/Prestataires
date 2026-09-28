@@ -626,33 +626,43 @@ table.data tr:last-child td {
   touch-action: pan-y;
 }
 
+/* The frame. Wide, because the work deserves the width — and because a strip
+   the width of a paragraph cannot show more than one photograph at a time. */
 .hero-carousel-track {
   position: relative;
-  display: grid;
-  grid-template-areas: "slide";
-  /* Tall on a phone, closer to square on a laptop: beauty work is photographed
-     upright, and a wide crop would cut off the hands or the hair that are the
-     point of the picture. */
-  aspect-ratio: 3 / 4;
-  /* The neighbours are meant to be cut off by the edge of the frame, not
-     clipped away entirely. */
   overflow: hidden;
+  aspect-ratio: 4 / 5;
   border-radius: 28px;
 }
 
-@media (min-width: 900px) {
+@media (min-width: 760px) {
   .hero-carousel-track {
-    aspect-ratio: 4 / 5;
+    aspect-ratio: 16 / 9;
   }
 }
 
+/*
+ * Each slide is narrower than the frame, which is what lets the neighbours
+ * show at the edges. A slide as wide as its frame, pushed sideways, simply
+ * leaves — that was the earlier mistake, and it rendered as a single photo.
+ */
 .hero-carousel-slide {
-  grid-area: slide;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 82%;
   margin: 0;
   border-radius: 24px;
   overflow: hidden;
   box-shadow: 0 30px 70px -40px rgb(59 41 39 / 55%);
   background: var(--brand-rose-pale);
+}
+
+@media (min-width: 760px) {
+  .hero-carousel-slide {
+    width: 64%;
+  }
 }
 
 .hero-carousel-slide img {
@@ -662,11 +672,11 @@ table.data tr:last-child td {
   display: block;
 }
 
-/* The two neighbours sit behind and slightly dimmed, so the eye lands on the
-   centre without the others disappearing. */
+/* Behind, smaller, and dimmed, so the eye lands on the centre without the
+   others vanishing. */
 .hero-carousel-slide[data-position="left"],
 .hero-carousel-slide[data-position="right"] {
-  filter: brightness(0.82) saturate(0.9);
+  filter: brightness(0.72) saturate(0.85);
 }
 
 .hero-carousel-bar {
@@ -687,7 +697,7 @@ table.data tr:last-child td {
 
 .hero-carousel-title {
   font-family: var(--font-heading);
-  font-size: 1.05rem;
+  font-size: 1.15rem;
 }
 
 .hero-carousel-price {
@@ -1147,4 +1157,227 @@ table.data tr:last-child td {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   opacity: 0.75;
+}
+
+/* ---------------------------------------------------------------------------
+ * Provider hero
+ *
+ * A photograph filling the screen with the words centred over it. The
+ * two-column shape this replaces — headline left, picture right — is the
+ * layout of an article, and it made a salon read as a blog.
+ * ------------------------------------------------------------------------- */
+
+.site-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: min(78vh, 640px);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  /* Room for the next section to curve up over it without eating the words. */
+  padding-block: 5rem 7rem;
+}
+
+.site-hero-img,
+.site-hero-fallback {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.site-hero-fallback {
+  background: linear-gradient(
+    150deg,
+    color-mix(in srgb, var(--brand-accent) 60%, var(--brand-background)),
+    color-mix(in srgb, var(--brand-primary) 45%, var(--brand-background))
+  );
+}
+
+/* Heavier in the middle than at the edges: the words sit in the middle, and a
+   flat wash would dull the whole photograph to protect one paragraph. */
+.site-hero-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgb(24 18 17 / 62%) 0%,
+      rgb(24 18 17 / 38%) 55%,
+      rgb(24 18 17 / 55%) 100%
+    );
+}
+
+.site-hero-body {
+  text-align: center;
+  color: #fff;
+  display: grid;
+  justify-items: center;
+  gap: 0.35rem;
+  max-width: 44rem;
+}
+
+.site-hero-eyebrow {
+  margin: 0 0 0.4rem;
+  font-size: 0.74rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgb(255 255 255 / 82%);
+}
+
+.site-hero-title {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(2.2rem, 6.5vw, 4rem);
+  line-height: 1.06;
+  text-wrap: balance;
+}
+
+.site-hero-sub {
+  margin: 0.9rem 0 0;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: rgb(255 255 255 / 88%);
+  max-width: 46ch;
+}
+
+.site-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  justify-content: center;
+  margin-top: 1.6rem;
+}
+
+/* A glass button rather than the usual outline: a chocolate border disappears
+   against a dark photograph. */
+.site-hero-ghost {
+  background: rgb(255 255 255 / 16%);
+  border: 1px solid rgb(255 255 255 / 42%);
+  color: #fff;
+  backdrop-filter: blur(8px);
+}
+
+.site-hero-ghost:hover {
+  background: rgb(255 255 255 / 26%);
+}
+
+.site-hero-open {
+  margin: 1.3rem 0 0;
+  font-size: 0.85rem;
+  color: rgb(255 255 255 / 78%);
+}
+
+/* ---------------------------------------------------------------------------
+ * Provider site footer
+ * ------------------------------------------------------------------------- */
+
+.site-foot {
+  position: relative;
+  z-index: 1;
+  margin-top: 3rem;
+  padding-block: 3.25rem 2rem;
+  border-radius: 48px 48px 0 0;
+  background: var(--brand-chocolate);
+  color: var(--brand-cream);
+}
+
+@media (min-width: 900px) {
+  .site-foot {
+    border-radius: 64px 64px 0 0;
+    padding-block: 4rem 2.25rem;
+  }
+}
+
+.site-foot-top {
+  display: grid;
+  gap: 2.5rem;
+}
+
+@media (min-width: 860px) {
+  .site-foot-top {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+    gap: 3rem;
+  }
+}
+
+.site-foot-name {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.55rem;
+}
+
+.site-foot-lead {
+  margin: 0.5rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: rgb(255 249 243 / 72%);
+}
+
+.site-foot-cta {
+  margin-top: 1.4rem;
+  background: var(--brand-primary);
+  color: var(--brand-primary-fg);
+}
+
+.site-foot-cols {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.site-foot-cols h2 {
+  margin: 0 0 0.8rem;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgb(255 249 243 / 58%);
+}
+
+.site-foot-cols ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.55rem;
+}
+
+.site-foot-cols a {
+  color: var(--brand-cream);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.site-foot-cols a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.site-foot-address {
+  margin: 0;
+  white-space: pre-line;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: rgb(255 249 243 / 84%);
+}
+
+.site-foot-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 2.75rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid rgb(255 249 243 / 16%);
+  font-size: 0.8rem;
+  color: rgb(255 249 243 / 62%);
+}
+
+.site-foot-by a {
+  color: rgb(255 249 243 / 82%);
 }
