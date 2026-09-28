@@ -28,21 +28,27 @@
   --brand-rose-pale: #fff5f7;
   --brand-cream: #fff9f3;
   --brand-beige: #ead8cc;
-  --brand-chocolate: #3b2927;
+  /* A deep plum rather than a brown: the brown read as mud beside the rose,
+     and warm dark tones sit better with pink than earth tones do. */
+  --brand-chocolate: #33202c;
 
   --brand-primary: #f27a9a;
+  /* The rose the soft surfaces use is too pale to carry white text. Actions
+     take a deeper one — same family, 4.6:1 against white, and it is what
+     gives a page its pull. */
+  --brand-primary-strong: #d6336c;
   /* Chocolate on rose, not white. White on #f27a9a sits at 2.6:1 and is
      unreadable for anyone who is not looking straight at it; chocolate
      reaches 5.2:1 and happens to look more editorial than the obvious
      choice. */
-  --brand-primary-fg: #3b2927;
-  --brand-secondary: #3b2927;
+  --brand-primary-fg: #ffffff;
+  --brand-secondary: #33202c;
   --brand-accent: #ead8cc;
   --brand-background: #fff9f3;
   --brand-surface: #ffffff;
-  --brand-text: #3b2927;
-  --brand-muted: #7a6560;
-  --brand-border: rgb(59 41 39 / 10%);
+  --brand-text: #33202c;
+  --brand-muted: #7a6069;
+  --brand-border: rgb(51 32 44 / 11%);
   --brand-radius: 999px;
 
   --font-heading: var(--font-playfair), Georgia, "Times New Roman", serif;
@@ -52,16 +58,16 @@
 
   --admin-bg: #fff9f3;
   --admin-surface: #ffffff;
-  --admin-text: #3b2927;
-  --admin-muted: #7a6560;
+  --admin-text: #33202c;
+  --admin-muted: #7a6069;
   --admin-border: #efe3da;
-  --admin-accent: #f27a9a;
+  --admin-accent: #d6336c;
   --admin-radius: 14px;
   --admin-font:
     var(--font-inter), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     sans-serif;
   --admin-subtle: #fff5f7;
-  --admin-accent-fg: #3b2927;
+  --admin-accent-fg: #ffffff;
 
   /* Status tones. Overridden inside .admin with the set that matches the
      provider palette, so a dark dashboard keeps readable pills. */
@@ -191,8 +197,8 @@ textarea:focus-visible,
 }
 
 .btn-primary {
-  background: var(--brand-primary);
-  color: var(--brand-primary-fg);
+  background: var(--brand-primary-strong, var(--brand-primary));
+  color: #fff;
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -511,7 +517,7 @@ table.data tr:last-child td {
    daylight, a shape change reads where a tint change does not. */
 .carousel-dot[data-active] {
   width: 26px;
-  background: var(--brand-primary);
+  background: var(--brand-primary-strong, var(--brand-primary));
 }
 
 .carousel-dot:focus-visible,
@@ -610,8 +616,8 @@ table.data tr:last-child td {
   height: 26px;
   flex-shrink: 0;
   border-radius: 999px;
-  background: var(--brand-primary);
-  color: var(--brand-primary-fg);
+  background: var(--brand-primary-strong, var(--brand-primary));
+  color: #fff;
   font-size: 0.78rem;
   font-weight: 700;
 }
@@ -837,8 +843,8 @@ table.data tr:last-child td {
 }
 
 .photo-card:hover .photo-card-arrow {
-  background: var(--brand-primary);
-  color: var(--brand-primary-fg);
+  background: var(--brand-primary-strong, var(--brand-primary));
+  color: #fff;
   transform: translateX(2px) translateY(-2px);
 }
 
@@ -1040,8 +1046,8 @@ table.data tr:last-child td {
 }
 
 .figure-slots-chips span[data-chosen] {
-  background: var(--brand-primary);
-  color: var(--brand-primary-fg);
+  background: var(--brand-primary-strong, var(--brand-primary));
+  color: #fff;
   font-weight: 700;
 }
 
@@ -1350,8 +1356,8 @@ table.data tr:last-child td {
 
 .site-foot-cta {
   margin-top: 1.4rem;
-  background: var(--brand-primary);
-  color: var(--brand-primary-fg);
+  background: var(--brand-primary-strong, var(--brand-primary));
+  color: #fff;
 }
 
 .site-foot-cols {
@@ -1564,4 +1570,219 @@ table.data tr:last-child td {
   line-height: 1.7;
   color: rgb(255 255 255 / 84%);
   max-width: 34ch;
+}
+
+/* ---------------------------------------------------------------------------
+ * Location
+ * ------------------------------------------------------------------------- */
+
+.location-address {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  line-height: 1.45;
+}
+
+.location-note {
+  margin: 0.7rem 0 1.4rem;
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--brand-muted);
+  max-width: 38ch;
+}
+
+.location-map {
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid var(--brand-border);
+  aspect-ratio: 4 / 3;
+}
+
+.location-map iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+/* ---------------------------------------------------------------------------
+ * Floating site header
+ * ------------------------------------------------------------------------- */
+
+.site-header {
+  position: fixed;
+  inset: 0.75rem 0 auto;
+  z-index: 40;
+  pointer-events: none;
+}
+
+.site-header > .container {
+  pointer-events: auto;
+}
+
+/* The pill. Glass while the hero is behind it, solid once past. */
+.site-bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  min-height: 60px;
+  padding: 0.5rem 0.6rem 0.5rem 1.4rem;
+  border-radius: 999px;
+  color: #fff;
+  background: rgb(24 18 17 / 34%);
+  border: 1px solid rgb(255 255 255 / 16%);
+  backdrop-filter: blur(16px);
+  transition: background 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+}
+
+.site-header[data-scrolled] .site-bar {
+  background: color-mix(in srgb, var(--brand-chocolate) 94%, transparent);
+  border-color: rgb(255 255 255 / 10%);
+  box-shadow: 0 18px 40px -28px rgb(51 32 44 / 60%);
+}
+
+.site-nav {
+  display: none;
+  gap: 1.35rem;
+  flex: 1;
+}
+
+.site-nav-link {
+  text-decoration: none;
+  color: rgb(255 255 255 / 84%);
+  font-size: 0.9rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.site-nav-link:hover {
+  color: #fff;
+}
+
+/* Centred absolutely so the name stays in the middle of the bar whatever the
+   nav on one side and the button on the other happen to measure. */
+.site-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: #fff;
+  margin-right: auto;
+  min-width: 0;
+}
+
+@media (min-width: 900px) {
+  .site-brand {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-right: 0;
+  }
+}
+
+.site-brand img {
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.site-brand-mark {
+  color: var(--brand-primary);
+  font-size: 1.1rem;
+}
+
+.site-brand-name {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.site-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+/* White on glass: the one element that has to be unmissable. */
+.site-cta {
+  display: none;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.65rem 1.3rem;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--brand-chocolate);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.site-cta:hover {
+  background: var(--brand-primary-strong);
+  color: #fff;
+}
+
+.site-burger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgb(255 255 255 / 28%);
+  background: rgb(255 255 255 / 12%);
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+@media (min-width: 900px) {
+  .site-nav {
+    display: flex;
+  }
+  .site-cta {
+    display: inline-flex;
+  }
+  .site-burger {
+    display: none;
+  }
+}
+
+.site-panel {
+  margin-top: 0.5rem;
+  border-radius: 22px;
+  padding: 0.4rem 1.2rem 0.8rem;
+  background: color-mix(in srgb, var(--brand-chocolate) 96%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+.site-panel a {
+  display: block;
+  padding: 0.75rem 0;
+  text-decoration: none;
+  color: #fff;
+  font-weight: 500;
+  border-bottom: 1px solid rgb(255 255 255 / 12%);
+}
+
+.site-panel a:last-child {
+  border-bottom: 0;
+}
+
+/* The header floats, so the hero has to start underneath it rather than
+   behind the first line of its own headline. */
+.site-hero {
+  padding-block: 7.5rem 7rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-bar,
+  .site-cta {
+    transition: none;
+  }
 }
