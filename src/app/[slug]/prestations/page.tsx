@@ -3,7 +3,7 @@ import Link from "next/link";
 import {
   getPublicSite,
   getPublicSiteOrNotFound,
-  groupServicesByCategory,
+  groupServicesByCategory, bookingSubscribed
 } from "@/lib/providers/public-site";
 import { toServiceCard } from "@/lib/providers/service-card";
 import { ServiceCard } from "@/components/public/ServiceCard";
@@ -43,6 +43,7 @@ export default async function ServicesCataloguePage({
 
   const showPrices = site.siteSettings?.showPricing !== false;
   const bookingOpen =
+    bookingSubscribed(site) &&
     (site.siteSettings?.showBooking ?? true) &&
     (site.bookingSettings?.bookingEnabled ?? true);
 

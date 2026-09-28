@@ -6,7 +6,7 @@ import {
   getServiceOrNotFound,
   whatsappLink,
   type PublicSite,
-  type ShowcaseService,
+  type ShowcaseService, bookingSubscribed
 } from "@/lib/providers/public-site";
 import { computeDeposit, formatMoney, toMajorUnits } from "@/lib/money";
 import { formatDurationFr } from "@/lib/time";
@@ -60,6 +60,7 @@ export default async function ServiceDetailPage({
   const showPrices = site.siteSettings?.showPricing !== false;
   const quoteOnly = service.priceType === "QUOTE_ONLY";
   const bookingOpen =
+    bookingSubscribed(site) &&
     (site.siteSettings?.showBooking ?? true) &&
     (site.bookingSettings?.bookingEnabled ?? true) &&
     !quoteOnly;

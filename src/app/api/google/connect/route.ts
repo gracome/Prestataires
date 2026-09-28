@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { requireProviderApi, AuthorizationError } from "@/lib/auth/guard";
+import { requireProviderApi, assertFeature, AuthorizationError } from "@/lib/auth/guard";
 import {
   consentUrl,
   isGoogleConfigured,
@@ -25,6 +25,7 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const { provider } = await requireProviderApi();
+    assertFeature(provider, "GOOGLE_CALENDAR");
 
     if (!isGoogleConfigured()) {
       return NextResponse.json(

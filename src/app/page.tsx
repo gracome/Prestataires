@@ -1,5 +1,14 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+import {
+  FEATURES,
+  PLANS,
+  PLAN_ORDER,
+  planHighlights,
+  sellableFeatures,
+  yearlyPrice,
+} from "@/lib/plans/catalogue";
+import type { Plan } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -14,100 +23,16 @@ export const dynamic = "force-dynamic";
 
 /**
  * Where "sur mesure" enquiries go. Left empty the button disappears rather
- * than pointing nowhere — fill it in with a WhatsApp link such as
- * https://wa.me/229XXXXXXXX, or a mailto: address.
+ * than pointing nowhere.
  */
-const CONTACT_URL = "";
+const CONTACT_URL = "https://wa.me/22969668879";
 
 /**
- * Paying by the year costs ten months instead of twelve. One rule for every
- * package and every module, so the saving is the same sentence everywhere and
- * nobody has to compare percentages.
+ * The offer itself lives in src/lib/plans/catalogue.ts, which the guard and
+ * the administration screens read too: a price quoted to a prospect here and
+ * the features actually granted after payment come from one table.
  */
-const MONTHS_CHARGED_YEARLY = 10;
-
-function yearlyPrice(monthly: number): number {
-  return monthly * MONTHS_CHARGED_YEARLY;
-}
-
-type Plan = {
-  id: string;
-  name: string;
-  emoji: string;
-  monthly: number;
-  pitch: string;
-  /** Named so each card says what it builds on instead of repeating it. */
-  includes?: string;
-  features: string[];
-  recommended?: boolean;
-};
-
-const PLANS: Plan[] = [
-  {
-    id: "essentiel",
-    name: "Essentiel",
-    emoji: "🤍",
-    monthly: 5000,
-    pitch: "Pour une présence professionnelle en ligne.",
-    features: [
-      "Site web professionnel personnalisé",
-      "Page d'accueil et présentation de l'activité",
-      "Services et tarifs",
-      "Galerie photos",
-      "Horaires d'ouverture et localisation",
-      "Contact et WhatsApp",
-      "Questions fréquentes",
-      "Espace de gestion du site",
-    ],
-  },
-  {
-    id: "rendez-vous",
-    name: "Rendez-vous",
-    emoji: "📅",
-    monthly: 7500,
-    pitch: "Pour gérer facilement les prises de rendez-vous.",
-    includes: "Essentiel",
-    recommended: true,
-    features: [
-      "Réservation en ligne",
-      "Gestion des disponibilités et du calendrier",
-      "Confirmation et refus des rendez-vous",
-      "Confirmations par email",
-      "Historique des rendez-vous",
-      "Synchronisation Google Calendar",
-    ],
-  },
-  {
-    id: "business",
-    name: "Business",
-    emoji: "👑",
-    monthly: 12000,
-    pitch: "Pour gérer son activité et déléguer certaines tâches.",
-    includes: "Rendez-vous",
-    features: [
-      "Caisse et suivi des encaissements",
-      "Ventes au comptoir, tous moyens de paiement",
-      "Gestion des acomptes et instructions de paiement",
-      "Réception et vérification des preuves de paiement",
-      "Collaborateurs, rôles et permissions",
-      "Demandes de devis",
-      "Statistiques d'activité et suivi des clients",
-      "Rappels automatiques avant rendez-vous",
-    ],
-  },
-];
-
-const MODULES: Array<{ name: string; monthly: number }> = [
-  { name: "Réservation en ligne", monthly: 3000 },
-  { name: "Gestion des collaborateurs", monthly: 2000 },
-  { name: "Caisse", monthly: 1500 },
-  { name: "Gestion des acomptes", monthly: 1500 },
-  { name: "Google Calendar", monthly: 1000 },
-  { name: "Demandes de devis", monthly: 1000 },
-  { name: "Statistiques", monthly: 1000 },
-  { name: "Rappels automatiques", monthly: 1000 },
-];
-
+const SHOWN_PLANS = PLAN_ORDER;
 /** 48000 -> "48 000", with a narrow no-break space holding the groups together. */
 function fcfa(amount: number): string {
   return amount.toLocaleString("fr-FR").replace(/[  \s]/g, " ");
@@ -246,8 +171,8 @@ export default async function HomePage() {
                 alignItems: "start",
               }}
             >
-              {PLANS.map((plan) => (
-                <PlanCard key={plan.id} plan={plan} />
+              {SHOWN_PLANS.map((plan) => (
+                <PlanCard key={plan} plan={plan} />
               ))}
             </div>
           </div>
@@ -271,9 +196,9 @@ export default async function HomePage() {
 
             <div className="card" style={{ padding: 0, overflow: "hidden" }}>
               <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-                {MODULES.map((module, index) => (
+                {sellableFeatures().map((feature, index) => (
                   <li
-                    key={module.name}
+                    key={feature}
                     style={{
                       display: "flex",
                       alignItems: "baseline",
@@ -283,10 +208,10 @@ export default async function HomePage() {
                       borderTop: index === 0 ? "none" : "1px solid var(--brand-border)",
                     }}
                   >
-                    <span>{module.name}</span>
+                    <span>{FEATURES[feature].label}</span>
                     <span style={{ textAlign: "right", whiteSpace: "nowrap" }}>
                       <span style={{ fontWeight: 700 }}>
-                        {fcfa(module.monthly)} F
+                        {fcfa(FEATURES[feature].monthly)} F
                         <span style={{ fontWeight: 400, color: "var(--brand-muted)" }}>
                           /mois
                         </span>
@@ -298,7 +223,7 @@ export default async function HomePage() {
                           color: "var(--brand-muted)",
                         }}
                       >
-                        {fcfa(yearlyPrice(module.monthly))} F/an
+                        {fcfa(yearlyPrice(FEATURES[feature].monthly))} F/an
                       </span>
                     </span>
                   </li>
@@ -336,6 +261,8 @@ export default async function HomePage() {
 }
 
 function PlanCard({ plan }: { plan: Plan }) {
+  const definition = PLANS[plan];
+  const monthly = definition.monthly;
   return (
     <div
       className="card"
@@ -344,17 +271,17 @@ function PlanCard({ plan }: { plan: Plan }) {
         gap: ".9rem",
         // The recommended plan carries a ring rather than a different
         // background, so all three stay equally readable.
-        border: plan.recommended
+        border: definition.recommended
           ? "2px solid var(--brand-primary)"
           : "1px solid var(--brand-border)",
       }}
     >
       <div style={{ display: "flex", alignItems: "center", gap: ".5rem" }}>
-        <span aria-hidden="true">{plan.emoji}</span>
+        <span aria-hidden="true">{definition.emoji}</span>
         <span className="font-display" style={{ fontSize: "1.15rem" }}>
-          {plan.name}
+          {definition.name}
         </span>
-        {plan.recommended ? (
+        {definition.recommended ? (
           <span
             style={{
               marginLeft: "auto",
@@ -377,7 +304,7 @@ function PlanCard({ plan }: { plan: Plan }) {
       <div>
         <p style={{ margin: 0, display: "flex", alignItems: "baseline", gap: ".35rem" }}>
           <span className="font-display" style={{ fontSize: "1.9rem", lineHeight: 1 }}>
-            {fcfa(plan.monthly)} F
+            {fcfa(monthly)} F
           </span>
           <span style={{ color: "var(--brand-muted)", fontSize: ".9rem" }}>/ mois</span>
         </p>
@@ -392,7 +319,7 @@ function PlanCard({ plan }: { plan: Plan }) {
           }}
         >
           <p style={{ margin: 0, fontSize: ".9rem" }}>
-            ou <strong>{fcfa(yearlyPrice(plan.monthly))} F</strong> par an
+            ou <strong>{fcfa(yearlyPrice(monthly))} F</strong> par an
           </p>
           <p
             style={{
@@ -403,16 +330,16 @@ function PlanCard({ plan }: { plan: Plan }) {
             }}
           >
             2 mois offerts — vous économisez{" "}
-            {fcfa(plan.monthly * 12 - yearlyPrice(plan.monthly))} F
+            {fcfa(monthly * 12 - yearlyPrice(monthly))} F
           </p>
         </div>
       </div>
 
       <p style={{ margin: 0, color: "var(--brand-muted)", lineHeight: 1.6, fontSize: ".92rem" }}>
-        {plan.pitch}
+        {definition.pitch}
       </p>
 
-      {plan.includes ? (
+      {definition.extends ? (
         <p
           style={{
             margin: 0,
@@ -422,12 +349,12 @@ function PlanCard({ plan }: { plan: Plan }) {
             borderBottom: "1px solid var(--brand-border)",
           }}
         >
-          Tout {plan.includes}, plus :
+          Tout {PLANS[definition.extends].name}, plus :
         </p>
       ) : null}
 
       <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: ".45rem" }}>
-        {plan.features.map((feature) => (
+        {planHighlights(plan).map((feature) => (
           <li
             key={feature}
             style={{

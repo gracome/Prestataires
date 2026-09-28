@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/db";
-import { requireProviderApi } from "@/lib/auth/guard";
+import { requireProviderApi, assertFeature } from "@/lib/auth/guard";
 import { hashPassword, verifyPassword, checkPasswordStrength } from "@/lib/auth/password";
 import { revokeAllSessions } from "@/lib/auth/session";
 import { MAX_ACCOUNTS_PER_PROVIDER } from "@/lib/auth/permissions";
@@ -530,6 +530,7 @@ export async function addTeamMemberAction(
   formData: FormData,
 ): Promise<ActionState> {
   const { provider } = await requireProviderApi("settings");
+  assertFeature(provider, "STAFF");
 
   const parsed = teamSchema.safeParse({
     name: formData.get("name"),
