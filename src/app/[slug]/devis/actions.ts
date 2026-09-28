@@ -2,6 +2,7 @@
 
 import { headers } from "next/headers";
 import { prisma } from "@/lib/db";
+import { hasFeature } from "@/lib/auth/features";
 import { fieldErrors, quoteRequestSchema, type ActionState } from "@/lib/validation";
 import { clientIp, LIMITS, rateLimit } from "@/lib/rate-limit";
 import {
@@ -71,10 +72,14 @@ export async function submitQuoteRequest(
 
   const provider = await prisma.provider.findFirst({
     where: { slug: slug.toLowerCase(), status: "ACTIVE" },
-    select: { id: true, timezone: true },
+    select: { id: true, timezone: true, plan: true, extraModules: true },
   });
 
   if (!provider) {
+    return { status: "error", message: "Prestataire introuvable." };
+  }
+
+  if (!hasFeature(provider, "QUOTES")) {
     return { status: "error", message: "Prestataire introuvable." };
   }
 

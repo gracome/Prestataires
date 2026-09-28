@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { z } from "zod";
 import { requirePlatformAdminApi } from "@/lib/auth/guard";
 import { prisma } from "@/lib/db";
+import { recordSubscriptionPayment } from "@/lib/plans/subscription";
 import {
   createSession,
   destroySession,
@@ -387,4 +388,155 @@ export async function updateProviderAction(
   revalidatePath("/admin/prestataires");
 
   return { status: "success", message: "Fiche enregistrée." };
+}
+
+// ---------------------------------------------------------------------------
+// Subscription
+// ---------------------------------------------------------------------------
+
+const PLAN_VALUES = ["ESSENTIEL", "RENDEZ_VOUS", "BUSINESS"] as const;
+const PERIOD_VALUES = ["MONTHLY", "YEARLY"] as const;
+const FEATURE_VALUES = [
+  "BOOKING",
+  "DEPOSITS",
+  "STAFF",
+  "GOOGLE_CALENDAR",
+  "QUOTES",
+  "REPORTS",
+  "TILL",
+  "REMINDERS",
+  "CUSTOM_DOMAIN",
+] as const;
+
+const subscriptionSchema = z.object({
+  providerId: z.string().min(1),
+  plan: z.enum(PLAN_VALUES),
+  billingPeriod: z.enum(PERIOD_VALUES),
+});
+
+/**
+ * Change what an account is subscribed to, without taking money.
+ *
+ * Used to correct a mistake, to grant a trial, or to move someone between
+ * packages mid-period. Recording a payment is the other action: this one
+ * never moves the end date, so an adjustment cannot silently buy time.
+ */
+export async function setSubscriptionAction(
+  _state: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const { admin } = await requirePlatformAdminApi();
+
+  const parsed = subscriptionSchema.safeParse({
+    providerId: formData.get("providerId"),
+    plan: formData.get("plan"),
+    billingPeriod: formData.get("billingPeriod"),
+  });
+  if (!parsed.success) {
+    return { status: "error", message: "Requête invalide." };
+  }
+
+  const extraModules = FEATURE_VALUES.filter(
+    (feature) => formData.get(`module:${feature}`) === "on",
+  );
+
+  const provider = await prisma.provider.findUnique({
+    where: { id: parsed.data.providerId },
+    select: { id: true, businessName: true, plan: true, extraModules: true },
+  });
+  if (!provider) return { status: "error", message: "Activité introuvable." };
+
+  await prisma.provider.update({
+    where: { id: provider.id },
+    data: {
+      plan: parsed.data.plan,
+      billingPeriod: parsed.data.billingPeriod,
+      extraModules,
+    },
+  });
+
+  await record(admin.id, "platform.provider.subscription", provider.id, {
+    from: { plan: provider.plan, extraModules: provider.extraModules },
+    to: { plan: parsed.data.plan, extraModules },
+  });
+
+  revalidatePath(`/admin/prestataires/${provider.id}`);
+  revalidatePath("/admin/prestataires");
+
+  return {
+    status: "success",
+    message: `Abonnement de ${provider.businessName} mis à jour.`,
+  };
+}
+
+const paymentSchema = z.object({
+  providerId: z.string().min(1),
+  amount: z.coerce.number().int().min(0).optional(),
+  method: z.enum(["CASH", "MOBILE_MONEY", "CARD", "BANK_TRANSFER", "OTHER"]),
+  note: z.string().trim().max(500).optional(),
+});
+
+/**
+ * Record a payment received and extend the paid period.
+ *
+ * The amount defaults to the price of what the account is subscribed to, so
+ * the common case is one button. It stays editable because a real payment is
+ * sometimes a rounded figure, a part payment or a negotiated price, and the
+ * record has to match what actually changed hands.
+ */
+export async function recordPaymentAction(
+  _state: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const { admin } = await requirePlatformAdminApi();
+
+  const parsed = paymentSchema.safeParse({
+    providerId: formData.get("providerId"),
+    amount: formData.get("amount") || undefined,
+    method: formData.get("method"),
+    note: formData.get("note") || undefined,
+  });
+  if (!parsed.success) {
+    return { status: "error", message: "Requête invalide." };
+  }
+
+  const provider = await prisma.provider.findUnique({
+    where: { id: parsed.data.providerId },
+    select: {
+      id: true,
+      businessName: true,
+      plan: true,
+      billingPeriod: true,
+      extraModules: true,
+    },
+  });
+  if (!provider) return { status: "error", message: "Activité introuvable." };
+
+  const { periodEndsAt, amount } = await recordSubscriptionPayment({
+    providerId: provider.id,
+    plan: provider.plan,
+    billingPeriod: provider.billingPeriod,
+    extraModules: provider.extraModules,
+    amount: parsed.data.amount,
+    method: parsed.data.method,
+    note: parsed.data.note,
+    recordedById: admin.id,
+  });
+
+  await record(admin.id, "platform.provider.payment", provider.id, {
+    amount,
+    periodEndsAt: periodEndsAt.toISOString(),
+  });
+
+  revalidatePath(`/admin/prestataires/${provider.id}`);
+  revalidatePath("/admin/prestataires");
+  revalidatePath("/admin");
+
+  return {
+    status: "success",
+    message: `Paiement enregistré. Abonnement valable jusqu'au ${new Intl.DateTimeFormat(
+      "fr-FR",
+      { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" },
+    ).format(periodEndsAt)}.`,
+  };
 }

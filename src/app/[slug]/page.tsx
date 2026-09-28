@@ -5,7 +5,7 @@ import {
   groupServicesByCategory,
   telLink,
   whatsappLink,
-  type PublicSite,
+  type PublicSite, bookingSubscribed
 } from "@/lib/providers/public-site";
 import { dayLabelFr, formatMinuteOfDay } from "@/lib/time";
 import { LocalBusinessJsonLd } from "@/components/public/JsonLd";
@@ -25,6 +25,7 @@ export default async function ProviderHomePage({
 
   const bookable = site.services.filter((s) => s.priceType !== "QUOTE_ONLY");
   const bookingOpen =
+    bookingSubscribed(site) &&
     (settings?.showBooking ?? true) &&
     (site.bookingSettings?.bookingEnabled ?? true) &&
     bookable.length > 0;

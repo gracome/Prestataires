@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
-import type { Provider } from "@prisma/client";
+import type { PlanFeature, Provider } from "@prisma/client";
 import { getCurrentUser, getSessionContext, type SessionUser } from "./session";
 import { canAccess, homeFor, type Section } from "./permissions";
+import { hasFeature, sectionFeature } from "./features";
+import { FEATURES } from "@/lib/plans/catalogue";
 
 /**
  * Access control (cahier des charges section 23).
@@ -65,6 +67,44 @@ export async function requireSection(
     redirect(homeFor(context.user.role));
   }
 
+  // The subscription is the second half of the rule. Refusing here rather than
+  // in each page means a screen added later is covered the day it is written.
+  const required = sectionFeature(section);
+  if (required && !hasFeature(context.provider, required)) {
+    redirect(`/dashboard?module=${required}`);
+  }
+
+  return context;
+}
+
+/**
+ * Guard for one paid capability, for the places a Section does not describe:
+ * a server action, or a screen that is mostly included but holds one panel
+ * that is not — the team panel inside the settings, for instance.
+ *
+ * Throws rather than redirects, because an action that has already begun must
+ * fail loudly instead of quietly navigating somewhere.
+ */
+export function assertFeature(
+  provider: ProviderEntitlementsSource,
+  feature: PlanFeature,
+): void {
+  if (!hasFeature(provider, feature)) {
+    throw new AuthorizationError(
+      `${FEATURES[feature].label} n'est pas inclus dans votre abonnement.`,
+    );
+  }
+}
+
+type ProviderEntitlementsSource = Pick<Provider, "plan" | "extraModules">;
+
+/** Convenience for an API route or a server action: guard and return context. */
+export async function requireFeatureApi(
+  feature: PlanFeature,
+  section?: Section,
+): Promise<ProviderContext> {
+  const context = await requireProviderApi(section);
+  assertFeature(context.provider, feature);
   return context;
 }
 
@@ -84,6 +124,10 @@ export async function requireProviderApi(
   }
   if (section && !canAccess(user.role, section)) {
     throw new AuthorizationError("Cette partie est réservée à la responsable");
+  }
+  if (section) {
+    const required = sectionFeature(section);
+    if (required) assertFeature(user.provider, required);
   }
   return { user, provider: user.provider };
 }

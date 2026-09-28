@@ -39,6 +39,34 @@ enum ProviderStatus {
   SUSPENDED
 }
 
+/// The commercial packages. Each one grants a set of PlanFeature; a provider
+/// may also buy features one by one on top, which is what extraModules holds.
+enum Plan {
+  ESSENTIEL
+  RENDEZ_VOUS
+  BUSINESS
+}
+
+enum BillingPeriod {
+  MONTHLY
+  YEARLY
+}
+
+/// One sellable capability. Kept separate from Section (src/lib/auth) because
+/// the two answer different questions: a Section is a screen, a PlanFeature is
+/// something that was paid for, and one feature can govern several screens.
+enum PlanFeature {
+  BOOKING
+  DEPOSITS
+  STAFF
+  GOOGLE_CALENDAR
+  QUOTES
+  REPORTS
+  TILL
+  REMINDERS
+  CUSTOM_DOMAIN
+}
+
 /// How a booking gets validated. V1 ships NO_DEPOSIT and MANUAL_PAYMENT.
 /// ONLINE_PAYMENT exists so a payment aggregator can be added without
 /// reworking the booking state machine (cahier des charges section 28).
@@ -176,6 +204,24 @@ model Provider {
 
   customDomain String? @unique
 
+  // --- Subscription --------------------------------------------------------
+
+  plan          Plan          @default(ESSENTIEL)
+  billingPeriod BillingPeriod @default(MONTHLY)
+
+  /// Features bought on top of the package. A feature already granted by the
+  /// package is harmless here; the two sets are unioned when read.
+  extraModules PlanFeature[]
+
+  /// End of the paid period. Null means the account has never been billed —
+  /// a trial or a provider still being set up — and is not chased for payment.
+  /// Past due, the scheduled job suspends the account.
+  subscriptionEndsAt DateTime? @db.Timestamptz(3)
+
+  /// Set when the pre-expiry warning goes out, so it is sent once per period
+  /// rather than every five minutes.
+  renewalNoticeSentAt DateTime? @db.Timestamptz(3)
+
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
@@ -198,6 +244,7 @@ model Provider {
   quoteRequests       QuoteRequest[]
   quoteSettings       QuoteSettings?
   notifications       NotificationLog[]
+  subscriptionPayments SubscriptionPayment[]
   auditLogs           AuditLog[]
 
   @@index([status])
@@ -230,6 +277,9 @@ model User {
 
   /// Till entries keyed in by this account.
   recordedSales Sale[] @relation("SaleRecordedBy")
+
+  /// Subscription payments recorded by this account, for platform admins.
+  recordedSubscriptionPayments SubscriptionPayment[] @relation("SubscriptionPaymentRecordedBy")
 
   @@index([providerId])
   @@map("users")
@@ -991,4 +1041,42 @@ model Sale {
   @@index([serviceId])
   @@index([recordedById])
   @@map("sales")
+}
+
+/// One payment received for a subscription.
+///
+/// Money changes hands outside the application — mobile money, cash, transfer
+/// — so this is a record of what was collected, not a transaction. It exists
+/// so that "until when has she paid?" has an auditable answer rather than
+/// resting on a date someone typed.
+model SubscriptionPayment {
+  id         String   @id @default(cuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  /// Minor units of the provider currency, like every other amount here.
+  amount   Int
+  currency String
+
+  /// What was sold, written down at the time: renaming a package later must
+  /// not rewrite what a provider agreed to last year.
+  plan          Plan
+  billingPeriod BillingPeriod
+
+  /// Where the period ran to once this payment was applied. Keeping it makes
+  /// the history readable on its own, without replaying every row.
+  periodEndsAt DateTime @db.Timestamptz(3)
+
+  method PaymentMethod @default(MOBILE_MONEY)
+  note   String?       @db.Text
+
+  /// The administrator who recorded it. Null once that account is deleted:
+  /// losing the operator must never lose the payment.
+  recordedById String?
+  recordedBy   User?   @relation("SubscriptionPaymentRecordedBy", fields: [recordedById], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([providerId, createdAt])
+  @@map("subscription_payments")
 }

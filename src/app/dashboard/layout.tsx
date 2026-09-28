@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { requireProviderPage } from "@/lib/auth/guard";
+import { featuresOf } from "@/lib/auth/features";
 import { getSessionContext } from "@/lib/auth/session";
 import { prisma } from "@/lib/db";
 import { adminThemeStyle } from "@/lib/theme";
@@ -52,6 +53,7 @@ export default async function DashboardLayout({
         badges={{ reservations: proofsToVerify, devis: newQuotes }}
         themeStyle={adminThemeStyle(theme)}
         role={user.role}
+        features={[...featuresOf(provider)]}
       >
         {children}
       </DashboardShell>

@@ -16,6 +16,7 @@ import type {
   WorkingHours,
 } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { hasFeature } from "@/lib/auth/features";
 
 /**
  * Everything the public site of one provider needs, in a single query.
@@ -255,4 +256,15 @@ export function currentOpenState(
   }
 
   return { open: false, nextDay: null, nextOpensAt: null };
+}
+
+/**
+ * Whether this site is subscribed to online booking.
+ *
+ * Kept apart from the provider's own showBooking / bookingEnabled switches,
+ * which answer "does she want to take bookings today?". This one answers
+ * "did she buy the module?", and no screen may offer a slot without it.
+ */
+export function bookingSubscribed(site: PublicSite): boolean {
+  return hasFeature(site, "BOOKING");
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { hasFeature } from "@/lib/auth/features";
 import { BookingError, createBooking } from "@/lib/booking/reservation";
 import { AvailabilityError } from "@/lib/booking/availability-service";
 import { createBookingSchema, fieldErrors } from "@/lib/validation";
@@ -66,11 +67,26 @@ export async function POST(
 
   const provider = await prisma.provider.findFirst({
     where: { slug: slug.toLowerCase(), status: "ACTIVE" },
-    select: { id: true, slug: true, bookingSettings: { select: { requireCustomerEmail: true } } },
+    select: {
+      id: true,
+      slug: true,
+      plan: true,
+      extraModules: true,
+      bookingSettings: { select: { requireCustomerEmail: true } },
+    },
   });
 
   if (!provider) {
     return NextResponse.json({ error: "Prestataire introuvable." }, { status: 404 });
+  }
+
+  // Hiding the button is presentation; this is the rule. A site not
+  // subscribed to online booking must refuse a hand-made request too.
+  if (!hasFeature(provider, "BOOKING")) {
+    return NextResponse.json(
+      { error: "La réservation en ligne n'est pas disponible." },
+      { status: 404 },
+    );
   }
 
   if (provider.bookingSettings?.requireCustomerEmail && !parsed.data.customerEmail) {
