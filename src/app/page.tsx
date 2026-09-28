@@ -12,6 +12,8 @@ import {
 } from "@/lib/plans/catalogue";
 import type { Plan, PlanFeature } from "@prisma/client";
 import { ProductTour } from "@/components/marketing/ProductTour";
+import { HeroSlideshow } from "@/components/public/HeroSlideshow";
+import { MarketingHeader } from "@/components/marketing/MarketingHeader";
 import { TemplateGallery } from "@/components/marketing/TemplateGallery";
 import { MARKETING_PHOTOS } from "@/lib/marketing/imagery";
 
@@ -51,80 +53,54 @@ export default async function HomePage() {
 
   return (
     <div style={{ minHeight: "100dvh" }}>
-      <header
-        style={{
-          borderBottom: "1px solid var(--brand-border)",
-          padding: "1rem 0",
-        }}
-      >
-        <div
-          className="container"
-          style={{ display: "flex", alignItems: "center", gap: ".5rem" }}
-        >
-          <span className="font-display" style={{ fontSize: "1.1rem", marginRight: "auto" }}>
-            Prestataire
-          </span>
-          <Link
-            href="#tarifs"
-            className="btn btn-ghost"
-            style={{ padding: ".5rem 1rem", minHeight: 40, fontSize: ".9rem" }}
-          >
-            Tarifs
-          </Link>
-          <Link
-            href="/login"
-            className="btn btn-secondary"
-            style={{ padding: ".5rem 1.1rem", minHeight: 40, fontSize: ".9rem" }}
-          >
-            Espace prestataire
-          </Link>
-        </div>
-      </header>
+      <MarketingHeader />
 
       <main>
-        <section className="section">
+        <HeroSlideshow
+          slides={[
+            { id: "a", url: MARKETING_PHOTOS.nails },
+            { id: "b", url: MARKETING_PHOTOS.salon },
+            { id: "c", url: MARKETING_PHOTOS.care },
+            { id: "d", url: MARKETING_PHOTOS.hands },
+          ]}
+        >
+          <div className="container site-hero-body">
+            <p className="site-hero-eyebrow">La plateforme des métiers de la beauté</p>
+
+            <h1 className="site-hero-title">
+              Votre activité.
+              <br />
+              Votre univers.
+            </h1>
+
+            <p className="site-hero-sub">
+              Gérez vos rendez-vous, vos clientes, vos paiements et toute votre
+              activité depuis un seul espace.
+            </p>
+
+            <div className="site-hero-actions">
+              <Link href="#tarifs" className="btn btn-primary">
+                Voir les tarifs →
+              </Link>
+              <Link href="/login" className="btn site-hero-ghost">
+                Accéder à mon espace
+              </Link>
+            </div>
+          </div>
+        </HeroSlideshow>
+
+        <section className="section section-curved">
           <div className="container">
-            <div className="hero-grid">
-              <div>
-                <p className="eyebrow">La plateforme des métiers de la beauté</p>
-                <h1
-                  className="font-display"
-                  style={{
-                    fontSize: "clamp(2.2rem, 6vw, 3.4rem)",
-                    lineHeight: 1.08,
-                    margin: ".6rem 0 1.1rem",
-                  }}
-                >
-                  Votre activité.
-                  <br />
-                  Votre univers.
-                  <br />
-                  Une seule plateforme.
-                </h1>
+            <div className="section-head">
+              <p className="eyebrow">En un coup d&apos;œil</p>
+              <h2 className="section-title">Voici ce que ça donne.</h2>
+              <p>
+                De la réservation d&apos;une cliente jusqu&apos;à vos chiffres du
+                mois, tout est au même endroit.
+              </p>
+            </div>
 
-                <p
-                  style={{
-                    fontSize: "1.05rem",
-                    lineHeight: 1.75,
-                    color: "var(--brand-muted)",
-                    margin: "0 0 1.8rem",
-                    maxWidth: "46ch",
-                  }}
-                >
-                  Gérez vos rendez-vous, vos clientes, vos paiements et toute
-                  votre activité depuis un seul espace.
-                </p>
-
-                <div style={{ display: "flex", flexWrap: "wrap", gap: ".75rem" }}>
-                  <Link href="#tarifs" className="btn btn-primary">
-                    Commencer →
-                  </Link>
-                  <Link href="/login" className="btn btn-secondary">
-                    Accéder à mon espace
-                  </Link>
-                </div>
-              </div>
-
+            <div className="tour-frame">
               <ProductTour />
             </div>
           </div>
@@ -310,7 +286,7 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section className="section">
+        <section className="section" id="modules">
           <div className="container">
             <div style={{ maxWidth: 640, marginBottom: "1.5rem" }}>
               <p className="eyebrow">Modules à la carte</p>
@@ -394,11 +370,54 @@ export default async function HomePage() {
         </section>
       </main>
 
-      <footer style={{ borderTop: "1px solid var(--brand-border)", padding: "2rem 0" }}>
-        <div className="container" style={{ fontSize: ".85rem", color: "var(--brand-muted)" }}>
-          {providerCount > 0
-            ? `${providerCount} prestataire${providerCount > 1 ? "s" : ""} en ligne sur cette plateforme.`
-            : "Plateforme prête. Créez votre premier prestataire pour commencer."}
+      <footer className="site-foot">
+        <div className="container">
+          <div className="site-foot-top">
+            <div>
+              <p className="site-foot-name">Prestataires</p>
+              <p className="site-foot-lead">
+                Le business derrière la beauté : rendez-vous, acomptes, clientes
+                et chiffres, dans un seul espace.
+              </p>
+              <Link href="#tarifs" className="btn site-foot-cta">
+                Voir les tarifs →
+              </Link>
+            </div>
+
+            <div className="site-foot-cols">
+              <section>
+                <h2>Plateforme</h2>
+                <ul>
+                  <li>
+                    <Link href="#tarifs">Tarifs</Link>
+                  </li>
+                  <li>
+                    <Link href="/login">Espace prestataire</Link>
+                  </li>
+                </ul>
+              </section>
+
+              <section>
+                <h2>Contact</h2>
+                <ul>
+                  <li>
+                    <a href={CONTACT_URL} target="_blank" rel="noreferrer noopener">
+                      WhatsApp
+                    </a>
+                  </li>
+                </ul>
+              </section>
+            </div>
+          </div>
+
+          <div className="site-foot-bottom">
+            <span>© {new Date().getFullYear()} Prestataires</span>
+            <span className="site-foot-by">
+              {providerCount > 0
+                ? `${providerCount} prestataire${providerCount > 1 ? "s" : ""} en ligne`
+                : "Plateforme prête"}
+            </span>
+          </div>
         </div>
       </footer>
     </div>
