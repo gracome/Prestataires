@@ -10,8 +10,7 @@ import {
 import { dayLabelFr, formatMinuteOfDay } from "@/lib/time";
 import { LocalBusinessJsonLd } from "@/components/public/JsonLd";
 import { ServiceCard } from "@/components/public/ServiceCard";
-import { HeroCarousel, type HeroPhoto } from "@/components/public/HeroCarousel";
-import { formatMoney } from "@/lib/money";
+import { HeroSlideshow, type HeroSlide } from "@/components/public/HeroSlideshow";
 import { toServiceCard } from "@/lib/providers/service-card";
 
 export const revalidate = 60;
@@ -38,10 +37,8 @@ export default async function ProviderHomePage({
 
       <Hero site={site} bookingOpen={bookingOpen} />
 
-      <Showcase site={site} />
-
-      <Commitments site={site} />
-
+      {/* The prestations lead, because that is what a visitor came to see.
+          They curve up over the hero photograph. */}
       {settings?.showServices !== false && site.services.length > 0 ? (
         <Services site={site} bookingOpen={bookingOpen} />
       ) : null}
@@ -51,6 +48,9 @@ export default async function ProviderHomePage({
       ) : null}
 
       {settings?.showAbout !== false ? <About site={site} /> : null}
+
+      {/* Reassurance reads once someone knows who she is, not before. */}
+      <Commitments site={site} />
 
       {settings?.showHours !== false ? <Hours site={site} /> : null}
 
@@ -78,31 +78,6 @@ export default async function ProviderHomePage({
  * it shows the work, names the trade and the city, says whether the salon is
  * open right now, and puts booking one tap away.
  */
-/**
- * The photos the hero turns.
- *
- * Featured gallery images first, since that is what "featured" already means
- * to a provider, and each one keeps the prestation it came from so the caption
- * can name a price. Capped at six: a hero is a promise of more, not the whole
- * portfolio.
- */
-function heroPhotos(site: PublicSite): HeroPhoto[] {
-  const byId = new Map(site.services.map((service) => [service.id, service]));
-
-  return site.galleryImages.slice(0, 6).map((image) => {
-    const service = image.serviceId ? byId.get(image.serviceId) : undefined;
-    return {
-      id: image.id,
-      url: image.url,
-      title: service?.name ?? image.category?.name ?? null,
-      price: service
-        ? formatMoney(service.price, site.currency, site.locale)
-        : null,
-      caption: image.caption,
-    };
-  });
-}
-
 function Hero({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean }) {
   const settings = site.siteSettings;
   const headline = settings?.heroHeadline?.trim() || site.businessName;
@@ -121,22 +96,75 @@ function Hero({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean })
   const whatsapp = whatsappLink(site);
   const ctaLabel = settings?.heroCtaLabel?.trim() || "Prendre rendez-vous";
 
-  // Her cover if she set one, otherwise the first thing in her gallery: an
-  // empty hero would be the worst possible first screen, and she has photos.
-  const backdrop = site.coverImageUrl ?? site.galleryImages[0]?.url ?? null;
+  // Her cover leads, then the gallery. Duplicates are dropped so the same
+  // photograph is not shown twice in a row when the cover is also in the
+  // gallery, which is the common case.
+  const seen = new Set<string>();
+  const slides: HeroSlide[] = [];
+  for (const url of [site.coverImageUrl, ...site.galleryImages.map((i) => i.url)]) {
+    if (!url || seen.has(url)) continue;
+    seen.add(url);
+    slides.push({ id: url, url });
+    if (slides.length === 5) break;
+  }
+
+  if (slides.length === 0) {
+    return (
+      <section className="site-hero">
+        <span aria-hidden="true" className="site-hero-fallback" />
+        <span aria-hidden="true" className="site-hero-scrim" />
+        <HeroWords
+          site={site}
+          eyebrow={eyebrow}
+          headline={headline}
+          sub={sub}
+          ctaLabel={ctaLabel}
+          whatsapp={whatsapp}
+          openState={openState}
+          bookingOpen={bookingOpen}
+        />
+      </section>
+    );
+  }
 
   return (
-    <section className="site-hero">
-      {backdrop ? (
-        /* eslint-disable-next-line @next/next/no-img-element */
-        <img src={backdrop} alt="" fetchPriority="high" className="site-hero-img" />
-      ) : (
-        <span aria-hidden="true" className="site-hero-fallback" />
-      )}
+    <HeroSlideshow slides={slides}>
+      <HeroWords
+        site={site}
+        eyebrow={eyebrow}
+        headline={headline}
+        sub={sub}
+        ctaLabel={ctaLabel}
+        whatsapp={whatsapp}
+        openState={openState}
+        bookingOpen={bookingOpen}
+      />
+    </HeroSlideshow>
+  );
+}
 
-      <span aria-hidden="true" className="site-hero-scrim" />
-
-      <div className="container site-hero-body">
+/** The words over the hero, which stay put while the photographs turn. */
+function HeroWords({
+  site,
+  eyebrow,
+  headline,
+  sub,
+  ctaLabel,
+  whatsapp,
+  openState,
+  bookingOpen,
+}: {
+  site: PublicSite;
+  eyebrow: string;
+  headline: string;
+  sub: string;
+  ctaLabel: string;
+  whatsapp: string | null;
+  openState: ReturnType<typeof currentOpenState>;
+  bookingOpen: boolean;
+}) {
+  return (
+    <div className="container site-hero-body">
         {eyebrow ? <p className="site-hero-eyebrow">{eyebrow}</p> : null}
 
         <h1 className="site-hero-title">{headline}</h1>
@@ -156,42 +184,16 @@ function Hero({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean })
           ) : null}
         </div>
 
-        <p className="site-hero-open">
-          {openState.open
-            ? `Ouvert jusqu'à ${openState.closesAt}`
-            : openState.nextDay && openState.nextOpensAt
-              ? `Ouvre ${openState.nextDay} à ${openState.nextOpensAt}`
-              : "Fermé actuellement"}
-        </p>
-      </div>
-    </section>
+      <p className="site-hero-open">
+        {openState.open
+          ? `Ouvert jusqu'à ${openState.closesAt}`
+          : openState.nextDay && openState.nextOpensAt
+            ? `Ouvre ${openState.nextDay} à ${openState.nextOpensAt}`
+            : "Fermé actuellement"}
+      </p>
+    </div>
   );
 }
-
-/**
- * Her work, turned wide, on the section that curves up over the hero.
- *
- * Deliberately its own band rather than something tucked beside the headline:
- * the photographs are the argument, and they need the width to make it.
- */
-function Showcase({ site }: { site: PublicSite }) {
-  const photos = heroPhotos(site);
-  if (!(site.siteSettings?.heroCarousel ?? true) || photos.length < 2) return null;
-
-  return (
-    <section className="section section-curved">
-      <div className="container">
-        <div className="section-head">
-          <h2>Nos réalisations</h2>
-          <p>Chaque photo est une prestation que vous pouvez réserver.</p>
-        </div>
-
-        <HeroCarousel photos={photos} businessName={site.businessName} />
-      </div>
-    </section>
-  );
-}
-
 
 /** The provider's promises, read immediately after the hero. */
 function Commitments({ site }: { site: PublicSite }) {
@@ -274,45 +276,20 @@ function SectionHead({
   action?: React.ReactNode;
 }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        gap: "1.5rem",
-        alignItems: "flex-end",
-        justifyContent: "space-between",
-        flexWrap: "wrap",
-        marginBottom: "2rem",
-      }}
-    >
-      <div style={{ maxWidth: 620 }}>
+    <div className={action ? "section-head section-head-split" : "section-head"}>
+      <div>
         <p className="eyebrow">{eyebrow}</p>
-        <h2
-          className="font-display"
-          style={{
-            fontSize: "clamp(1.7rem, 5vw, 2.4rem)",
-            margin: ".35rem 0 0",
-            letterSpacing: "-0.015em",
-          }}
-        >
-          {title}
-        </h2>
-        {intro ? (
-          <p
-            style={{
-              margin: ".85rem 0 0",
-              color: "var(--brand-muted)",
-              lineHeight: 1.7,
-              fontSize: "1rem",
-            }}
-          >
-            {intro}
-          </p>
-        ) : null}
+        <h2 className="section-title">{title}</h2>
+        {intro ? <p>{intro}</p> : null}
       </div>
-      {action}
+      {action ?? null}
     </div>
   );
 }
+
+// ---------------------------------------------------------------------------
+// Hero
+// ---------------------------------------------------------------------------
 
 function Services({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean }) {
   const groups = groupServicesByCategory(site.services);
@@ -627,7 +604,8 @@ function Hours({ site }: { site: PublicSite }) {
           }
         />
 
-        <div className="card" style={{ maxWidth: 480, padding: ".4rem 1.1rem" }}>
+        <div className="band">
+        <div className="card" style={{ padding: ".4rem 1.1rem" }}>
           <dl style={{ margin: 0 }}>
             {order.map((day) => {
               const rule = byDay.get(day);
@@ -678,6 +656,14 @@ function Hours({ site }: { site: PublicSite }) {
             })}
           </dl>
         </div>
+
+          {photoFor(site, 1) ? (
+            <div className="band-photo">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={photoFor(site, 1)!} alt="" loading="lazy" />
+            </div>
+          ) : null}
+        </div>
       </div>
     </section>
   );
@@ -716,7 +702,8 @@ function Faq({ site }: { site: PublicSite }) {
       <div className="container">
         <SectionHead eyebrow="Questions" title="Questions fréquentes" />
 
-        <div style={{ display: "grid", gap: ".6rem", maxWidth: 720 }}>
+        <div className="band" data-reverse>
+          <div style={{ display: "grid", gap: ".6rem" }}>
           {site.faqItems.map((item) => (
             <details key={item.id} className="card" style={{ padding: "1rem 1.15rem" }}>
               <summary
@@ -735,11 +722,44 @@ function Faq({ site }: { site: PublicSite }) {
                 {item.answer}
               </p>
             </details>
-          ))}
+            ))}
+          </div>
+
+          <div className="band-dark">
+            {photoFor(site, 2) ? (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img src={photoFor(site, 2)!} alt="" loading="lazy" />
+            ) : null}
+            <div>
+              <h3>Une autre question ?</h3>
+              <p>
+                Écrivez directement à {site.businessName}. On vous répond dans la
+                journée.
+              </p>
+              {whatsappLink(site) ? (
+                <a href={whatsappLink(site)!} className="btn site-hero-ghost">
+                  Écrire sur WhatsApp
+                </a>
+              ) : (
+                <a href={`mailto:${site.email}`} className="btn site-hero-ghost">
+                  Envoyer un email
+                </a>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </section>
   );
+}
+
+/**
+ * A photograph from her gallery, by position, for the bands that need one.
+ * Returns null rather than a placeholder: an empty half is better than a stock
+ * image pretending to be her work.
+ */
+function photoFor(site: PublicSite, index: number): string | null {
+  return site.galleryImages[index]?.url ?? null;
 }
 
 function Contact({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean }) {

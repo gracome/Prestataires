@@ -1178,6 +1178,14 @@ table.data tr:last-child td {
   padding-block: 5rem 7rem;
 }
 
+/* The stage holds every photograph stacked; only opacity separates them. */
+.site-hero-stage {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  overflow: hidden;
+}
+
 .site-hero-img,
 .site-hero-fallback {
   position: absolute;
@@ -1186,6 +1194,29 @@ table.data tr:last-child td {
   width: 100%;
   height: 100%;
   object-fit: cover;
+}
+
+.site-hero-img {
+  z-index: 0;
+  opacity: 0;
+  /* Long enough to read as a change of scene rather than a flicker. */
+  transition: opacity 1.2s ease;
+}
+
+.site-hero-img[data-current] {
+  opacity: 1;
+  /* The slow push in that keeps a still photograph from looking frozen. */
+  animation: hero-drift 9s ease-out forwards;
+}
+
+.site-hero-img[data-still] {
+  animation: none;
+  transition: none;
+}
+
+@keyframes hero-drift {
+  from { transform: scale(1.06); }
+  to { transform: scale(1.14); }
 }
 
 .site-hero-fallback {
@@ -1380,4 +1411,157 @@ table.data tr:last-child td {
 
 .site-foot-by a {
   color: rgb(255 249 243 / 82%);
+}
+
+/* Indicators sit at the foot of the hero, clear of the curve that follows. */
+.site-hero-dots {
+  position: absolute;
+  left: 50%;
+  bottom: 4.5rem;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.45rem;
+  z-index: 1;
+}
+
+.site-hero-dot {
+  width: 9px;
+  height: 9px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 42%);
+  cursor: pointer;
+  transition: width 0.25s ease, background 0.25s ease;
+}
+
+.site-hero-dot[data-active] {
+  width: 26px;
+  background: #fff;
+}
+
+.site-hero-dot:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-hero-dot {
+    transition: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Section heads on a provider site
+ *
+ * Centred, because a title hugging the left of a wide page leaves a hole where
+ * the other half should be — which is what made these sections read as empty.
+ * ------------------------------------------------------------------------- */
+
+.section-head .eyebrow {
+  margin: 0;
+}
+
+.section-head .section-title {
+  margin: 0.4rem 0 0;
+  letter-spacing: -0.015em;
+}
+
+/* When a section carries an action, the head goes back to a row: a button
+   under a centred title reads as the start of the content, not as its heading. */
+.section-head-split {
+  max-width: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  text-align: left;
+}
+
+.section-head-split > div {
+  max-width: 44rem;
+}
+
+/* ---------------------------------------------------------------------------
+ * Two-column bands
+ *
+ * Information on one side, a photograph on the other. A list of opening hours
+ * is narrow by nature; pairing it with an image is what stops the rest of the
+ * row being blank.
+ * ------------------------------------------------------------------------- */
+
+.band {
+  display: grid;
+  gap: 2rem;
+  align-items: center;
+}
+
+@media (min-width: 880px) {
+  .band {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 3rem;
+  }
+  .band[data-reverse] > :first-child {
+    order: 2;
+  }
+}
+
+.band-photo {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  aspect-ratio: 4 / 3;
+}
+
+.band-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* A dark card that sits opposite a list — the "still need help" block. */
+.band-dark {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 2.5rem 1.75rem;
+  color: #fff;
+  isolation: isolate;
+}
+
+.band-dark img {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.band-dark::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: rgb(24 18 17 / 66%);
+}
+
+.band-dark h3 {
+  font-family: var(--font-heading);
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  margin: 0 0 0.6rem;
+}
+
+.band-dark p {
+  margin: 0 0 1.4rem;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: rgb(255 255 255 / 84%);
+  max-width: 34ch;
 }
