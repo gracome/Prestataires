@@ -11,6 +11,8 @@ import {
   yearlyPrice,
 } from "@/lib/plans/catalogue";
 import type { Plan, PlanFeature } from "@prisma/client";
+import { ProductTour } from "@/components/marketing/ProductTour";
+import { TemplateGallery } from "@/components/marketing/TemplateGallery";
 
 export const dynamic = "force-dynamic";
 
@@ -80,67 +82,194 @@ export default async function HomePage() {
 
       <main>
         <section className="section">
-          <div className="container" style={{ maxWidth: 720 }}>
-            <p className="eyebrow">Site professionnel et réservation en ligne</p>
-            <h1
-              className="font-display"
-              style={{ fontSize: "clamp(2rem, 6vw, 3rem)", lineHeight: 1.1, margin: ".5rem 0 1rem" }}
-            >
-              Votre site, vos prestations, vos rendez-vous.
-            </h1>
-            <p style={{ fontSize: "1.05rem", lineHeight: 1.75, color: "var(--brand-muted)", margin: "0 0 2rem" }}>
-              Une solution pensée pour les prestataires qui travaillent sur
-              rendez-vous : coiffeuses, prothésistes ongulaires, lash artists,
-              esthéticiennes, barbiers, tatoueurs, praticiens bien-être. Un site
-              à votre image, un agenda qui se gère tout seul, et des acomptes
-              vérifiés sans échanger dix messages.
-            </p>
+          <div className="container">
+            <div className="hero-grid">
+              <div>
+                <p className="eyebrow">La plateforme des métiers de la beauté</p>
+                <h1
+                  className="font-display"
+                  style={{
+                    fontSize: "clamp(2.2rem, 6vw, 3.4rem)",
+                    lineHeight: 1.08,
+                    margin: ".6rem 0 1.1rem",
+                  }}
+                >
+                  Votre activité.
+                  <br />
+                  Votre univers.
+                  <br />
+                  Une seule plateforme.
+                </h1>
 
-            <div style={{ display: "flex", flexWrap: "wrap", gap: ".75rem" }}>
-              <Link href="#tarifs" className="btn btn-primary">
-                Voir les tarifs
-              </Link>
-              <Link href="/login" className="btn btn-secondary">
-                Accéder à mon espace
-              </Link>
+                <p
+                  style={{
+                    fontSize: "1.05rem",
+                    lineHeight: 1.75,
+                    color: "var(--brand-muted)",
+                    margin: "0 0 1.8rem",
+                    maxWidth: "46ch",
+                  }}
+                >
+                  Gérez vos rendez-vous, vos clientes, vos paiements et toute
+                  votre activité depuis un seul espace.
+                </p>
+
+                <div style={{ display: "flex", flexWrap: "wrap", gap: ".75rem" }}>
+                  <Link href="#tarifs" className="btn btn-primary">
+                    Commencer →
+                  </Link>
+                  <Link href="/login" className="btn btn-secondary">
+                    Accéder à mon espace
+                  </Link>
+                </div>
+              </div>
+
+              <ProductTour />
             </div>
           </div>
         </section>
 
         <section className="section" style={{ paddingTop: 0 }}>
           <div className="container">
-            <div
+            <h2
+              className="font-display"
               style={{
-                display: "grid",
-                gap: "1rem",
-                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+                fontSize: "clamp(1.6rem, 4vw, 2.2rem)",
+                lineHeight: 1.2,
+                maxWidth: "20ch",
+                margin: "0 0 1.75rem",
               }}
             >
-              <Feature
-                title="Réservation en ligne"
-                body="Vos clientes choisissent une prestation, voient vos vraies disponibilités et réservent. Les doubles réservations sont impossibles."
+              Tout ce qu&apos;il faut pour faire tourner votre activité.
+            </h2>
+
+            {/* Asymmetric on purpose: eight identical cards read as a list of
+                specifications, and nobody reads a list of specifications. */}
+            <div className="feature-mosaic">
+              <FeatureCard
+                wide
+                title="Votre propre site"
+                body="Un site à votre image, avec vos photos et votre univers. Pas un formulaire de réservation déguisé."
+                figure={<SiteFigure />}
               />
-              <Feature
-                title="Acompte vérifié"
-                body="La cliente vous paie directement sur votre Mobile Money, envoie sa capture, vous confirmez. Le créneau se libère seul si rien n'arrive."
+              <FeatureCard
+                title="Réservations"
+                body="Vos clientes voient vos vraies disponibilités. Les doubles réservations sont impossibles."
+                figure={<SlotsFigure />}
               />
-              <Feature
-                title="Agenda synchronisé"
-                body="Vos rendez-vous confirmés arrivent dans votre Google Calendar, et vos occupations personnelles bloquent les créneaux."
+              <FeatureCard
+                title="Acomptes"
+                body="Elle vous paie directement, envoie son reçu, vous confirmez."
+                figure={<PaidFigure />}
               />
-              <Feature
-                title="Moins de WhatsApp"
-                body="Tarifs, durées, horaires et questions fréquentes sont sur votre site. Vous répondez moins souvent aux mêmes messages."
-              />
-              <Feature
-                title="À votre image"
-                body="Couleurs, polices, photos, textes et sections se règlent depuis votre tableau de bord, sans toucher au code."
-              />
-              <Feature
-                title="Pensé pour le téléphone"
-                body="Vos clientes réservent depuis leur mobile, et vous gérez votre journée depuis le vôtre."
+              <FeatureCard
+                wide
+                title="Votre équipe"
+                body="Donnez un compte à celles qui travaillent avec vous. Elles gèrent l'agenda, pas vos chiffres."
+                figure={<TeamFigure />}
               />
             </div>
+          </div>
+        </section>
+
+        <section className="section" style={{ background: "var(--brand-rose-pale)" }}>
+          <div className="container">
+            <div className="hero-grid">
+              <div>
+                <p className="eyebrow">Avant</p>
+                <div style={{ display: "grid", gap: ".5rem", marginTop: ".9rem" }}>
+                  {BEFORE.map((line, index) => (
+                    <p
+                      key={line}
+                      style={{
+                        margin: 0,
+                        justifySelf: index % 2 ? "end" : "start",
+                        maxWidth: "82%",
+                        background:
+                          index % 2 ? "var(--brand-beige)" : "var(--brand-surface)",
+                        border: "1px solid var(--brand-border)",
+                        borderRadius: 16,
+                        padding: ".6rem .9rem",
+                        fontSize: ".9rem",
+                      }}
+                    >
+                      {line}
+                    </p>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <p className="eyebrow">Après</p>
+                <h2
+                  className="font-display"
+                  style={{
+                    fontSize: "clamp(1.5rem, 3.6vw, 2rem)",
+                    lineHeight: 1.2,
+                    margin: ".6rem 0 1.2rem",
+                  }}
+                >
+                  Votre cliente réserve.
+                  <br />
+                  Vous vous occupez du reste.
+                </h2>
+
+                <ol
+                  style={{
+                    margin: 0,
+                    padding: 0,
+                    listStyle: "none",
+                    display: "grid",
+                    gap: ".5rem",
+                  }}
+                >
+                  {AFTER.map((step, index) => (
+                    <li
+                      key={step}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: ".75rem",
+                        background: "var(--brand-surface)",
+                        border: "1px solid var(--brand-border)",
+                        borderRadius: 14,
+                        padding: ".65rem .9rem",
+                        fontSize: ".92rem",
+                      }}
+                    >
+                      <span aria-hidden="true" className="step-number">
+                        {index + 1}
+                      </span>
+                      {step}
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="section">
+          <div className="container">
+            <div style={{ maxWidth: 640, marginBottom: "1.75rem" }}>
+              <p className="eyebrow">Votre site</p>
+              <h2
+                className="font-display"
+                style={{
+                  fontSize: "clamp(1.6rem, 4vw, 2.2rem)",
+                  lineHeight: 1.2,
+                  margin: ".5rem 0 .75rem",
+                }}
+              >
+                Votre activité mérite son propre univers.
+              </h2>
+              <p style={{ margin: 0, color: "var(--brand-muted)", lineHeight: 1.7 }}>
+                Un site professionnel pensé à votre image, pas un simple
+                formulaire de réservation.
+              </p>
+            </div>
+
+            <TemplateGallery />
           </div>
         </section>
 
@@ -391,16 +520,6 @@ function PlanCard({ plan }: { plan: Plan }) {
   );
 }
 
-function Feature({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="card">
-      <p style={{ margin: 0, fontWeight: 700 }}>{title}</p>
-      <p style={{ margin: ".5rem 0 0", color: "var(--brand-muted)", lineHeight: 1.7, fontSize: ".92rem" }}>
-        {body}
-      </p>
-    </div>
-  );
-}
 
 /**
  * What a module costs on its own, everything it depends on included.
@@ -413,5 +532,172 @@ function moduleMonthly(feature: PlanFeature): number {
   return expandRequirements([feature]).reduce(
     (total, part) => total + FEATURES[part].monthly,
     0,
+  );
+}
+
+/** The five messages every provider has sent a hundred times. */
+const BEFORE = [
+  "Tu peux venir à 15h ?",
+  "Attends je regarde.",
+  "Finalement 16h.",
+  "Tu peux envoyer l'acompte ?",
+  "Je n'ai pas encore vu le paiement.",
+];
+
+const AFTER = [
+  "Choisit son service",
+  "Choisit son créneau",
+  "Réserve",
+  "Paie son acompte",
+  "Reçoit sa confirmation",
+];
+
+/**
+ * A feature, told with a picture of itself.
+ *
+ * The wide ones carry a figure that needs room; the narrow ones carry a detail.
+ * Alternating the two is what stops the section reading as a specification
+ * sheet, which is the one thing nobody reads.
+ */
+function FeatureCard({
+  title,
+  body,
+  figure,
+  wide,
+}: {
+  title: string;
+  body: string;
+  figure: React.ReactNode;
+  wide?: boolean;
+}) {
+  return (
+    <article className="card feature-card" data-wide={wide ? "true" : undefined}>
+      <div className="feature-figure">{figure}</div>
+      <div>
+        <p style={{ margin: 0, fontWeight: 700 }}>{title}</p>
+        <p
+          style={{
+            margin: ".4rem 0 0",
+            color: "var(--brand-muted)",
+            lineHeight: 1.65,
+            fontSize: ".92rem",
+          }}
+        >
+          {body}
+        </p>
+      </div>
+    </article>
+  );
+}
+
+function SiteFigure() {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "1.4fr 1fr 1fr",
+        gap: ".4rem",
+        height: "100%",
+        minHeight: 120,
+      }}
+      aria-hidden="true"
+    >
+      {["💅🏾", "🌸", "✨"].map((emoji, index) => (
+        <div
+          key={emoji}
+          style={{
+            display: "grid",
+            placeItems: "center",
+            borderRadius: 14,
+            fontSize: index === 0 ? "1.9rem" : "1.2rem",
+            background:
+              index === 0
+                ? "linear-gradient(135deg, var(--brand-rose-light), var(--brand-beige))"
+                : "var(--brand-rose-pale)",
+          }}
+        >
+          {emoji}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SlotsFigure() {
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: ".35rem" }} aria-hidden="true">
+      {["09:00", "10:30", "14:00", "16:00"].map((slot) => {
+        const chosen = slot === "14:00";
+        return (
+          <span
+            key={slot}
+            style={{
+              padding: ".35rem .65rem",
+              borderRadius: 999,
+              fontSize: ".78rem",
+              fontWeight: chosen ? 700 : 400,
+              border: `1px solid ${chosen ? "var(--brand-primary)" : "var(--brand-border)"}`,
+              background: chosen ? "var(--brand-primary)" : "transparent",
+              color: chosen ? "var(--brand-primary-fg)" : "var(--brand-muted)",
+            }}
+          >
+            {slot}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
+function PaidFigure() {
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: ".5rem",
+        padding: ".55rem .85rem",
+        borderRadius: 14,
+        background: "var(--tone-success-bg)",
+        color: "var(--tone-success-fg)",
+        fontWeight: 600,
+        fontSize: ".85rem",
+      }}
+    >
+      ✓ Paiement reçu
+    </div>
+  );
+}
+
+function TeamFigure() {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: ".6rem" }} aria-hidden="true">
+      <div style={{ display: "flex" }}>
+        {["A", "I", "D"].map((initial, index) => (
+          <span
+            key={initial}
+            style={{
+              display: "grid",
+              placeItems: "center",
+              width: 36,
+              height: 36,
+              borderRadius: 999,
+              background: index === 0 ? "var(--brand-primary)" : "var(--brand-beige)",
+              color: index === 0 ? "var(--brand-primary-fg)" : "var(--brand-chocolate)",
+              border: "2px solid var(--brand-surface)",
+              marginLeft: index === 0 ? 0 : -10,
+              fontSize: ".8rem",
+              fontWeight: 700,
+            }}
+          >
+            {initial}
+          </span>
+        ))}
+      </div>
+      <span style={{ fontSize: ".8rem", color: "var(--brand-muted)" }}>
+        Agenda ✓ · Chiffres ✕
+      </span>
+    </div>
   );
 }

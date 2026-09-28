@@ -10,6 +10,20 @@ import { ImpersonationBanner } from "@/components/dashboard/ImpersonationBanner"
 export const metadata: Metadata = {
   title: "Tableau de bord",
   robots: { index: false, follow: false },
+  // Declared on the workspace only, never on a provider's public site: a
+  // customer browsing a salon must not be offered to install the salon's
+  // back office. It is also what lets an iPhone add this to the home screen,
+  // which Apple requires before it will deliver a push notification at all.
+  manifest: "/dashboard.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: "Mon espace",
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [{ url: "/icon-192.png", sizes: "192x192", type: "image/png" }],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+  },
 };
 
 export const dynamic = "force-dynamic";
