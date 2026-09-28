@@ -13,6 +13,7 @@ import {
 import type { Plan, PlanFeature } from "@prisma/client";
 import { ProductTour } from "@/components/marketing/ProductTour";
 import { TemplateGallery } from "@/components/marketing/TemplateGallery";
+import { MARKETING_PHOTOS } from "@/lib/marketing/imagery";
 
 export const dynamic = "force-dynamic";
 
@@ -592,112 +593,66 @@ function FeatureCard({
 
 function SiteFigure() {
   return (
-    <div
-      style={{
-        display: "grid",
-        gridTemplateColumns: "1.4fr 1fr 1fr",
-        gap: ".4rem",
-        height: "100%",
-        minHeight: 120,
-      }}
-      aria-hidden="true"
-    >
-      {["💅🏾", "🌸", "✨"].map((emoji, index) => (
-        <div
-          key={emoji}
-          style={{
-            display: "grid",
-            placeItems: "center",
-            borderRadius: 14,
-            fontSize: index === 0 ? "1.9rem" : "1.2rem",
-            background:
-              index === 0
-                ? "linear-gradient(135deg, var(--brand-rose-light), var(--brand-beige))"
-                : "var(--brand-rose-pale)",
-          }}
-        >
-          {emoji}
-        </div>
-      ))}
+    <div className="figure-strip" aria-hidden="true">
+      {[MARKETING_PHOTOS.nails, MARKETING_PHOTOS.detail, MARKETING_PHOTOS.salon].map(
+        (url, index) => (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            key={url}
+            src={url}
+            alt=""
+            loading="lazy"
+            data-lead={index === 0 ? "true" : undefined}
+          />
+        ),
+      )}
     </div>
   );
 }
 
 function SlotsFigure() {
   return (
-    <div style={{ display: "flex", flexWrap: "wrap", gap: ".35rem" }} aria-hidden="true">
-      {["09:00", "10:30", "14:00", "16:00"].map((slot) => {
-        const chosen = slot === "14:00";
-        return (
-          <span
-            key={slot}
-            style={{
-              padding: ".35rem .65rem",
-              borderRadius: 999,
-              fontSize: ".78rem",
-              fontWeight: chosen ? 700 : 400,
-              border: `1px solid ${chosen ? "var(--brand-primary)" : "var(--brand-border)"}`,
-              background: chosen ? "var(--brand-primary)" : "transparent",
-              color: chosen ? "var(--brand-primary-fg)" : "var(--brand-muted)",
-            }}
-          >
+    <div className="figure-slots">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={MARKETING_PHOTOS.manicure} alt="" loading="lazy" aria-hidden="true" />
+      <div className="figure-slots-chips" aria-hidden="true">
+        {["09:00", "10:30", "14:00", "16:00"].map((slot) => (
+          <span key={slot} data-chosen={slot === "14:00" ? "true" : undefined}>
             {slot}
           </span>
-        );
-      })}
+        ))}
+      </div>
     </div>
   );
 }
 
 function PaidFigure() {
   return (
-    <div
-      aria-hidden="true"
-      style={{
-        display: "inline-flex",
-        alignItems: "center",
-        gap: ".5rem",
-        padding: ".55rem .85rem",
-        borderRadius: 14,
-        background: "var(--tone-success-bg)",
-        color: "var(--tone-success-fg)",
-        fontWeight: 600,
-        fontSize: ".85rem",
-      }}
-    >
-      ✓ Paiement reçu
+    <div className="figure-slots">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={MARKETING_PHOTOS.care} alt="" loading="lazy" aria-hidden="true" />
+      <span className="figure-badge" aria-hidden="true">
+        ✓ Acompte reçu
+      </span>
     </div>
   );
 }
 
 function TeamFigure() {
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: ".6rem" }} aria-hidden="true">
-      <div style={{ display: "flex" }}>
-        {["A", "I", "D"].map((initial, index) => (
-          <span
-            key={initial}
-            style={{
-              display: "grid",
-              placeItems: "center",
-              width: 36,
-              height: 36,
-              borderRadius: 999,
-              background: index === 0 ? "var(--brand-primary)" : "var(--brand-beige)",
-              color: index === 0 ? "var(--brand-primary-fg)" : "var(--brand-chocolate)",
-              border: "2px solid var(--brand-surface)",
-              marginLeft: index === 0 ? 0 : -10,
-              fontSize: ".8rem",
-              fontWeight: 700,
-            }}
-          >
-            {initial}
-          </span>
-        ))}
-      </div>
-      <span style={{ fontSize: ".8rem", color: "var(--brand-muted)" }}>
-        Agenda ✓ · Chiffres ✕
-      </span>
+    <div className="figure-strip" aria-hidden="true">
+      {[MARKETING_PHOTOS.salon, MARKETING_PHOTOS.tools, MARKETING_PHOTOS.portrait].map(
+        (url, index) => (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img
+            key={url}
+            src={url}
+            alt=""
+            loading="lazy"
+            data-lead={index === 0 ? "true" : undefined}
+          />
+        ),
+      )}
     </div>
   );
 }

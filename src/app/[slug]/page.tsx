@@ -532,9 +532,10 @@ function Services({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolea
                   gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 270px), 1fr))",
                 }}
               >
-                {group.services.map((service) => (
+                {group.services.map((service, position) => (
                   <li key={service.id}>
                     <ServiceCard
+                      index={position}
                       providerSlug={site.slug}
                       bookingOpen={bookingOpen}
                       service={toServiceCard(service, {
