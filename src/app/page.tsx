@@ -5,10 +5,12 @@ import {
   PLANS,
   PLAN_ORDER,
   planHighlights,
+  expandRequirements,
+  requirementLabels,
   sellableFeatures,
   yearlyPrice,
 } from "@/lib/plans/catalogue";
-import type { Plan } from "@prisma/client";
+import type { Plan, PlanFeature } from "@prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -208,10 +210,23 @@ export default async function HomePage() {
                       borderTop: index === 0 ? "none" : "1px solid var(--brand-border)",
                     }}
                   >
-                    <span>{FEATURES[feature].label}</span>
+                    <span>
+                      {FEATURES[feature].label}
+                      {requirementLabels(feature).length > 0 ? (
+                        <span
+                          style={{
+                            display: "block",
+                            fontSize: ".78rem",
+                            color: "var(--brand-muted)",
+                          }}
+                        >
+                          avec {requirementLabels(feature).join(" et ")}
+                        </span>
+                      ) : null}
+                    </span>
                     <span style={{ textAlign: "right", whiteSpace: "nowrap" }}>
                       <span style={{ fontWeight: 700 }}>
-                        {fcfa(FEATURES[feature].monthly)} F
+                        {fcfa(moduleMonthly(feature))} F
                         <span style={{ fontWeight: 400, color: "var(--brand-muted)" }}>
                           /mois
                         </span>
@@ -223,7 +238,7 @@ export default async function HomePage() {
                           color: "var(--brand-muted)",
                         }}
                       >
-                        {fcfa(yearlyPrice(FEATURES[feature].monthly))} F/an
+                        {fcfa(yearlyPrice(moduleMonthly(feature)))} F/an
                       </span>
                     </span>
                   </li>
@@ -384,5 +399,19 @@ function Feature({ title, body }: { title: string; body: string }) {
         {body}
       </p>
     </div>
+  );
+}
+
+/**
+ * What a module costs on its own, everything it depends on included.
+ *
+ * Quoting the bare price would understate it: nobody can buy online payment
+ * without the deposits it collects, so the figure a prospect compares has to
+ * be the one she would actually pay.
+ */
+function moduleMonthly(feature: PlanFeature): number {
+  return expandRequirements([feature]).reduce(
+    (total, part) => total + FEATURES[part].monthly,
+    0,
   );
 }

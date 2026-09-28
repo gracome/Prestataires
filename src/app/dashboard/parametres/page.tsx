@@ -15,6 +15,8 @@ import {
 } from "@/components/dashboard/SettingsForms";
 import { PaymentGatewayForm } from "@/components/dashboard/PaymentGatewayForm";
 import { CustomDomainForm } from "@/components/dashboard/CustomDomainForm";
+import { PushToggle } from "@/components/dashboard/PushToggle";
+import { publicVapidKey } from "@/lib/notifications/push";
 import { featuresOf } from "@/lib/auth/features";
 
 export const dynamic = "force-dynamic";
@@ -145,6 +147,12 @@ export default async function ParametresPage({
           />
         </Section>
       ) : null}
+      <Section
+        title="Notifications sur votre téléphone"
+        description="Soyez prévenue immédiatement, sans attendre un email."
+      >
+        <PushToggle vapidPublicKey={publicVapidKey()} />
+      </Section>
       <Section title="Mot de passe">
         <PasswordForm />
       </Section>
