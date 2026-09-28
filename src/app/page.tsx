@@ -19,12 +19,22 @@ export const dynamic = "force-dynamic";
  */
 const CONTACT_URL = "";
 
+/**
+ * Paying by the year costs ten months instead of twelve. One rule for every
+ * package and every module, so the saving is the same sentence everywhere and
+ * nobody has to compare percentages.
+ */
+const MONTHS_CHARGED_YEARLY = 10;
+
+function yearlyPrice(monthly: number): number {
+  return monthly * MONTHS_CHARGED_YEARLY;
+}
+
 type Plan = {
   id: string;
   name: string;
   emoji: string;
   monthly: number;
-  yearly: number;
   pitch: string;
   /** Named so each card says what it builds on instead of repeating it. */
   includes?: string;
@@ -37,8 +47,7 @@ const PLANS: Plan[] = [
     id: "essentiel",
     name: "Essentiel",
     emoji: "🤍",
-    monthly: 4000,
-    yearly: 48000,
+    monthly: 5000,
     pitch: "Pour une présence professionnelle en ligne.",
     features: [
       "Site web professionnel personnalisé",
@@ -55,8 +64,7 @@ const PLANS: Plan[] = [
     id: "rendez-vous",
     name: "Rendez-vous",
     emoji: "📅",
-    monthly: 6000,
-    yearly: 72000,
+    monthly: 7500,
     pitch: "Pour gérer facilement les prises de rendez-vous.",
     includes: "Essentiel",
     recommended: true,
@@ -73,8 +81,7 @@ const PLANS: Plan[] = [
     id: "business",
     name: "Business",
     emoji: "👑",
-    monthly: 10000,
-    yearly: 120000,
+    monthly: 12000,
     pitch: "Pour gérer son activité et déléguer certaines tâches.",
     includes: "Rendez-vous",
     features: [
@@ -90,15 +97,15 @@ const PLANS: Plan[] = [
   },
 ];
 
-const MODULES: Array<{ name: string; yearly: number }> = [
-  { name: "Réservation en ligne", yearly: 30000 },
-  { name: "Gestion des collaborateurs", yearly: 20000 },
-  { name: "Caisse", yearly: 15000 },
-  { name: "Gestion des acomptes", yearly: 15000 },
-  { name: "Google Calendar", yearly: 10000 },
-  { name: "Demandes de devis", yearly: 10000 },
-  { name: "Statistiques", yearly: 10000 },
-  { name: "Rappels automatiques", yearly: 10000 },
+const MODULES: Array<{ name: string; monthly: number }> = [
+  { name: "Réservation en ligne", monthly: 3000 },
+  { name: "Gestion des collaborateurs", monthly: 2000 },
+  { name: "Caisse", monthly: 1500 },
+  { name: "Gestion des acomptes", monthly: 1500 },
+  { name: "Google Calendar", monthly: 1000 },
+  { name: "Demandes de devis", monthly: 1000 },
+  { name: "Statistiques", monthly: 1000 },
+  { name: "Rappels automatiques", monthly: 1000 },
 ];
 
 /** 48000 -> "48 000", with a narrow no-break space holding the groups together. */
@@ -222,11 +229,12 @@ export default async function HomePage() {
                 className="font-display"
                 style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)", lineHeight: 1.2, margin: ".5rem 0 .75rem" }}
               >
-                Un abonnement annuel, sans commission sur vos rendez-vous.
+                Un abonnement simple, sans commission sur vos rendez-vous.
               </h2>
               <p style={{ margin: 0, color: "var(--brand-muted)", lineHeight: 1.7 }}>
-                Vos clientes vous paient directement, sur votre propre compte.
-                Nous ne prenons rien au passage.
+                Vos clientes vous paient directement, sur votre propre compte :
+                nous ne prenons rien au passage. Payez au mois, ou réglez
+                l&apos;année et profitez de <strong>deux mois offerts</strong>.
               </p>
             </div>
 
@@ -276,9 +284,22 @@ export default async function HomePage() {
                     }}
                   >
                     <span>{module.name}</span>
-                    <span style={{ fontWeight: 700, whiteSpace: "nowrap" }}>
-                      {fcfa(module.yearly)} F
-                      <span style={{ fontWeight: 400, color: "var(--brand-muted)" }}>/an</span>
+                    <span style={{ textAlign: "right", whiteSpace: "nowrap" }}>
+                      <span style={{ fontWeight: 700 }}>
+                        {fcfa(module.monthly)} F
+                        <span style={{ fontWeight: 400, color: "var(--brand-muted)" }}>
+                          /mois
+                        </span>
+                      </span>
+                      <span
+                        style={{
+                          display: "block",
+                          fontSize: ".82rem",
+                          color: "var(--brand-muted)",
+                        }}
+                      >
+                        {fcfa(yearlyPrice(module.monthly))} F/an
+                      </span>
                     </span>
                   </li>
                 ))}
@@ -360,9 +381,31 @@ function PlanCard({ plan }: { plan: Plan }) {
           </span>
           <span style={{ color: "var(--brand-muted)", fontSize: ".9rem" }}>/ mois</span>
         </p>
-        <p style={{ margin: ".35rem 0 0", color: "var(--brand-muted)", fontSize: ".88rem" }}>
-          soit {fcfa(plan.yearly)} FCFA par an
-        </p>
+
+        <div
+          style={{
+            marginTop: ".6rem",
+            padding: ".55rem .7rem",
+            borderRadius: 12,
+            background: "var(--brand-background)",
+            border: "1px solid var(--brand-border)",
+          }}
+        >
+          <p style={{ margin: 0, fontSize: ".9rem" }}>
+            ou <strong>{fcfa(yearlyPrice(plan.monthly))} F</strong> par an
+          </p>
+          <p
+            style={{
+              margin: ".15rem 0 0",
+              fontSize: ".82rem",
+              fontWeight: 700,
+              color: "var(--brand-primary)",
+            }}
+          >
+            2 mois offerts — vous économisez{" "}
+            {fcfa(plan.monthly * 12 - yearlyPrice(plan.monthly))} F
+          </p>
+        </div>
       </div>
 
       <p style={{ margin: 0, color: "var(--brand-muted)", lineHeight: 1.6, fontSize: ".92rem" }}>
