@@ -1786,3 +1786,90 @@ table.data tr:last-child td {
     transition: none;
   }
 }
+
+/* The login link is a courtesy for people who already have an account; it
+   never competes with the button beside it. */
+.site-header-login {
+  display: none;
+}
+
+@media (min-width: 760px) {
+  .site-header-login {
+    display: inline;
+    margin-right: 0.4rem;
+  }
+}
+
+/* The product tour sits on cream inside a curved section, so it needs a frame
+   of its own to stop the mock screens floating loose. */
+.tour-frame {
+  max-width: 62rem;
+  margin: 0 auto;
+}
+
+/* ---------------------------------------------------------------------------
+ * Dashboard: appointments as cards
+ *
+ * A day's work read as rows in a list is a spreadsheet. The same information
+ * as cards — the hour first and set apart, the client's name next — is what a
+ * provider actually scans between two customers, on a phone.
+ * ------------------------------------------------------------------------- */
+
+.appt-card {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 0.85rem;
+  border-radius: 14px;
+  border: 1px solid var(--admin-border);
+  background: var(--admin-surface);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.appt-card:hover {
+  border-color: var(--admin-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 24px -18px rgb(51 32 44 / 45%);
+}
+
+/* The hour gets its own tile: it is the one thing scanned down the column, and
+   a bold number in a row of text does not separate enough. */
+.appt-card > span:first-child {
+  display: grid;
+  place-items: center;
+  min-width: 56px;
+  padding: 0.35rem 0.5rem;
+  border-radius: 10px;
+  background: var(--admin-subtle);
+  color: var(--admin-text);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .appt-card {
+    transition: none;
+  }
+  .appt-card:hover {
+    transform: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Dashboard polish
+ * ------------------------------------------------------------------------- */
+
+/* Figures are the point of the screen, so they are set like a headline rather
+   than like a table cell. */
+.admin .kpi-value,
+.admin .stat-value {
+  font-family: var(--font-heading);
+  letter-spacing: -0.01em;
+}
+
+.admin .card {
+  border-radius: 18px;
+}

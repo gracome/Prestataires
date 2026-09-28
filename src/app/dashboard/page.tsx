@@ -340,7 +340,7 @@ async function Board({
                   <li key={appointment.id}>
                     <Link
                       href={`/dashboard/reservations/${appointment.id}`}
-                      style={rowLinkStyle}
+                      className="appt-card"
                     >
                       <span
                         style={{
@@ -382,7 +382,7 @@ async function Board({
                   <li key={appointment.id}>
                     <Link
                       href={`/dashboard/reservations/${appointment.id}`}
-                      style={rowLinkStyle}
+                      className="appt-card"
                     >
                       <span style={{ minWidth: 0, flex: 1 }}>
                         <span style={{ display: "block", fontWeight: 600 }}>
@@ -533,7 +533,7 @@ function TodoList({ items }: { items: Todo[] }) {
     <ul style={listStyle}>
       {pending.map((item) => (
         <li key={item.href}>
-          <Link href={item.href} style={rowLinkStyle}>
+          <Link href={item.href} className="appt-card">
             <span
               className={item.urgent ? "pill pill-danger" : "pill pill-neutral"}
               style={{ flexShrink: 0, fontVariantNumeric: "tabular-nums" }}
@@ -580,18 +580,7 @@ const listStyle: React.CSSProperties = {
   margin: 0,
   padding: 0,
   display: "grid",
-  gap: ".1rem",
-};
-
-const rowLinkStyle: React.CSSProperties = {
-  display: "flex",
-  gap: ".7rem",
-  alignItems: "center",
-  padding: ".5rem .4rem",
-  margin: "0 -.4rem",
-  borderRadius: 8,
-  textDecoration: "none",
-  color: "inherit",
+  gap: ".5rem",
 };
 
 const metaStyle: React.CSSProperties = {
