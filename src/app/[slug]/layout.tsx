@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getPublicSite, getPublicSiteOrNotFound } from "@/lib/providers/public-site";
+import { getPublicSite, getPublicSiteOrNotFound, bookingSubscribed } from "@/lib/providers/public-site";
 import { googleFontsHref, themeStyle } from "@/lib/theme";
 import { SiteHeader, type NavItem } from "@/components/public/SiteHeader";
 import { SiteFooter } from "@/components/public/SiteFooter";
@@ -64,6 +64,7 @@ export default async function ProviderSiteLayout({
 
   const settings = site.siteSettings;
   const bookingEnabled =
+    bookingSubscribed(site) &&
     (settings?.showBooking ?? true) &&
     (site.bookingSettings?.bookingEnabled ?? true) &&
     site.services.some((service) => service.priceType !== "QUOTE_ONLY");

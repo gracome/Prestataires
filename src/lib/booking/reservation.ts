@@ -5,6 +5,7 @@ import type {
   Prisma,
 } from "@prisma/client";
 import { isSlotConflictError, prisma } from "@/lib/db";
+import { hasFeature } from "@/lib/auth/features";
 import { bookingReference } from "@/lib/ids";
 import { randomToken } from "@/lib/crypto";
 import { computeDeposit } from "@/lib/money";
@@ -93,11 +94,17 @@ export async function createBooking(
   const window = computeWindow(input.startsAt, context.service, context.rules);
 
   const totalAmount = service.price;
-  const depositAmount = computeDeposit(totalAmount, {
-    depositRequired: service.depositRequired,
-    depositType: service.depositType,
-    depositValue: service.depositValue,
-  });
+  // A prestation may be configured to ask for a deposit from a time when the
+  // module was subscribed to. Without it the booking is simply confirmed
+  // outright: the customer must never be sent to a payment page the provider
+  // can no longer act on.
+  const depositAmount = hasFeature(provider, "DEPOSITS")
+    ? computeDeposit(totalAmount, {
+        depositRequired: service.depositRequired,
+        depositType: service.depositType,
+        depositValue: service.depositValue,
+      })
+    : 0;
 
   const validationMethod = resolveValidationMethod(depositAmount);
   const requiresDeposit = validationMethod !== "NO_DEPOSIT";

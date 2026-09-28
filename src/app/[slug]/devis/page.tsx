@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { hasFeature } from "@/lib/auth/features";
 import { getPublicSite, getPublicSiteOrNotFound } from "@/lib/providers/public-site";
 import { QuoteEstimator } from "@/components/booking/QuoteEstimator";
 import { loadEstimatorConfig, loadQuoteTexts } from "@/lib/quotes/config";
@@ -35,6 +37,10 @@ export default async function QuotePage({
   const { slug } = await params;
   const { service } = await searchParams;
   const site = await getPublicSiteOrNotFound(slug);
+
+  // Not subscribed: the page must not exist rather than exist and refuse, so
+  // no visitor is invited to fill in a form nobody will receive.
+  if (!hasFeature(site, "QUOTES")) notFound();
 
   const [config, texts] = await Promise.all([
     loadEstimatorConfig(site.id),

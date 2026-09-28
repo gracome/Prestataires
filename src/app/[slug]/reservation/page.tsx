@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getPublicSiteOrNotFound } from "@/lib/providers/public-site";
+import { getPublicSiteOrNotFound, bookingSubscribed } from "@/lib/providers/public-site";
 import { BookingFlow, type FlowService } from "@/components/booking/BookingFlow";
 import { computeDeposit, formatMoney } from "@/lib/money";
 import { formatDurationFr, toLocalDate } from "@/lib/time";
@@ -36,6 +36,7 @@ export default async function BookingPage({
   const site = await getPublicSiteOrNotFound(slug);
 
   const bookingOpen =
+    bookingSubscribed(site) &&
     (site.siteSettings?.showBooking ?? true) &&
     (site.bookingSettings?.bookingEnabled ?? true);
 

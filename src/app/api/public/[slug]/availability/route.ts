@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
+import { hasFeature } from "@/lib/auth/features";
 import {
   AvailabilityError,
   getAvailability,
@@ -74,10 +75,15 @@ export async function GET(
 
   const provider = await prisma.provider.findFirst({
     where: { slug: slug.toLowerCase(), status: "ACTIVE" },
-    select: { id: true },
+    select: { id: true, plan: true, extraModules: true },
   });
 
   if (!provider) {
+    return NextResponse.json({ error: "Prestataire introuvable." }, { status: 404 });
+  }
+
+  // Free slots are only meaningful where a slot can be taken.
+  if (!hasFeature(provider, "BOOKING")) {
     return NextResponse.json({ error: "Prestataire introuvable." }, { status: 404 });
   }
 

@@ -7,6 +7,7 @@ import { roleLabelFr } from "@/lib/auth/permissions";
 import { PageHeader, StatCard, statGrid } from "@/components/dashboard/ui";
 import { Panel, StatusTag, formatDay, formatMoment } from "@/components/admin/ui";
 import { ProviderActions } from "@/components/admin/ProviderActions";
+import { SubscriptionPanel } from "@/components/admin/SubscriptionPanel";
 import { EditProviderForm } from "@/components/admin/EditProviderForm";
 
 /**
@@ -42,6 +43,21 @@ export default async function ProviderDetail({
       timezone: true,
       currency: true,
       locale: true,
+      plan: true,
+      billingPeriod: true,
+      extraModules: true,
+      subscriptionEndsAt: true,
+      subscriptionPayments: {
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        select: {
+          id: true,
+          amount: true,
+          currency: true,
+          periodEndsAt: true,
+          createdAt: true,
+        },
+      },
       description: true,
       tagline: true,
       whatsappPhone: true,
@@ -181,6 +197,20 @@ export default async function ProviderDetail({
             providerId={provider.id}
             businessName={provider.businessName}
             status={provider.status}
+          />
+
+          <SubscriptionPanel
+            providerId={provider.id}
+            plan={provider.plan}
+            billingPeriod={provider.billingPeriod}
+            extraModules={provider.extraModules}
+            currency={provider.currency}
+            subscriptionEndsAt={provider.subscriptionEndsAt?.toISOString() ?? null}
+            payments={provider.subscriptionPayments.map((payment) => ({
+              ...payment,
+              periodEndsAt: payment.periodEndsAt.toISOString(),
+              createdAt: payment.createdAt.toISOString(),
+            }))}
           />
 
           <Panel title="Visites de support">

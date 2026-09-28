@@ -6,8 +6,9 @@ import { useCallback, useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 import { logout } from "@/app/login/actions";
 import { NavIcon, type IconName } from "./nav-icons";
-import { canAccess, type Section } from "@/lib/auth/permissions";
-import type { UserRole } from "@prisma/client";
+import { type Section } from "@/lib/auth/permissions";
+import { canOpenSection } from "@/lib/auth/features";
+import type { PlanFeature, UserRole } from "@prisma/client";
 
 /**
  * Dashboard chrome (cahier des charges section 19).
@@ -102,6 +103,7 @@ export function DashboardShell({
   badges,
   themeStyle,
   role,
+  features,
 }: {
   children: React.ReactNode;
   businessName: string;
@@ -112,6 +114,8 @@ export function DashboardShell({
   themeStyle: CSSProperties;
   /** Decides which entries are drawn. The guard decides which open. */
   role: UserRole;
+  /** What the subscription includes. Same table the guard refuses on. */
+  features: PlanFeature[];
 }) {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -240,7 +244,7 @@ export function DashboardShell({
           </div>
 
           <ul className="admin-nav-list">
-            {NAV.filter((entry) => canAccess(role, entry.section)).map((entry) => {
+            {NAV.filter((entry) => canOpenSection(role, entry.section, features)).map((entry) => {
               const active =
                 entry.href === "/dashboard"
                   ? pathname === "/dashboard"

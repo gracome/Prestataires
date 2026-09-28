@@ -1,4 +1,9 @@
 import { prisma } from "@/lib/db";
+import { featureWhere } from "@/lib/auth/features";
+import {
+  sendRenewalNotices,
+  suspendLapsedSubscriptions,
+} from "@/lib/plans/subscription";
 import {
   completePastAppointments,
   releaseExpiredAppointments,
@@ -22,6 +27,8 @@ export type JobReport = {
   remindersSent: number;
   calendarsSynced: number;
   sessionsPurged: number;
+  subscriptionsSuspended: number;
+  renewalNotices: number;
   durationMs: number;
   errors: string[];
 };
@@ -44,6 +51,8 @@ export async function runScheduledJobs(
   let remindersSent = 0;
   let calendarsSynced = 0;
   let sessionsPurged = 0;
+  let subscriptionsSuspended = 0;
+  let renewalNotices = 0;
 
   try {
     // 1. Release lapsed holds and unverified proofs.
@@ -69,7 +78,13 @@ export async function runScheduledJobs(
       calendarsSynced = await syncCalendars(errors);
     }
 
-    // 6. Housekeeping.
+    // 6. Subscriptions: warn before the period ends, withdraw access after.
+    //    Suspension is the existing lever, so a lapsed account disappears from
+    //    the public site and every booking route without anything else to do.
+    renewalNotices = await sendRenewalNotices(now, errors);
+    subscriptionsSuspended = await suspendLapsedSubscriptions(now);
+
+    // 7. Housekeeping.
     sessionsPurged = await purgeExpiredSessions();
   } catch (error) {
     errors.push(error instanceof Error ? error.message : String(error));
@@ -82,6 +97,8 @@ export async function runScheduledJobs(
     remindersSent,
     calendarsSynced,
     sessionsPurged,
+    subscriptionsSuspended,
+    renewalNotices,
     durationMs: Date.now() - started,
     errors,
   };
@@ -150,6 +167,8 @@ async function sendReminders(now: Date, errors: string[]): Promise<number> {
         status: "CONFIRMED",
         startsAt: { gte: from, lte: to },
         customerEmail: { not: null },
+        // Only for providers who subscribe to reminders.
+        provider: featureWhere("REMINDERS"),
       },
       select: { id: true },
       take: 200,
