@@ -296,7 +296,13 @@ function Services({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolea
   const showPrices = site.siteSettings?.showPricing !== false;
 
   return (
-    <section className="section" id="prestations" style={{ scrollMarginTop: 80 }}>
+    // The first band after the hero carries the curve that closes the
+    // photograph — see .section-curved.
+    <section
+      className="section section-curved"
+      id="prestations"
+      style={{ scrollMarginTop: 80 }}
+    >
       <div className="container">
         <SectionHead
           eyebrow="Prestations"
@@ -669,33 +675,82 @@ function Hours({ site }: { site: PublicSite }) {
   );
 }
 
+/**
+ * Where she works, on an actual map.
+ *
+ * An address printed in a box is the least useful form the information can
+ * take: nobody reads a street name in Cotonou and knows where to go. Shown on
+ * a map it answers the question; without one the section is removed rather
+ * than left as a heading over a small white rectangle.
+ *
+ * Coordinates give a precise pin through OpenStreetMap, which needs no key and
+ * loads nothing that follows the visitor. With only an address we fall back to
+ * Google's embed, which can find a place from its name — the common case here,
+ * where a street number is often approximate.
+ */
 function Location({ site }: { site: PublicSite }) {
+  const address = [site.addressLine, site.city, site.country]
+    .filter(Boolean)
+    .join(", ");
+
+  const hasPin = site.latitude !== null && site.longitude !== null;
+
+  const mapSrc = hasPin
+    ? `https://www.openstreetmap.org/export/embed.html?bbox=${
+        site.longitude! - 0.004
+      }%2C${site.latitude! - 0.003}%2C${site.longitude! + 0.004}%2C${
+        site.latitude! + 0.003
+      }&layer=mapnik&marker=${site.latitude}%2C${site.longitude}`
+    : address
+      ? `https://maps.google.com/maps?q=${encodeURIComponent(address)}&z=15&output=embed`
+      : null;
+
+  // Nothing to show on a map means nothing worth a section.
+  if (!mapSrc) return null;
+
+  const directions =
+    site.mapsUrl ??
+    `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+
   return (
     <section className="section" id="localisation" style={{ scrollMarginTop: 80 }}>
       <div className="container">
         <SectionHead eyebrow="Nous trouver" title="Localisation" />
 
-        <div className="card" style={{ maxWidth: 480 }}>
-          <p style={{ margin: 0, lineHeight: 1.7 }}>
-            {[site.addressLine, site.city, site.country].filter(Boolean).join(", ")}
-          </p>
-          {site.mapsUrl ? (
+        <div className="band">
+          <div>
+            <p className="location-address">{address}</p>
+
+            {site.city ? (
+              <p className="location-note">
+                Le quartier est indiqué sur la carte. Écrivez-nous si vous
+                préférez un point de repère.
+              </p>
+            ) : null}
+
             <a
-              href={site.mapsUrl}
+              href={directions}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn btn-secondary"
-              style={{ marginTop: "1rem", padding: ".55rem 1.1rem", minHeight: 40, fontSize: ".88rem" }}
+              className="btn btn-primary"
             >
-              Ouvrir dans Maps
+              Ouvrir l&apos;itinéraire →
             </a>
-          ) : null}
+          </div>
+
+          <div className="location-map">
+            <iframe
+              src={mapSrc}
+              title={`Carte — ${site.businessName}`}
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+            />
+          </div>
         </div>
       </div>
     </section>
   );
 }
-
 function Faq({ site }: { site: PublicSite }) {
   return (
     <section className="section" id="faq" style={{ scrollMarginTop: 80 }}>

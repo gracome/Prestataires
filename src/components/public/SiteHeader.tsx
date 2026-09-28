@@ -8,9 +8,15 @@ export type NavItem = { href: string; label: string };
 /**
  * Public site header.
  *
- * Mobile first: below 900px the links collapse into a disclosure panel and
- * the booking call to action stays visible at all times, since booking is
- * what most visitors came to do.
+ * A pill floating over the hero photograph rather than a bar sitting on top of
+ * it: the photograph is the first thing a visitor should see, and a solid band
+ * across it crops the very image the site is selling.
+ *
+ * It stays translucent while the hero is behind it and turns solid once the
+ * page has scrolled past, because glass over cream is unreadable.
+ *
+ * Mobile first: below 900px the links collapse into a panel and the booking
+ * call to action stays visible, since booking is what most visitors came for.
  */
 export function SiteHeader({
   businessName,
@@ -28,6 +34,7 @@ export function SiteHeader({
   bookingEnabled: boolean;
 }) {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
   // Close the panel when the viewport grows past the mobile breakpoint, so the
   // page never gets stuck with both the panel and the inline nav showing.
@@ -41,137 +48,71 @@ export function SiteHeader({
     return () => query.removeEventListener("change", handle);
   }, []);
 
+  // Roughly the height of the hero. Past it there is no photograph left to be
+  // transparent over.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 120);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header
-      style={{
-        position: "sticky",
-        top: 0,
-        zIndex: 40,
-        background: "color-mix(in srgb, var(--brand-background) 88%, transparent)",
-        backdropFilter: "blur(10px)",
-        borderBottom: "1px solid var(--brand-border)",
-      }}
-    >
-      <div
-        className="container"
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "1rem",
-          minHeight: 68,
-        }}
-      >
-        <Link
-          href={homeHref}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: ".6rem",
-            textDecoration: "none",
-            color: "var(--brand-text)",
-            marginRight: "auto",
-            minWidth: 0,
-          }}
-        >
-          {logoUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={logoUrl}
-              alt=""
-              width={38}
-              height={38}
-              style={{
-                borderRadius: "50%",
-                objectFit: "cover",
-                flexShrink: 0,
-              }}
-            />
-          ) : null}
-          <span
-            className="font-display"
-            style={{
-              fontSize: "1.12rem",
-              overflow: "hidden",
-              textOverflow: "ellipsis",
-              whiteSpace: "nowrap",
-            }}
-          >
-            {businessName}
-          </span>
-        </Link>
+    <header className="site-header" data-scrolled={scrolled ? "true" : undefined}>
+      <div className="container">
+        <div className="site-bar">
+          <nav aria-label="Navigation principale" className="site-nav">
+            {nav.map((item) => (
+              <a key={item.href} href={item.href} className="site-nav-link">
+                {item.label}
+              </a>
+            ))}
+          </nav>
 
-        <nav aria-label="Navigation principale" className="site-nav">
-          {nav.map((item) => (
-            <a key={item.href} href={item.href} className="site-nav-link">
-              {item.label}
-            </a>
-          ))}
-        </nav>
-
-        {bookingEnabled ? (
-          <Link href={bookingHref} className="btn btn-primary site-cta">
-            Réserver
+          <Link href={homeHref} className="site-brand">
+            {logoUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={logoUrl} alt="" width={32} height={32} />
+            ) : (
+              <span aria-hidden="true" className="site-brand-mark">
+                ✿
+              </span>
+            )}
+            <span className="site-brand-name">{businessName}</span>
           </Link>
-        ) : null}
 
-        <button
-          type="button"
-          className="btn btn-secondary site-burger"
-          aria-expanded={open}
-          aria-controls="site-mobile-nav"
-          onClick={() => setOpen((value) => !value)}
-        >
-          <span className="visually-hidden">
-            {open ? "Fermer le menu" : "Ouvrir le menu"}
-          </span>
-          <span aria-hidden="true">{open ? "✕" : "☰"}</span>
-        </button>
-      </div>
+          <div className="site-actions">
+            {bookingEnabled ? (
+              <Link href={bookingHref} className="site-cta">
+                Réserver <span aria-hidden="true">›</span>
+              </Link>
+            ) : null}
 
-      <div
-        id="site-mobile-nav"
-        hidden={!open}
-        style={{ borderTop: "1px solid var(--brand-border)" }}
-      >
-        <nav className="container" aria-label="Navigation" style={{ padding: "0.6rem 1.15rem 1rem" }}>
-          {nav.map((item) => (
-            <a
-              key={item.href}
-              href={item.href}
-              onClick={() => setOpen(false)}
-              style={{
-                display: "block",
-                padding: "0.7rem 0",
-                textDecoration: "none",
-                color: "var(--brand-text)",
-                fontWeight: 600,
-                borderBottom: "1px solid var(--brand-border)",
-              }}
+            <button
+              type="button"
+              className="site-burger"
+              aria-expanded={open}
+              aria-controls="site-mobile-nav"
+              onClick={() => setOpen((value) => !value)}
             >
-              {item.label}
-            </a>
-          ))}
-        </nav>
-      </div>
+              <span className="visually-hidden">
+                {open ? "Fermer le menu" : "Ouvrir le menu"}
+              </span>
+              <span aria-hidden="true">{open ? "✕" : "☰"}</span>
+            </button>
+          </div>
+        </div>
 
-      <style>{`
-        .site-nav { display: none; gap: 1.35rem; }
-        .site-nav-link {
-          text-decoration: none;
-          color: var(--brand-muted);
-          font-size: 0.92rem;
-          font-weight: 500;
-          white-space: nowrap;
-        }
-        .site-nav-link:hover { color: var(--brand-primary); }
-        .site-cta { display: none; padding: 0.6rem 1.25rem; min-height: 40px; }
-        .site-burger { padding: 0.55rem 0.8rem; min-height: 40px; }
-        @media (min-width: 900px) {
-          .site-nav { display: flex; }
-          .site-cta { display: inline-flex; }
-          .site-burger { display: none; }
-        }
-      `}</style>
+        <div id="site-mobile-nav" hidden={!open} className="site-panel">
+          <nav aria-label="Navigation">
+            {nav.map((item) => (
+              <a key={item.href} href={item.href} onClick={() => setOpen(false)}>
+                {item.label}
+              </a>
+            ))}
+          </nav>
+        </div>
+      </div>
     </header>
   );
 }
