@@ -14,7 +14,6 @@ import type { Plan, PlanFeature } from "@prisma/client";
 import { ProductTour } from "@/components/marketing/ProductTour";
 import { HeroSlideshow } from "@/components/public/HeroSlideshow";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
-import { TemplateGallery } from "@/components/marketing/TemplateGallery";
 import { MARKETING_PHOTOS } from "@/lib/marketing/imagery";
 
 export const dynamic = "force-dynamic";
@@ -226,29 +225,6 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section className="section">
-          <div className="container">
-            <div style={{ maxWidth: 640, marginBottom: "1.75rem" }}>
-              <p className="eyebrow">Votre site</p>
-              <h2
-                className="font-display"
-                style={{
-                  fontSize: "clamp(1.6rem, 4vw, 2.2rem)",
-                  lineHeight: 1.2,
-                  margin: ".5rem 0 .75rem",
-                }}
-              >
-                Votre activité mérite son propre univers.
-              </h2>
-              <p style={{ margin: 0, color: "var(--brand-muted)", lineHeight: 1.7 }}>
-                Un site professionnel pensé à votre image, pas un simple
-                formulaire de réservation.
-              </p>
-            </div>
-
-            <TemplateGallery />
-          </div>
-        </section>
 
         <section
           id="tarifs"
@@ -316,7 +292,10 @@ export default async function HomePage() {
                       borderTop: index === 0 ? "none" : "1px solid var(--brand-border)",
                     }}
                   >
-                    <span>
+                    <Link
+                      href={`/modules/${FEATURES[feature].slug}`}
+                      style={{ color: "inherit", textDecoration: "none" }}
+                    >
                       {FEATURES[feature].label}
                       {requirementLabels(feature).length > 0 ? (
                         <span
@@ -329,7 +308,7 @@ export default async function HomePage() {
                           avec {requirementLabels(feature).join(" et ")}
                         </span>
                       ) : null}
-                    </span>
+                    </Link>
                     <span style={{ textAlign: "right", whiteSpace: "nowrap" }}>
                       <span style={{ fontWeight: 700 }}>
                         {fcfa(moduleMonthly(feature))} F

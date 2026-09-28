@@ -3,6 +3,9 @@ import { randomBytes } from "node:crypto";
 import type { Provider, ProviderStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { toMinorUnits } from "@/lib/money";
+import { appUrl } from "@/lib/env";
+import { sendMail } from "@/lib/email/mailer";
+import { providerPasswordReset, providerWelcome } from "@/lib/email/welcome";
 import { getActivity, type ActivityId, type Palette } from "./activities";
 
 /**
@@ -36,6 +39,8 @@ export type CreateProviderInput = {
   whatsappPhone?: string | null;
   /** Off when the provider already has her own list to import. */
   seedCatalogue?: boolean;
+  /** Off only for tests and dry runs: she normally must receive her password. */
+  sendWelcomeEmail?: boolean;
 };
 
 export type CreatedProvider = {
@@ -43,7 +48,16 @@ export type CreatedProvider = {
   email: string;
   /** Shown once and never stored in the clear. */
   password: string;
+  /**
+   * How the welcome letter went. The caller still shows the password on
+   * screen: an email that bounced must not leave an account nobody can open.
+   */
+  delivery: Delivery;
 };
+
+export type Delivery =
+  | { sent: true }
+  | { sent: false; reason: string };
 
 export class PlatformError extends Error {
   constructor(
@@ -172,7 +186,64 @@ export async function createProvider(
     await seedCatalogue(provider.id, input.activity, currency);
   }
 
-  return { provider, email, password };
+  const delivery =
+    input.sendWelcomeEmail === false
+      ? ({ sent: false, reason: "Envoi désactivé pour cette création." } as const)
+      : await deliverWelcome({
+          businessName,
+          ownerName,
+          email,
+          password,
+          slug,
+          primaryColor: palette.primaryColor,
+        });
+
+  return { provider, email, password, delivery };
+}
+
+/**
+ * Post the credentials.
+ *
+ * Never allowed to fail the creation: the account exists, the catalogue is
+ * written, and rolling all that back because a mail server hiccuped would be
+ * worse than an email the administrator has to resend. The outcome is returned
+ * so the screen can say which of the two happened.
+ */
+async function deliverWelcome(params: {
+  businessName: string;
+  ownerName: string;
+  email: string;
+  password: string;
+  slug: string;
+  primaryColor?: string;
+}): Promise<Delivery> {
+  try {
+    const letter = providerWelcome({
+      businessName: params.businessName,
+      ownerName: params.ownerName,
+      email: params.email,
+      password: params.password,
+      loginUrl: appUrl("/login"),
+      siteUrl: appUrl(`/${params.slug}`),
+      primaryColor: params.primaryColor,
+    });
+
+    const result = await sendMail({
+      to: params.email,
+      subject: letter.subject,
+      html: letter.html,
+      text: letter.text,
+    });
+
+    return result.ok
+      ? { sent: true }
+      : { sent: false, reason: result.error ?? "Envoi refusé par le serveur de mail." };
+  } catch (error) {
+    return {
+      sent: false,
+      reason: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 /**
@@ -259,10 +330,18 @@ export async function setProviderStatus(
  */
 export async function resetProviderPassword(
   providerId: string,
-): Promise<{ email: string; password: string }> {
+): Promise<{ email: string; password: string; delivery: Delivery }> {
   const user = await prisma.user.findFirst({
     where: { providerId, role: "PROVIDER" },
     orderBy: { createdAt: "asc" },
+    include: {
+      provider: {
+        select: {
+          businessName: true,
+          theme: { select: { primaryColor: true } },
+        },
+      },
+    },
   });
 
   if (!user) {
@@ -285,5 +364,36 @@ export async function resetProviderPassword(
     data: { revokedAt: new Date() },
   });
 
-  return { email: user.email, password };
+  // Same reasoning as a new account: the password only exists in readable form
+  // in this message, and an administrator reading it aloud down a telephone is
+  // not a delivery method.
+  let delivery: Delivery;
+  try {
+    const letter = providerPasswordReset({
+      businessName: user.provider?.businessName ?? "Votre espace",
+      ownerName: user.name,
+      email: user.email,
+      password,
+      loginUrl: appUrl("/login"),
+      primaryColor: user.provider?.theme?.primaryColor,
+    });
+
+    const result = await sendMail({
+      to: user.email,
+      subject: letter.subject,
+      html: letter.html,
+      text: letter.text,
+    });
+
+    delivery = result.ok
+      ? { sent: true }
+      : { sent: false, reason: result.error ?? "Envoi refusé par le serveur de mail." };
+  } catch (error) {
+    delivery = {
+      sent: false,
+      reason: error instanceof Error ? error.message : String(error),
+    };
+  }
+
+  return { email: user.email, password, delivery };
 }

@@ -133,7 +133,7 @@ async function ReservationsContent({
         />
       ) : (
         <div className="card table-scroll" style={{ padding: 0 }}>
-          <table className="data">
+          <table className="data" data-stack>
             <thead>
               <tr>
                 <th scope="col">Date</th>
@@ -146,7 +146,7 @@ async function ReservationsContent({
             <tbody>
               {appointments.map((appointment) => (
                 <tr key={appointment.id}>
-                  <td style={{ whiteSpace: "nowrap" }}>
+                  <td data-label="Date" style={{ whiteSpace: "nowrap" }}>
                     <Link
                       href={`/dashboard/reservations/${appointment.id}`}
                       style={{ fontWeight: 600, textDecoration: "none", color: "inherit" }}
@@ -158,14 +158,14 @@ async function ReservationsContent({
                       {formatLocalTime(appointment.serviceEndsAt, tz)}
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Cliente">
                     <span style={{ fontWeight: 600 }}>{appointment.customerName}</span>
                     <span style={{ display: "block", color: "var(--admin-muted)", fontSize: ".82rem" }}>
                       {appointment.customerPhone}
                     </span>
                   </td>
-                  <td>{appointment.service.name}</td>
-                  <td style={{ whiteSpace: "nowrap" }}>
+                  <td data-label="Prestation">{appointment.service.name}</td>
+                  <td data-label="Montant" style={{ whiteSpace: "nowrap" }}>
                     {formatMoney(appointment.totalAmount, appointment.currency, provider.locale)}
                     {appointment.depositAmount > 0 ? (
                       <span style={{ display: "block", color: "var(--admin-muted)", fontSize: ".82rem" }}>
@@ -174,7 +174,7 @@ async function ReservationsContent({
                       </span>
                     ) : null}
                   </td>
-                  <td>
+                  <td data-label="Statut">
                     <StatusPill status={appointment.status} />
                   </td>
                 </tr>
