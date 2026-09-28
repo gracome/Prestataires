@@ -6,6 +6,7 @@ import {
   savePushSubscriptionAction,
   sendTestPushAction,
 } from "@/app/dashboard/actions/push";
+import { urlBase64ToUint8Array } from "@/lib/notifications/vapid";
 
 /**
  * Turning notifications on for this device.
@@ -203,14 +204,6 @@ export function PushToggle({ vapidPublicKey }: { vapidPublicKey: string | null }
 /**
  * The VAPID key travels as base64url; the subscription API wants raw bytes.
  */
-function urlBase64ToUint8Array(base64: string): Uint8Array<ArrayBuffer> {
-  const padded = base64.padEnd(base64.length + ((4 - (base64.length % 4)) % 4), "=");
-  const normalised = padded.replace(/-/g, "+").replace(/_/g, "/");
-  const raw = atob(normalised);
-  const bytes = new Uint8Array(new ArrayBuffer(raw.length));
-  for (let i = 0; i < raw.length; i += 1) bytes[i] = raw.charCodeAt(i);
-  return bytes;
-}
 
 const muted = {
   margin: 0,

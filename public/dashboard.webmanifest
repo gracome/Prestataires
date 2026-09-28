@@ -1,0 +1,43 @@
+{
+  "name": "Mon espace prestataire",
+  "short_name": "Mon espace",
+  "description": "Rendez-vous, caisse et rapports de votre activité.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": "/dashboard",
+  "scope": "/dashboard",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f6f5f4",
+  "theme_color": "#b0797a",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Réservations",
+      "url": "/dashboard/reservations"
+    },
+    {
+      "name": "Caisse",
+      "url": "/dashboard/caisse"
+    }
+  ]
+}
