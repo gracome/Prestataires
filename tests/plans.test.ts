@@ -9,6 +9,7 @@ import {
   sellableFeatures,
   yearlyPrice,
 } from "@/lib/plans/catalogue";
+import { expandRequirements, requirementLabels } from "@/lib/plans/catalogue";
 import { addMonths } from "@/lib/plans/subscription";
 
 describe("entitlements", () => {
@@ -19,13 +20,23 @@ describe("entitlements", () => {
     expect(hasFeature(provider, "TILL")).toBe(false);
   });
 
-  it("grants online booking and the calendar sync on the middle package", () => {
+  it("covers the whole appointment on the middle package", () => {
+    // Taking a booking and being paid for it is one job, so the package that
+    // sells the first sells the second.
     const provider = { plan: "RENDEZ_VOUS" as const, extraModules: [] };
-    expect(hasFeature(provider, "BOOKING")).toBe(true);
-    expect(hasFeature(provider, "GOOGLE_CALENDAR")).toBe(true);
-    // Sold separately, or with the top package.
-    expect(hasFeature(provider, "DEPOSITS")).toBe(false);
+    for (const feature of [
+      "BOOKING",
+      "GOOGLE_CALENDAR",
+      "DEPOSITS",
+      "ONLINE_PAYMENT",
+      "REMINDERS",
+    ] as const) {
+      expect(hasFeature(provider, feature)).toBe(true);
+    }
+    // Running the business is the package above.
+    expect(hasFeature(provider, "TILL")).toBe(false);
     expect(hasFeature(provider, "REPORTS")).toBe(false);
+    expect(hasFeature(provider, "STAFF")).toBe(false);
   });
 
   it("adds modules bought on top of a package", () => {
@@ -155,5 +166,47 @@ describe("subscription periods", () => {
     const end = addMonths(new Date("2028-01-31T00:00:00Z"), 1);
     expect(end.getUTCMonth()).toBe(1);
     expect(end.getUTCDate()).toBe(29);
+  });
+});
+
+describe("module dependencies", () => {
+  it("brings in what a module stands on", () => {
+    // Online payment collects a deposit, which is attached to a booking.
+    expect(expandRequirements(["ONLINE_PAYMENT"]).sort()).toEqual(
+      ["BOOKING", "DEPOSITS", "ONLINE_PAYMENT"].sort(),
+    );
+  });
+
+  it("leaves an independent module alone", () => {
+    expect(expandRequirements(["TILL"])).toEqual(["TILL"]);
+    expect(requirementLabels("TILL")).toEqual([]);
+  });
+
+  it("does not duplicate a dependency reached twice", () => {
+    const expanded = expandRequirements(["DEPOSITS", "REMINDERS"]);
+    expect(expanded.filter((f) => f === "BOOKING")).toHaveLength(1);
+  });
+
+  it("charges for the dependencies it brings in", () => {
+    // Buying online payment on the entry package cannot cost less than the
+    // deposits and the booking it silently needs.
+    const alone = priceFor("ESSENTIEL", "MONTHLY", ["ONLINE_PAYMENT"]);
+    const parts =
+      PLANS.ESSENTIEL.monthly +
+      FEATURES.ONLINE_PAYMENT.monthly +
+      FEATURES.DEPOSITS.monthly +
+      FEATURES.BOOKING.monthly;
+    expect(alone).toBe(parts);
+  });
+
+  it("does not charge for a dependency the package already grants", () => {
+    // Rendez-vous already includes all three, so adding it changes nothing.
+    expect(priceFor("RENDEZ_VOUS", "MONTHLY", ["ONLINE_PAYMENT"])).toBe(
+      PLANS.RENDEZ_VOUS.monthly,
+    );
+  });
+
+  it("names its prerequisites for a price list", () => {
+    expect(requirementLabels("ONLINE_PAYMENT")).toContain("Gestion des acomptes");
   });
 });

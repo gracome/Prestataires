@@ -19,7 +19,8 @@
     "provider:create": "tsx --env-file-if-exists=.env scripts/create-provider.ts",
     "admin:create": "tsx --env-file-if-exists=.env scripts/create-admin.ts",
     "storage:check": "tsx --env-file-if-exists=.env scripts/check-storage.ts",
-    "mail:check": "tsx --env-file-if-exists=.env scripts/check-mail.ts"
+    "mail:check": "tsx --env-file-if-exists=.env scripts/check-mail.ts",
+    "push:keys": "tsx scripts/generate-vapid.ts"
   },
   "prisma": {
     "seed": "tsx --env-file-if-exists=.env prisma/seed.ts"
