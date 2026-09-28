@@ -1,12 +1,16 @@
 import Link from "next/link";
 
 /**
- * A prestation as a picture first.
+ * A prestation, told by its photograph.
  *
- * Most visitors do not know trade names like "remplissage gel" or
- * "semi-permanent". The photo carries the meaning, the plain sentence under
- * the title confirms it, and the price and duration answer the next question
- * without a click.
+ * The picture is the card, not an illustration sitting on top of one. Most
+ * visitors do not know trade names like "remplissage gel" or "semi-permanent";
+ * the photo carries the meaning before a single word is read, and the price
+ * sits above the name because it is the second thing anyone wants to know.
+ *
+ * Everything is laid over the image behind a gradient dark enough to hold
+ * white text whatever photo the provider uploads — a scrim tuned to one
+ * picture fails on the next one.
  */
 
 export type ServiceCardData = {
@@ -25,140 +29,58 @@ export type ServiceCardData = {
 export function ServiceCard({
   service,
   providerSlug,
-  bookingOpen,
+  index,
 }: {
   service: ServiceCardData;
   providerSlug: string;
-  bookingOpen: boolean;
+  /** Position in the list, drawn large and faint over the photograph. */
+  index?: number;
+  /** Kept for call-site compatibility; the card always leads to the detail. */
+  bookingOpen?: boolean;
 }) {
   const detailHref = `/${providerSlug}/prestations/${service.slug}`;
 
   return (
-    <article
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        background: "var(--brand-surface)",
-        border: "1px solid var(--brand-border)",
-        borderRadius: 18,
-        overflow: "hidden",
-        height: "100%",
-      }}
-    >
-      <Link
-        href={detailHref}
-        style={{ display: "block", position: "relative", textDecoration: "none" }}
-      >
-        <ServiceImage url={service.imageUrl} name={service.name} />
+    <article className="photo-card">
+      <Link href={detailHref} className="photo-card-link">
+        {service.imageUrl ? (
+          /* eslint-disable-next-line @next/next/no-img-element */
+          <img src={service.imageUrl} alt="" loading="lazy" className="photo-card-img" />
+        ) : (
+          <span aria-hidden="true" className="photo-card-fallback" />
+        )}
 
-        {service.popular ? (
-          <span
-            style={{
-              position: "absolute",
-              top: 12,
-              left: 12,
-              background: "var(--brand-surface)",
-              color: "var(--brand-text)",
-              borderRadius: 999,
-              padding: ".28rem .7rem",
-              fontSize: ".72rem",
-              fontWeight: 700,
-              letterSpacing: ".02em",
-            }}
-          >
-            Le plus demandé
+        <span className="photo-card-scrim" aria-hidden="true" />
+
+        {index !== undefined ? (
+          <span className="photo-card-number" aria-hidden="true">
+            {String(index + 1).padStart(2, "0")}
           </span>
         ) : null}
-      </Link>
 
-      <div
-        style={{
-          padding: "1.1rem 1.15rem 1.25rem",
-          display: "flex",
-          flexDirection: "column",
-          flex: 1,
-          gap: ".55rem",
-        }}
-      >
-        <div>
-          <h3 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, lineHeight: 1.3 }}>
-            <Link
-              href={detailHref}
-              style={{ color: "inherit", textDecoration: "none" }}
-            >
-              {service.name}
-            </Link>
-          </h3>
+        <span className="photo-card-body">
+          <span className="photo-card-meta">
+            {service.quoteOnly ? "Sur devis" : `À partir de ${service.priceLabel}`}
+            {service.popular ? <span className="photo-card-star"> · Populaire</span> : null}
+          </span>
+
+          <span className="photo-card-title">{service.name}</span>
 
           {service.shortDescription ? (
-            <p
-              style={{
-                margin: ".35rem 0 0",
-                fontSize: ".9rem",
-                lineHeight: 1.6,
-                color: "var(--brand-muted)",
-              }}
-            >
-              {service.shortDescription}
-            </p>
+            <span className="photo-card-desc">{service.shortDescription}</span>
           ) : null}
-        </div>
+        </span>
 
-        <ul
-          style={{
-            listStyle: "none",
-            margin: "auto 0 0",
-            padding: 0,
-            display: "flex",
-            flexWrap: "wrap",
-            gap: ".4rem",
-            paddingTop: ".35rem",
-          }}
-        >
-          <Chip>{service.durationLabel}</Chip>
-          <Chip strong>{service.priceLabel}</Chip>
-          {service.depositLabel ? (
-            <Chip>acompte {service.depositLabel}</Chip>
-          ) : null}
-        </ul>
-
-        <div style={{ display: "flex", gap: ".5rem", flexWrap: "wrap", marginTop: ".5rem" }}>
-          <Link
-            href={detailHref}
-            className="btn btn-secondary"
-            style={compactButton}
-          >
-            {service.stepCount > 0 ? "Voir le déroulé" : "En savoir plus"}
-          </Link>
-
-          {!service.quoteOnly && bookingOpen ? (
-            <Link
-              href={`/${providerSlug}/reservation?service=${service.slug}`}
-              className="btn btn-primary"
-              style={compactButton}
-            >
-              Réserver
-            </Link>
-          ) : service.quoteOnly ? (
-            <Link
-              href={`/${providerSlug}/devis`}
-              className="btn btn-primary"
-              style={compactButton}
-            >
-              Demander un devis
-            </Link>
-          ) : null}
-        </div>
-      </div>
+        <span className="photo-card-foot">
+          <span className="photo-card-arrow" aria-hidden="true">
+            ↗
+          </span>
+          <span className="photo-card-duration">{service.durationLabel}</span>
+        </span>
+      </Link>
     </article>
   );
 }
-
-/**
- * The photo, or a warm placeholder built from the prestation's initials when
- * the provider has not uploaded one yet. An empty grey box would make a new
- * site look broken.
- */
 export function ServiceImage({
   url,
   name,
@@ -214,35 +136,3 @@ export function ServiceImage({
     </div>
   );
 }
-
-function Chip({
-  children,
-  strong,
-}: {
-  children: React.ReactNode;
-  strong?: boolean;
-}) {
-  return (
-    <li
-      style={{
-        fontSize: ".78rem",
-        fontWeight: strong ? 700 : 500,
-        padding: ".25rem .6rem",
-        borderRadius: 999,
-        background: strong
-          ? "color-mix(in srgb, var(--brand-primary) 12%, transparent)"
-          : "color-mix(in srgb, var(--brand-text) 6%, transparent)",
-        color: strong ? "var(--brand-primary)" : "var(--brand-muted)",
-        whiteSpace: "nowrap",
-      }}
-    >
-      {children}
-    </li>
-  );
-}
-
-const compactButton: React.CSSProperties = {
-  padding: ".5rem 1rem",
-  minHeight: 40,
-  fontSize: ".85rem",
-};
