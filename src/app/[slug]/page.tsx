@@ -10,6 +10,8 @@ import {
 import { dayLabelFr, formatMinuteOfDay } from "@/lib/time";
 import { LocalBusinessJsonLd } from "@/components/public/JsonLd";
 import { ServiceCard } from "@/components/public/ServiceCard";
+import { HeroCarousel, type HeroPhoto } from "@/components/public/HeroCarousel";
+import { formatMoney } from "@/lib/money";
 import { toServiceCard } from "@/lib/providers/service-card";
 
 export const revalidate = 60;
@@ -74,6 +76,31 @@ export default async function ProviderHomePage({
  * it shows the work, names the trade and the city, says whether the salon is
  * open right now, and puts booking one tap away.
  */
+/**
+ * The photos the hero turns.
+ *
+ * Featured gallery images first, since that is what "featured" already means
+ * to a provider, and each one keeps the prestation it came from so the caption
+ * can name a price. Capped at six: a hero is a promise of more, not the whole
+ * portfolio.
+ */
+function heroPhotos(site: PublicSite): HeroPhoto[] {
+  const byId = new Map(site.services.map((service) => [service.id, service]));
+
+  return site.galleryImages.slice(0, 6).map((image) => {
+    const service = image.serviceId ? byId.get(image.serviceId) : undefined;
+    return {
+      id: image.id,
+      url: image.url,
+      title: service?.name ?? image.category?.name ?? null,
+      price: service
+        ? formatMoney(service.price, site.currency, site.locale)
+        : null,
+      caption: image.caption,
+    };
+  });
+}
+
 function Hero({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean }) {
   const settings = site.siteSettings;
   const headline = settings?.heroHeadline?.trim() || site.businessName;
@@ -91,6 +118,77 @@ function Hero({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean })
   const openState = currentOpenState(site.workingHours, site.timezone);
   const whatsapp = whatsappLink(site);
   const ctaLabel = settings?.heroCtaLabel?.trim() || "Prendre rendez-vous";
+
+  const photos = heroPhotos(site);
+  const showCarousel = (settings?.heroCarousel ?? true) && photos.length >= 2;
+
+  // The editorial shape: the work on one side, the words on the other. Kept for
+  // sites that actually have photos to turn — everyone else gets the cover.
+  if (showCarousel) {
+    return (
+      <section className="section" style={{ paddingTop: "3rem" }}>
+        <div className="container">
+          <div className="hero-grid">
+            <div>
+              {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
+
+              <h1
+                className="font-display"
+                style={{
+                  fontSize: "clamp(2rem, 5.5vw, 3.1rem)",
+                  lineHeight: 1.1,
+                  margin: ".6rem 0 1rem",
+                }}
+              >
+                {headline}
+              </h1>
+
+              <p
+                style={{
+                  margin: "0 0 1.6rem",
+                  fontSize: "1.03rem",
+                  lineHeight: 1.75,
+                  color: "var(--brand-muted)",
+                  maxWidth: "44ch",
+                }}
+              >
+                {sub}
+              </p>
+
+              <div style={{ display: "flex", flexWrap: "wrap", gap: ".7rem" }}>
+                {bookingOpen ? (
+                  <Link href={`/${site.slug}/reservation`} className="btn btn-primary">
+                    {ctaLabel} →
+                  </Link>
+                ) : null}
+                {whatsapp ? (
+                  <a href={whatsapp} className="btn btn-secondary">
+                    WhatsApp
+                  </a>
+                ) : null}
+              </div>
+
+              <p
+                style={{
+                  margin: "1.4rem 0 0",
+                  fontSize: ".88rem",
+                  color: "var(--brand-muted)",
+                }}
+              >
+                {openState.open
+                  ? `Ouvert jusqu'à ${openState.closesAt}`
+                  : openState.nextDay && openState.nextOpensAt
+                    ? `Ouvre ${openState.nextDay} à ${openState.nextOpensAt}`
+                    : "Fermé actuellement"}
+              </p>
+            </div>
+
+            <HeroCarousel photos={photos} businessName={site.businessName} />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section
