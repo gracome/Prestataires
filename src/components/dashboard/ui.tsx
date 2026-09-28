@@ -217,10 +217,18 @@ export function Section({
   );
 }
 
+/**
+ * Four calm tiles rather than six cramped ones.
+ *
+ * At 150px the row fitted six cards on a laptop, each with a label wrapping
+ * onto two lines and a comparison under it — a wall of figures where a
+ * provider wanted a glance. Widening the minimum is all it takes: the same
+ * cards, fewer per row, each able to breathe.
+ */
 export const statGrid: React.CSSProperties = {
   display: "grid",
-  gap: ".75rem",
-  gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+  gap: ".85rem",
+  gridTemplateColumns: "repeat(auto-fit, minmax(215px, 1fr))",
 };
 
 // ---------------------------------------------------------------------------

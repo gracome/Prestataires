@@ -1,29 +1,26 @@
 /**
- * Create a new provider and its first login.
+ * Create a provider and her first login, from a terminal.
  *
  * Usage:
- *   npx tsx scripts/create-provider.ts \
- *     --slug studio-lina \
- *     --business "Studio Lina" \
- *     --owner "Lina Traoré" \
- *     --email lina@example.com \
- *     [--password "..."] [--timezone Africa/Abidjan] [--currency XOF] [--phone "+225 ..."]
+ *   npm run provider:create -- \
+ *     --business "Studio Lina" --owner "Lina Traore" --email lina@example.com \
+ *     [--slug studio-lina] [--activity coiffure] [--city Cotonou] \
+ *     [--phone "+229 ..."] [--timezone Africa/Abidjan] [--currency XOF] \
+ *     [--password "..."] [--no-catalogue] [--no-email]
  *
- * A password is generated when none is given, and printed once. Sensible
- * defaults are written for hours, theme and booking rules so the provider can
- * log in and see a working site straight away.
+ * Everything happens through `createProvider`, the same function the platform
+ * screens call, so an account made here and one made in the browser are the
+ * same account with the same defaults and the same welcome email.
  */
 
 import { PrismaClient } from "@prisma/client";
-import bcrypt from "bcryptjs";
-import { randomBytes } from "node:crypto";
+import { createProvider, PlatformError } from "../src/lib/platform/providers";
+import { isActivityId, listActivities } from "../src/lib/platform/activities";
 
 const prisma = new PrismaClient();
 
-type Args = Record<string, string>;
-
-function parseArgs(argv: string[]): Args {
-  const args: Args = {};
+function parseArgs(argv: string[]): Record<string, string> {
+  const args: Record<string, string> = {};
   for (let i = 0; i < argv.length; i += 1) {
     const token = argv[i];
     if (!token.startsWith("--")) continue;
@@ -39,126 +36,97 @@ function parseArgs(argv: string[]): Args {
   return args;
 }
 
-function slugify(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 60);
-}
-
-function generatePassword(): string {
-  // Readable but strong: 4 groups of 4 from an unambiguous alphabet.
-  const alphabet = "ACDEFGHJKMNPQRTUVWXY234679";
-  const bytes = randomBytes(16);
-  let out = "";
-  for (let i = 0; i < 16; i += 1) {
-    if (i > 0 && i % 4 === 0) out += "-";
-    out += alphabet[bytes[i] % alphabet.length];
-  }
-  return out;
-}
-
 async function main(): Promise<void> {
   const args = parseArgs(process.argv.slice(2));
 
   const businessName = args.business ?? args.businessName;
   const ownerName = args.owner ?? args.ownerName;
-  const email = args.email?.trim().toLowerCase();
+  const email = args.email;
 
   if (!businessName || !ownerName || !email) {
-
     console.error(
-      "Missing required argument. Need --business, --owner and --email.",
+      "Arguments manquants. Il faut --business, --owner et --email.\n" +
+        "Métiers disponibles pour --activity : " +
+        listActivities().map((a) => a.id).join(", "),
     );
     process.exitCode = 1;
     return;
   }
 
-  const slug = slugify(args.slug ?? businessName);
-  const password = args.password ?? generatePassword();
-
-  const existingSlug = await prisma.provider.findUnique({ where: { slug } });
-  if (existingSlug) {
-
-    console.error(`A provider already uses the slug "${slug}".`);
+  if (args.activity && !isActivityId(args.activity)) {
+    console.error(
+      `Métier inconnu : ${args.activity}\n` +
+        "Choisissez parmi : " + listActivities().map((a) => a.id).join(", "),
+    );
     process.exitCode = 1;
     return;
   }
 
-  const existingUser = await prisma.user.findUnique({ where: { email } });
-  if (existingUser) {
-
-    console.error(`A user already exists with the email "${email}".`);
-    process.exitCode = 1;
-    return;
-  }
-
-  const provider = await prisma.provider.create({
-    data: {
-      slug,
-      // Starts as a draft: the provider publishes it once the content is ready.
-      status: "DRAFT",
+  try {
+    const created = await createProvider({
       businessName,
       ownerName,
       email,
-      phone: args.phone ?? null,
-      whatsappPhone: args.whatsapp ?? args.phone ?? null,
-      city: args.city ?? null,
-      country: args.country ?? null,
-      timezone: args.timezone ?? "Africa/Porto-Novo",
-      currency: (args.currency ?? "XOF").toUpperCase(),
-      theme: { create: {} },
-      siteSettings: { create: {} },
-      bookingSettings: { create: {} },
-      workingHours: {
-        create: [0, 1, 2, 3, 4, 5, 6].map((dayOfWeek) => ({
-          dayOfWeek,
-          // Closed Sunday by default; every other day 09:00 to 18:00.
-          active: dayOfWeek !== 0,
-          openMinute: 9 * 60,
-          closeMinute: 18 * 60,
-        })),
-      },
-      users: {
-        create: {
-          email,
-          name: ownerName,
-          role: "PROVIDER",
-          passwordHash: await bcrypt.hash(password, 12),
-        },
-      },
-    },
-  });
+      slug: args.slug,
+      phone: args.phone,
+      whatsappPhone: args.whatsapp,
+      addressLine: args.address,
+      city: args.city,
+      country: args.country,
+      timezone: args.timezone,
+      currency: args.currency,
+      password: args.password,
+      activity: args.activity as never,
+      // `--no-catalogue` and `--no-email` arrive as the strings "no-catalogue"
+      // and "no-email" set to "true", since the parser has no notion of flags.
+      seedCatalogue: args["no-catalogue"] !== "true",
+      sendWelcomeEmail: args["no-email"] !== "true",
+    });
 
+    const lines = [
+      "",
+      "Activité créée.",
+      "",
+      `  Activité : ${created.provider.businessName}`,
+      `  Adresse  : /${created.provider.slug}`,
+      `  Fuseau   : ${created.provider.timezone}`,
+      `  Devise   : ${created.provider.currency}`,
+      `  Statut   : brouillon, à publier depuis Paramètres`,
+      "",
+      "  Connexion",
+      `    Identifiant  : ${created.email}`,
+      `    Mot de passe : ${created.password}`,
+      "",
+    ];
 
-  console.log(
-    [
-      "",
-      "Provider created.",
-      "",
-      `  Business : ${provider.businessName}`,
-      `  Slug     : ${provider.slug}   (public site: /${provider.slug})`,
-      `  Timezone : ${provider.timezone}`,
-      `  Currency : ${provider.currency}`,
-      `  Status   : DRAFT — publish it from Paramètres once the content is ready`,
-      "",
-      "  Login",
-      `    Email    : ${email}`,
-      `    Password : ${password}`,
-      "",
-      "  Share this password over a private channel and ask them to change it",
-      "  from Paramètres after the first sign-in.",
-      "",
-    ].join("\n"),
-  );
+    if (created.delivery.sent) {
+      lines.push(
+        `  Ces identifiants viennent de lui être envoyés à ${created.email}.`,
+        "  Le mot de passe ci-dessus n'est répété nulle part ailleurs.",
+        "",
+      );
+    } else {
+      lines.push(
+        `  L'e-mail n'est pas parti : ${created.delivery.reason}`,
+        "  Transmettez-lui ce mot de passe par un canal privé, et demandez-lui",
+        "  de le changer depuis Paramètres après sa première connexion.",
+        "",
+      );
+    }
+
+    console.log(lines.join("\n"));
+  } catch (error) {
+    if (error instanceof PlatformError) {
+      console.error(`\n${error.message}\n`);
+      process.exitCode = 1;
+      return;
+    }
+    throw error;
+  }
 }
 
 main()
   .catch((error) => {
-
     console.error(error);
     process.exitCode = 1;
   })

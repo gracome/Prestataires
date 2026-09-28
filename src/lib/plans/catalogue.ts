@@ -48,73 +48,207 @@ type FeatureDefinition = {
    * Buying one therefore buys what it stands on, and is charged for it.
    */
   requires?: readonly PlanFeature[];
+  /** Address of its own page, under /modules. */
+  slug: string;
+  /** One paragraph: what it actually changes, in her words. */
+  intro: string;
+  /** What it changes for the provider. */
+  forProvider: readonly string[];
+  /** What it changes for her client — often the part that sells it. */
+  forClient: readonly string[];
+  /** What she has to do or have for it to work. */
+  needs?: readonly string[];
 };
 
 export const FEATURES: Record<PlanFeature, FeatureDefinition> = {
   BOOKING: {
     label: "Réservation en ligne",
+    slug: "reservation-en-ligne",
     monthly: 3000,
     sellable: true,
     covers: "Réservations, calendrier et prise de rendez-vous publique",
+    intro:
+      "Vos clientes choisissent une prestation, voient vos vraies disponibilités et réservent elles-mêmes. Vous arrêtez de tenir l'agenda dans WhatsApp.",
+    forProvider: [
+      "Vos créneaux libres se calculent à partir de vos horaires, de vos absences et des rendez-vous déjà pris.",
+      "Deux clientes ne peuvent pas réserver le même créneau, même à la seconde près.",
+      "Vous acceptez ou refusez depuis votre téléphone, et l'historique reste consultable.",
+    ],
+    forClient: [
+      "Elle réserve à minuit si elle veut, sans attendre votre réponse.",
+      "Elle voit la durée et le tarif avant de confirmer.",
+      "Elle reçoit sa confirmation par email, avec le récapitulatif.",
+    ],
+    needs: ["Avoir renseigné vos horaires et au moins une prestation."],
   },
   STAFF: {
     label: "Gestion des collaborateurs",
+    slug: "collaborateurs",
     monthly: 2000,
     sellable: true,
     covers: "Comptes employés, rôles et permissions",
+    intro:
+      "Donnez un accès à celles qui travaillent avec vous, sans leur ouvrir vos chiffres ni vos coordonnées bancaires.",
+    forProvider: [
+      "Jusqu'à deux comptes en plus du vôtre.",
+      "Une employée gère les rendez-vous, le calendrier, les prestations, les horaires, la galerie et les devis.",
+      "Elle ne voit ni le chiffre d'affaires, ni le panier moyen, ni les rapports.",
+      "Chaque encaissement à la caisse garde le nom de qui l'a saisi.",
+    ],
+    forClient: [
+      "Quelqu'un répond même quand vous êtes en prestation.",
+    ],
   },
   TILL: {
     label: "Caisse",
+    slug: "caisse",
     monthly: 1500,
     sellable: true,
     covers: "Ventes au comptoir et recettes du jour",
+    intro:
+      "Enregistrez ce qui rentre au comptoir, pas seulement ce qui a été réservé en ligne. Dans un salon, le passage spontané est souvent le flux le plus important.",
+    forProvider: [
+      "Une vente se saisit en quelques secondes, entre deux clientes.",
+      "Espèces, mobile money, carte, virement : chaque encaissement garde son moyen de paiement.",
+      "La recette du jour additionne les rendez-vous et le comptoir, donc vos chiffres sont enfin complets.",
+      "Une cliente de passage reste anonyme si elle le souhaite.",
+    ],
+    forClient: [],
+    needs: ["Fonctionne seule : aucun autre module n'est nécessaire."],
   },
   DEPOSITS: {
     label: "Gestion des acomptes",
+    slug: "acomptes",
+    requires: ["BOOKING"],
     monthly: 1500,
     sellable: true,
     covers: "Acomptes, instructions de paiement et preuves de paiement",
-    requires: ["BOOKING"],
+    intro:
+      "Demandez un acompte pour bloquer un créneau. La cliente vous paie directement, envoie sa capture, vous validez.",
+    forProvider: [
+      "Vous fixez un acompte fixe ou un pourcentage, prestation par prestation.",
+      "Vos instructions de paiement — MTN MoMo, Moov Money, virement — s'affichent à la cliente au bon moment.",
+      "Vous recevez la preuve de paiement et vous confirmez ou refusez.",
+      "Un créneau non payé se libère tout seul au bout du délai que vous avez choisi.",
+    ],
+    forClient: [
+      "Elle paie sur votre propre compte : la plateforme ne touche pas cet argent et ne prélève aucune commission.",
+      "Elle sait exactement combien verser et où.",
+    ],
+    needs: ["La réservation en ligne, à laquelle l'acompte se rattache."],
   },
   GOOGLE_CALENDAR: {
     label: "Google Calendar",
+    slug: "google-calendar",
+    requires: ["BOOKING"],
     monthly: 1000,
     sellable: true,
     covers: "Synchronisation avec l'agenda Google",
-    requires: ["BOOKING"],
+    intro:
+      "Vos rendez-vous confirmés arrivent dans votre agenda Google, et vos occupations personnelles bloquent vos créneaux.",
+    forProvider: [
+      "Un rendez-vous confirmé apparaît dans votre agenda, annulation comprise.",
+      "Un empêchement noté dans Google rend le créneau indisponible ici.",
+      "Vous gardez un seul agenda à consulter.",
+    ],
+    forClient: [],
+    needs: ["Un compte Google, et la réservation en ligne."],
   },
   QUOTES: {
     label: "Demandes de devis",
+    slug: "devis",
     monthly: 1000,
     sellable: true,
     covers: "Estimateur public et suivi des demandes",
+    intro:
+      "Pour les prestations dont le prix dépend du projet : la cliente répond à quelques questions, obtient une estimation, et vous recevez sa demande.",
+    forProvider: [
+      "Vous composez vos questions et les fourchettes de prix.",
+      "Les demandes arrivent dans un suivi, avec leur statut.",
+      "Vous répondez avec un vrai devis, sans échanger dix messages pour cadrer le besoin.",
+    ],
+    forClient: [
+      "Elle a un ordre de prix immédiatement, au lieu d'attendre un rappel.",
+    ],
   },
   REPORTS: {
     label: "Statistiques",
+    slug: "statistiques",
     monthly: 1000,
     sellable: true,
     covers: "Rapports d'activité et suivi des clients",
+    intro:
+      "Ce que votre activité a fait sur la période : chiffre, panier moyen, prestations qui marchent, clientes qui reviennent.",
+    forProvider: [
+      "Comparaison avec la période précédente, pour voir si ça monte.",
+      "Répartition par prestation : vous savez ce qui porte votre activité.",
+      "Nouvelles clientes et clientes fidèles, distinguées.",
+      "Export pour votre comptable.",
+    ],
+    forClient: [],
+    needs: ["Réservé au compte responsable : une employée n'y a pas accès."],
   },
   REMINDERS: {
     label: "Rappels automatiques",
+    slug: "rappels",
+    requires: ["BOOKING"],
     monthly: 1000,
     sellable: true,
     covers: "Rappels envoyés aux clientes avant la séance",
-    requires: ["BOOKING"],
+    intro:
+      "Un rappel part la veille et deux heures avant. C'est le moyen le plus simple de réduire les rendez-vous manqués.",
+    forProvider: [
+      "Rien à déclencher : les rappels partent seuls.",
+      "Une cliente empêchée annule à l'avance, et le créneau se libère.",
+    ],
+    forClient: [
+      "Elle n'oublie pas son rendez-vous.",
+      "Elle a l'heure, l'adresse et le récapitulatif sous la main.",
+    ],
+    needs: ["La réservation en ligne."],
   },
   ONLINE_PAYMENT: {
     label: "Paiement en ligne",
+    slug: "paiement-en-ligne",
+    requires: ["DEPOSITS"],
     monthly: 2500,
     sellable: true,
     covers:
       "Acomptes réglés par carte ou mobile money, encaissés sur le compte FedaPay du prestataire",
-    requires: ["DEPOSITS"],
+    intro:
+      "La cliente règle son acompte par carte ou mobile money, sans capture d'écran à envoyer ni vérification de votre part.",
+    forProvider: [
+      "L'argent arrive sur votre propre compte FedaPay : la plateforme n'y touche pas et ne prélève rien.",
+      "Le rendez-vous se confirme tout seul dès le paiement reçu.",
+      "Plus de captures à lire ni de paiements à pointer à la main.",
+      "Vous l'activez quand vous êtes prête, et vous pouvez revenir au dépôt à tout moment.",
+    ],
+    forClient: [
+      "Elle paie en trois clics, sans quitter la page.",
+      "Elle est confirmée immédiatement au lieu d'attendre votre validation.",
+    ],
+    needs: [
+      "Un compte FedaPay à votre nom.",
+      "La gestion des acomptes, et donc la réservation en ligne.",
+    ],
   },
   CUSTOM_DOMAIN: {
     label: "Domaine personnalisé",
+    slug: "domaine",
     monthly: 2000,
     sellable: true,
     covers: "Site servi sur le domaine du prestataire",
+    intro:
+      "Votre site sur votre propre adresse, au lieu de celle de la plateforme. Vos clientes ne voient que votre nom.",
+    forProvider: [
+      "Une adresse qui vous appartient, que vous gardez si vous partez.",
+      "Le certificat de sécurité est émis automatiquement.",
+      "Nous vous donnons les enregistrements à créer chez votre registrar.",
+    ],
+    forClient: [
+      "Elle arrive sur votre adresse, pas sur un lien qui contient le nom d'un logiciel.",
+    ],
+    needs: ["Acheter le domaine chez un registrar — environ 7 000 FCFA par an."],
   },
 };
 

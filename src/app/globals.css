@@ -1873,3 +1873,303 @@ table.data tr:last-child td {
 .admin .card {
   border-radius: 18px;
 }
+
+/* ===========================================================================
+ * The platform's own skin
+ *
+ * Deliberately not the one a provider's site wears. Hers is photographic and
+ * curved, because she is selling an experience; this one is flatter, tighter
+ * and built on the brand's own rose, because it is selling a tool. A prospect
+ * should never wonder which of the two she is looking at.
+ * ======================================================================== */
+
+.mk {
+  min-height: 100dvh;
+  background: var(--brand-cream);
+  color: var(--brand-text);
+}
+
+.mk-topbar {
+  border-bottom: 1px solid var(--brand-border);
+  background: var(--brand-surface);
+}
+
+.mk-topbar > .container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 62px;
+}
+
+.mk-back,
+.mk-topbar-cta {
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--brand-text);
+}
+
+.mk-topbar-cta {
+  color: var(--brand-primary-strong);
+}
+
+.mk-eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--brand-primary-strong);
+  font-weight: 600;
+}
+
+/* A flat rose band rather than a photograph: the platform illustrates itself
+   with its own colour, which is also what keeps it out of any one trade. */
+.mk-module-head {
+  background: linear-gradient(180deg, var(--brand-rose-light), var(--brand-cream));
+  padding-block: 3.5rem 3rem;
+  border-bottom: 1px solid var(--brand-border);
+}
+
+.mk-module-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5.5vw, 3.1rem);
+  line-height: 1.08;
+  margin: 0.5rem 0 1rem;
+  max-width: 18ch;
+}
+
+.mk-module-intro {
+  margin: 0;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--brand-muted);
+  max-width: 52ch;
+}
+
+.mk-price-row {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1.8rem;
+}
+
+.mk-price {
+  font-family: var(--font-heading);
+  font-size: 2.1rem;
+  line-height: 1;
+}
+
+.mk-price small {
+  font-size: 0.9rem;
+  color: var(--brand-muted);
+}
+
+.mk-price-year,
+.mk-note {
+  font-size: 0.88rem;
+  color: var(--brand-muted);
+}
+
+.mk-note {
+  margin: 0.9rem 0 0;
+  max-width: 52ch;
+  line-height: 1.7;
+}
+
+.mk-section {
+  padding-block: 3.25rem;
+}
+
+.mk-section-quiet {
+  background: var(--brand-surface);
+  border-top: 1px solid var(--brand-border);
+}
+
+.mk-two {
+  display: grid;
+  gap: 2.25rem;
+}
+
+@media (min-width: 820px) {
+  .mk-two {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3rem;
+  }
+}
+
+.mk-two h2,
+.mk-callout h3 {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  margin: 0 0 1rem;
+}
+
+.mk-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.mk-list li {
+  position: relative;
+  padding-left: 1.5rem;
+  font-size: 0.95rem;
+  line-height: 1.65;
+}
+
+.mk-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--brand-primary-strong);
+  font-weight: 700;
+}
+
+.mk-callout {
+  margin-top: 2.5rem;
+  padding: 1.5rem 1.6rem;
+  border-radius: 18px;
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-border);
+}
+
+.mk-callout-accent {
+  background: var(--brand-rose-pale);
+  border-color: color-mix(in srgb, var(--brand-primary) 35%, transparent);
+}
+
+.mk-callout p {
+  margin: 0 0 1.2rem;
+  line-height: 1.7;
+  color: var(--brand-muted);
+  max-width: 54ch;
+}
+
+.mk-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.7rem 1.35rem;
+  border-radius: 999px;
+  background: var(--brand-primary-strong);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+}
+
+.mk-other-title {
+  font-family: var(--font-heading);
+  font-size: 1.3rem;
+  margin: 0 0 1.2rem;
+}
+
+.mk-other {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+@media (min-width: 720px) {
+  .mk-other {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.mk-other a {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 14px;
+  border: 1px solid var(--brand-border);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s ease;
+}
+
+.mk-other a:hover {
+  border-color: var(--brand-primary-strong);
+}
+
+.mk-other-name {
+  font-weight: 600;
+  font-size: 0.93rem;
+}
+
+.mk-other-price {
+  font-size: 0.85rem;
+  color: var(--brand-muted);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+ * Tables that become cards
+ *
+ * A table narrower than its content scrolls sideways, which on a phone means
+ * the provider reads a column at a time and loses the row she was on. Tables
+ * that opt in with data-stack break into one card per row instead, each cell
+ * labelled from its own header.
+ * ------------------------------------------------------------------------- */
+
+@media (max-width: 760px) {
+  table.data[data-stack] {
+    min-width: 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+
+  table.data[data-stack] thead {
+    /* The headers move onto each cell, so the row of them is redundant —
+       hidden from sight but left for screen readers, which still read the
+       table as a table. */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+
+  table.data[data-stack] tbody,
+  table.data[data-stack] tr {
+    display: block;
+  }
+
+  table.data[data-stack] tr {
+    border: 1px solid var(--admin-border);
+    border-radius: 14px;
+    padding: 0.35rem 0.85rem;
+    background: var(--admin-surface);
+  }
+
+  table.data[data-stack] td {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--admin-border);
+    text-align: right;
+  }
+
+  table.data[data-stack] td::before {
+    content: attr(data-label);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--admin-muted);
+    text-align: left;
+    flex-shrink: 0;
+  }
+
+  table.data[data-stack] td:last-child {
+    border-bottom: 0;
+  }
+}
