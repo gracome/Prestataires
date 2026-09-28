@@ -38,6 +38,8 @@ export default async function ProviderHomePage({
 
       <Hero site={site} bookingOpen={bookingOpen} />
 
+      <Showcase site={site} />
+
       <Commitments site={site} />
 
       {settings?.showServices !== false && site.services.length > 0 ? (
@@ -119,248 +121,77 @@ function Hero({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean })
   const whatsapp = whatsappLink(site);
   const ctaLabel = settings?.heroCtaLabel?.trim() || "Prendre rendez-vous";
 
-  const photos = heroPhotos(site);
-  const showCarousel = (settings?.heroCarousel ?? true) && photos.length >= 2;
-
-  // The editorial shape: the work on one side, the words on the other. Kept for
-  // sites that actually have photos to turn — everyone else gets the cover.
-  if (showCarousel) {
-    return (
-      <section className="section" style={{ paddingTop: "3rem" }}>
-        <div className="container">
-          <div className="hero-grid">
-            <div>
-              {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
-
-              <h1
-                className="font-display"
-                style={{
-                  fontSize: "clamp(2rem, 5.5vw, 3.1rem)",
-                  lineHeight: 1.1,
-                  margin: ".6rem 0 1rem",
-                }}
-              >
-                {headline}
-              </h1>
-
-              <p
-                style={{
-                  margin: "0 0 1.6rem",
-                  fontSize: "1.03rem",
-                  lineHeight: 1.75,
-                  color: "var(--brand-muted)",
-                  maxWidth: "44ch",
-                }}
-              >
-                {sub}
-              </p>
-
-              <div style={{ display: "flex", flexWrap: "wrap", gap: ".7rem" }}>
-                {bookingOpen ? (
-                  <Link href={`/${site.slug}/reservation`} className="btn btn-primary">
-                    {ctaLabel} →
-                  </Link>
-                ) : null}
-                {whatsapp ? (
-                  <a href={whatsapp} className="btn btn-secondary">
-                    WhatsApp
-                  </a>
-                ) : null}
-              </div>
-
-              <p
-                style={{
-                  margin: "1.4rem 0 0",
-                  fontSize: ".88rem",
-                  color: "var(--brand-muted)",
-                }}
-              >
-                {openState.open
-                  ? `Ouvert jusqu'à ${openState.closesAt}`
-                  : openState.nextDay && openState.nextOpensAt
-                    ? `Ouvre ${openState.nextDay} à ${openState.nextOpensAt}`
-                    : "Fermé actuellement"}
-              </p>
-            </div>
-
-            <HeroCarousel photos={photos} businessName={site.businessName} />
-          </div>
-        </div>
-      </section>
-    );
-  }
+  // Her cover if she set one, otherwise the first thing in her gallery: an
+  // empty hero would be the worst possible first screen, and she has photos.
+  const backdrop = site.coverImageUrl ?? site.galleryImages[0]?.url ?? null;
 
   return (
-    <section
-      style={{
-        position: "relative",
-        isolation: "isolate",
-        minHeight: "min(84vh, 680px)",
-        display: "flex",
-        alignItems: "flex-end",
-        overflow: "hidden",
-      }}
-    >
-      {site.coverImageUrl ? (
-        <>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={site.coverImageUrl}
-            alt=""
-            fetchPriority="high"
-            style={{
-              position: "absolute",
-              inset: 0,
-              zIndex: -2,
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-            }}
-          />
-          {/* Scrim: dark enough at the bottom for white text to stay legible
-              whatever photo the provider uploads. */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              zIndex: -1,
-              background:
-                "linear-gradient(180deg, rgb(24 18 17 / 25%) 0%, rgb(24 18 17 / 45%) 45%, rgb(24 18 17 / 88%) 100%)",
-            }}
-          />
-        </>
+    <section className="site-hero">
+      {backdrop ? (
+        /* eslint-disable-next-line @next/next/no-img-element */
+        <img src={backdrop} alt="" fetchPriority="high" className="site-hero-img" />
       ) : (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            zIndex: -1,
-            background:
-              "linear-gradient(150deg, color-mix(in srgb, var(--brand-accent) 60%, var(--brand-background)), color-mix(in srgb, var(--brand-primary) 45%, var(--brand-background)))",
-          }}
-        />
+        <span aria-hidden="true" className="site-hero-fallback" />
       )}
 
-      <div
-        className="container"
-        style={{ paddingBlock: "5rem 2.75rem", position: "relative" }}
-      >
-        <div style={{ maxWidth: 680, color: site.coverImageUrl ? "#fff" : "var(--brand-text)" }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: ".6rem",
-              flexWrap: "wrap",
-              marginBottom: "1rem",
-            }}
-          >
-            <span
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: ".45rem",
-                padding: ".35rem .8rem",
-                borderRadius: 999,
-                fontSize: ".78rem",
-                fontWeight: 600,
-                background: site.coverImageUrl
-                  ? "rgb(255 255 255 / 16%)"
-                  : "var(--brand-surface)",
-                color: "inherit",
-                backdropFilter: "blur(6px)",
-              }}
-            >
-              <span
-                aria-hidden="true"
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: "50%",
-                  background: openState.open ? "#4ade80" : "#f0a868",
-                  boxShadow: openState.open ? "0 0 0 3px rgb(74 222 128 / 25%)" : undefined,
-                }}
-              />
-              {openState.open
-                ? `Ouvert jusqu'à ${openState.closesAt}`
-                : openState.nextDay
-                  ? `Ouvre ${openState.nextDay} à ${openState.nextOpensAt}`
-                  : "Sur rendez-vous"}
-            </span>
+      <span aria-hidden="true" className="site-hero-scrim" />
 
-            {eyebrow ? (
-              <span style={{ fontSize: ".8rem", letterSpacing: ".1em", textTransform: "uppercase", opacity: 0.85 }}>
-                {eyebrow}
-              </span>
-            ) : null}
-          </div>
+      <div className="container site-hero-body">
+        {eyebrow ? <p className="site-hero-eyebrow">{eyebrow}</p> : null}
 
-          <h1
-            className="font-display"
-            style={{
-              fontSize: "clamp(2.4rem, 8vw, 4rem)",
-              lineHeight: 1.03,
-              margin: "0 0 1rem",
-              letterSpacing: "-0.02em",
-              textWrap: "balance",
-            }}
-          >
-            {headline}
-          </h1>
+        <h1 className="site-hero-title">{headline}</h1>
 
-          <p
-            style={{
-              fontSize: "clamp(1rem, 2.2vw, 1.15rem)",
-              lineHeight: 1.65,
-              margin: "0 0 1.9rem",
-              maxWidth: 540,
-              opacity: 0.92,
-            }}
-          >
-            {sub}
-          </p>
+        <p className="site-hero-sub">{sub}</p>
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: ".65rem" }}>
-            {bookingOpen ? (
-              <Link href={`/${site.slug}/reservation`} className="btn btn-primary">
-                {ctaLabel}
-              </Link>
-            ) : null}
-
-            <Link
-              href={`/${site.slug}/prestations`}
-              className="btn"
-              style={{
-                background: site.coverImageUrl ? "rgb(255 255 255 / 15%)" : "var(--brand-surface)",
-                color: "inherit",
-                borderColor: site.coverImageUrl ? "rgb(255 255 255 / 35%)" : "var(--brand-border)",
-                backdropFilter: "blur(6px)",
-              }}
-            >
-              Découvrir les prestations
+        <div className="site-hero-actions">
+          {bookingOpen ? (
+            <Link href={`/${site.slug}/reservation`} className="btn btn-primary">
+              {ctaLabel} →
             </Link>
-
-            {whatsapp ? (
-              <a
-                href={whatsapp}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn"
-                style={{
-                  background: "transparent",
-                  color: "inherit",
-                  borderColor: site.coverImageUrl ? "rgb(255 255 255 / 35%)" : "var(--brand-border)",
-                }}
-              >
-                WhatsApp
-              </a>
-            ) : null}
-          </div>
+          ) : null}
+          {whatsapp ? (
+            <a href={whatsapp} className="btn site-hero-ghost">
+              WhatsApp
+            </a>
+          ) : null}
         </div>
+
+        <p className="site-hero-open">
+          {openState.open
+            ? `Ouvert jusqu'à ${openState.closesAt}`
+            : openState.nextDay && openState.nextOpensAt
+              ? `Ouvre ${openState.nextDay} à ${openState.nextOpensAt}`
+              : "Fermé actuellement"}
+        </p>
       </div>
     </section>
   );
 }
+
+/**
+ * Her work, turned wide, on the section that curves up over the hero.
+ *
+ * Deliberately its own band rather than something tucked beside the headline:
+ * the photographs are the argument, and they need the width to make it.
+ */
+function Showcase({ site }: { site: PublicSite }) {
+  const photos = heroPhotos(site);
+  if (!(site.siteSettings?.heroCarousel ?? true) || photos.length < 2) return null;
+
+  return (
+    <section className="section section-curved">
+      <div className="container">
+        <div className="section-head">
+          <h2>Nos réalisations</h2>
+          <p>Chaque photo est une prestation que vous pouvez réserver.</p>
+        </div>
+
+        <HeroCarousel photos={photos} businessName={site.businessName} />
+      </div>
+    </section>
+  );
+}
+
 
 /** The provider's promises, read immediately after the hero. */
 function Commitments({ site }: { site: PublicSite }) {
