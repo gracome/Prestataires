@@ -17,6 +17,8 @@ import {
 import { googleFontsHref, themeStyle } from "@/lib/theme";
 import { whatsappLink } from "@/lib/providers/public-site";
 import { ProofUpload } from "@/components/booking/ProofUpload";
+import { PayOnline } from "@/components/booking/PayOnline";
+import { settleReturnFromGateway } from "@/lib/payments/gateway";
 import { CancelBooking } from "@/components/booking/CancelBooking";
 
 export const dynamic = "force-dynamic";
@@ -29,10 +31,20 @@ export const metadata: Metadata = {
 
 export default async function CustomerBookingPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ token: string }>;
+  searchParams: Promise<{ paiement?: string }>;
 }) {
   const { token } = await params;
+  const { paiement } = await searchParams;
+
+  // Coming back from the gateway. The webhook is the reliable path, but it can
+  // be a few seconds behind or silently misconfigured, and a customer who has
+  // just paid must not be shown a page still asking her to pay. Asking FedaPay
+  // directly settles it before anything is rendered.
+  if (paiement === "retour") await settleReturnFromGateway(token);
+
   const booking = await getBookingByToken(token);
 
   if (!booking) notFound();
@@ -169,6 +181,18 @@ export default async function CustomerBookingPage({
               puis envoyez votre capture d&apos;écran ci-dessous.
             </p>
 
+            {booking.validationMethod === "ONLINE_PAYMENT" ? (
+              <div style={{ marginBottom: "1rem" }}>
+                <PayOnline
+                  token={token}
+                  amountLabel={formatMoney(
+                    booking.depositAmount,
+                    booking.currency,
+                    provider.locale,
+                  )}
+                />
+              </div>
+            ) : null}
             {provider.paymentInstructions.length === 0 ? (
               <p style={{ color: "#8f241c" }}>
                 Les informations de paiement ne sont pas encore renseignées.

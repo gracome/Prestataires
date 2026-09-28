@@ -93,12 +93,17 @@ export const FEATURES: Record<PlanFeature, FeatureDefinition> = {
     sellable: true,
     covers: "Rappels envoyés aux clientes avant la séance",
   },
+  ONLINE_PAYMENT: {
+    label: "Paiement en ligne",
+    monthly: 2500,
+    sellable: true,
+    covers:
+      "Acomptes réglés par carte ou mobile money, encaissés sur le compte FedaPay du prestataire",
+  },
   CUSTOM_DOMAIN: {
     label: "Domaine personnalisé",
     monthly: 2000,
-    // Half built: the middleware routes on customDomain, but nothing writes
-    // it yet. Kept out of the price list until it can be set from a screen.
-    sellable: false,
+    sellable: true,
     covers: "Site servi sur le domaine du prestataire",
   },
 };

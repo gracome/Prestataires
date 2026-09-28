@@ -65,6 +65,14 @@ enum PlanFeature {
   TILL
   REMINDERS
   CUSTOM_DOMAIN
+  ONLINE_PAYMENT
+}
+
+/// Which gateway an account collects online payments through, and whether it
+/// is pointed at the sandbox or at real money.
+enum GatewayMode {
+  SANDBOX
+  LIVE
 }
 
 /// How a booking gets validated. V1 ships NO_DEPOSIT and MANUAL_PAYMENT.
@@ -151,6 +159,7 @@ enum QuoteQuestionKind {
 enum NotificationChannel {
   EMAIL
   WHATSAPP
+  PUSH
 }
 
 enum NotificationStatus {
@@ -233,6 +242,8 @@ model Provider {
   appointments        Appointment[]
   paymentInstructions PaymentInstruction[]
   sales               Sale[]
+  pushSubscriptions   PushSubscription[]
+  paymentGateway      PaymentGatewayAccount?
   calendarConnection  CalendarConnection?
   bookingSettings     BookingSettings?
   theme               Theme?
@@ -277,6 +288,9 @@ model User {
 
   /// Till entries keyed in by this account.
   recordedSales Sale[] @relation("SaleRecordedBy")
+
+  /// Browsers this account asked to be notified on.
+  pushSubscriptions PushSubscription[]
 
   /// Subscription payments recorded by this account, for platform admins.
   recordedSubscriptionPayments SubscriptionPayment[] @relation("SubscriptionPaymentRecordedBy")
@@ -719,6 +733,12 @@ model Appointment {
   paymentRejectedAt      DateTime?     @db.Timestamptz(3)
   paymentRejectionReason String?       @db.Text
 
+  /// Set when the deposit was paid through a gateway rather than by transfer
+  /// and screenshot. The id is the gateway's own, kept unique so a webhook
+  /// replayed twice cannot confirm the same booking twice.
+  gatewayProvider      String?
+  gatewayTransactionId String? @unique
+
   /// Deadline for the current status; null when the row no longer expires.
   expiresAt DateTime? @db.Timestamptz(3)
 
@@ -1079,4 +1099,81 @@ model SubscriptionPayment {
 
   @@index([providerId, createdAt])
   @@map("subscription_payments")
+}
+
+/// One browser that agreed to receive notifications.
+///
+/// A provider works from her phone between two customers, and an email she
+/// will read tonight is no use when a booking lands now. One row per browser,
+/// not per person: the same account on a phone and on a laptop is two
+/// subscriptions, and both should ring.
+///
+/// The endpoint is the push service's own address for this browser and is
+/// unique by definition, which is what makes re-subscribing idempotent.
+model PushSubscription {
+  id         String   @id @default(cuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  endpoint String @unique @db.Text
+  /// The browser's public key and auth secret, used to encrypt each payload.
+  p256dh   String
+  auth     String
+
+  /// Kept to tell the provider which device a subscription belongs to.
+  userAgent String?
+
+  /// A push service answers 404 or 410 once a browser is gone for good. The
+  /// count covers the softer failures, so a flaky device is retried before
+  /// being dropped.
+  failureCount Int       @default(0)
+  lastSentAt   DateTime? @db.Timestamptz(3)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([providerId])
+  @@index([userId])
+  @@map("push_subscriptions")
+}
+
+/// A provider's own payment-gateway account.
+///
+/// The money goes straight to the provider, which is what keeps the platform
+/// out of the payment chain and out of the commission business: these are her
+/// FedaPay keys, not ours. One row per provider, created the day she is ready
+/// and switched on from her dashboard.
+model PaymentGatewayAccount {
+  id         String   @id @default(cuid())
+  providerId String   @unique
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  /// "fedapay" today. Named rather than enumerated so a second gateway is a
+  /// row, not a migration.
+  gateway String @default("fedapay")
+
+  mode GatewayMode @default(SANDBOX)
+
+  /// The publishable key is not a secret and is stored as it is. The secret
+  /// key is sealed with ENCRYPTION_KEY, like the Google tokens.
+  publicKey          String
+  secretKeyEncrypted String @db.Text
+
+  /// Signing secret for the gateway's webhooks, sealed the same way. Without
+  /// it, callbacks are refused rather than trusted.
+  webhookSecretEncrypted String? @db.Text
+
+  /// Off by default: keys can be saved and checked before any customer is
+  /// ever sent to a payment page.
+  enabled Boolean @default(false)
+
+  lastCheckedAt DateTime? @db.Timestamptz(3)
+  lastError     String?   @db.Text
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@map("payment_gateway_accounts")
 }

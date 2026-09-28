@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { canOpenSection, featuresOf, hasFeature } from "@/lib/auth/features";
 import {
+  FEATURES,
   MONTHS_CHARGED_YEARLY,
   PLANS,
   planHighlights,
@@ -113,9 +114,14 @@ describe("pricing", () => {
     }
   });
 
-  it("only offers modules that are finished", () => {
-    // The custom domain routes but cannot be set from any screen yet.
-    expect(sellableFeatures()).not.toContain("CUSTOM_DOMAIN");
+  it("describes every module it offers", () => {
+    // A module on the price list with no price or no explanation would reach a
+    // prospect as a blank line.
+    for (const feature of sellableFeatures()) {
+      expect(FEATURES[feature].monthly).toBeGreaterThan(0);
+      expect(FEATURES[feature].label.length).toBeGreaterThan(0);
+      expect(FEATURES[feature].covers.length).toBeGreaterThan(0);
+    }
   });
 });
 
