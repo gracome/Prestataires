@@ -432,6 +432,11 @@ model SiteSettings {
   /// Label of the main hero button, when "Prendre rendez-vous" is not right.
   heroCtaLabel    String?
 
+  /// Show the work in the hero as a carousel rather than one cover photo.
+  /// Ignored when there are fewer than two photos to turn: a carousel of one
+  /// is a picture with extra controls.
+  heroCarousel    Boolean @default(true)
+
   aboutTitle       String?
   aboutBody        String? @db.Text
   /// Portrait of the provider, shown beside the about text.
