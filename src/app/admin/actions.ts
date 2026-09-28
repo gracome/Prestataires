@@ -134,7 +134,9 @@ export async function createProviderAction(
 
     return {
       status: "success",
-      message: `${created.provider.businessName} est créée. Transmettez ce mot de passe par un canal privé, il ne sera plus affiché.`,
+      message: created.delivery.sent
+        ? `${created.provider.businessName} est créée. Ses identifiants viennent de lui être envoyés à ${created.email}.`
+        : `${created.provider.businessName} est créée, mais l'e-mail n'est pas parti : ${created.delivery.reason} Transmettez-lui ce mot de passe par un canal privé, il ne sera plus affiché.`,
       secret: { email: created.email, password: created.password },
     };
   } catch (error) {
@@ -212,9 +214,10 @@ export async function resetPasswordAction(
 
     return {
       status: "success",
-      message:
-        "Nouveau mot de passe généré. Les sessions ouvertes ont été fermées. Il ne sera plus affiché.",
-      secret: reset,
+      message: reset.delivery.sent
+        ? `Nouveau mot de passe envoyé à ${reset.email}. Les sessions ouvertes ont été fermées.`
+        : `Nouveau mot de passe généré, mais l'e-mail n'est pas parti : ${reset.delivery.reason} Les sessions ouvertes ont été fermées, et ce mot de passe ne sera plus affiché.`,
+      secret: { email: reset.email, password: reset.password },
     };
   } catch (error) {
     if (error instanceof PlatformError) {
