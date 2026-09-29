@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getPublicSite, getPublicSiteOrNotFound, bookingSubscribed } from "@/lib/providers/public-site";
 import { googleFontsHref, themeStyle } from "@/lib/theme";
+import { asLayoutVariant } from "@/lib/site/sections";
 import { SiteHeader, type NavItem } from "@/components/public/SiteHeader";
 import { SiteFooter } from "@/components/public/SiteFooter";
 import { appUrl } from "@/lib/env";
@@ -95,7 +96,12 @@ export default async function ProviderSiteLayout({
   const fontsHref = googleFontsHref(site.theme);
 
   return (
-    <div style={themeStyle(site.theme)}>
+    <div
+      style={themeStyle(site.theme)}
+      // The chosen layout, read by the stylesheet. Until now this setting was
+      // saved and never looked at, so every site came out the same shape.
+      data-layout={asLayoutVariant(site.theme?.layoutVariant)}
+    >
       {fontsHref ? (
         <>
           <link rel="preconnect" href="https://fonts.googleapis.com" />

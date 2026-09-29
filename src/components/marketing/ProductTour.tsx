@@ -113,10 +113,10 @@ function BookingSlide() {
         }}
       >
         <span style={{ fontSize: "1.4rem" }} aria-hidden="true">
-          💅🏾
+          ✦
         </span>
         <span>
-          <span style={{ display: "block", fontWeight: 600 }}>Pose gel</span>
+          <span style={{ display: "block", fontWeight: 600 }}>Soin visage</span>
           <span style={{ ...muted, display: "block", fontSize: ".8rem" }}>
             45 min · 15 000 FCFA
           </span>
@@ -216,8 +216,8 @@ function DashboardSlide() {
 
       <div style={{ display: "grid", gap: ".4rem", marginTop: ".2rem" }}>
         {[
-          ["09:00", "Amina D.", "Pose gel"],
-          ["10:30", "Isatou B.", "Manucure"],
+          ["09:00", "Amina D.", "Soin visage"],
+          ["10:30", "Isatou B.", "Taille de barbe"],
         ].map(([time, name, service]) => (
           <div
             key={time}
@@ -263,7 +263,7 @@ function DepositSlide() {
         }}
       >
         <span style={{ display: "flex", justifyContent: "space-between" }}>
-          <span>Pose gel</span>
+          <span>Soin visage</span>
           <strong>15 000 FCFA</strong>
         </span>
         <span
@@ -337,7 +337,7 @@ function SiteSlide() {
           }}
           aria-hidden="true"
         >
-          💅🏾
+          ✦
         </div>
 
         <div style={{ padding: "1rem", display: "grid", gap: ".5rem" }}>
@@ -349,7 +349,7 @@ function SiteSlide() {
               color: "var(--brand-muted)",
             }}
           >
-            Maya Beauty
+            Votre activité
           </span>
           <p
             style={{
@@ -359,7 +359,7 @@ function SiteSlide() {
               lineHeight: 1.25,
             }}
           >
-            Des ongles qui racontent votre style.
+            Votre univers, votre nom, vos photos.
           </p>
           <span
             style={{

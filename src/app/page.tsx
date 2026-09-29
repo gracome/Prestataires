@@ -12,19 +12,31 @@ import {
 } from "@/lib/plans/catalogue";
 import type { Plan, PlanFeature } from "@prisma/client";
 import { ProductTour } from "@/components/marketing/ProductTour";
-import { HeroSlideshow } from "@/components/public/HeroSlideshow";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
-import { MARKETING_PHOTOS } from "@/lib/marketing/imagery";
+import { DemoStudio } from "@/components/marketing/DemoStudio";
+import { TradeRotator } from "@/components/marketing/TradeRotator";
+import { ALSO_SERVED, TRADES } from "@/lib/marketing/trades";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Platform landing page.
  *
- * Each provider lives at /{slug}; this page explains the product, prices it
- * and points a signed-out provider at their dashboard. It deliberately does
- * not list the providers on the platform: their client lists are not a
- * directory.
+ * Two rules govern what follows, and both were learned the hard way.
+ *
+ * First: it wears the .mk skin, never the site-* one. A provider's site is
+ * photographic, curved and hers; this page is flat, typographic and ours. When
+ * the two looked alike, the product looked like a template rather than
+ * something she owns.
+ *
+ * Second: it names no single trade. It used to be photographed entirely in a
+ * nail salon, which told every hairdresser and barber that the product was not
+ * for them. There is no neutral photograph of a beauty business, so there are
+ * no photographs here at all: the page lets the visitor pick her trade, and the
+ * demo answers in her own vocabulary.
+ *
+ * It deliberately does not list the providers on the platform: their client
+ * lists are not a directory.
  */
 
 /**
@@ -39,9 +51,10 @@ const CONTACT_URL = "https://wa.me/22969668879";
  * the features actually granted after payment come from one table.
  */
 const SHOWN_PLANS = PLAN_ORDER;
+
 /** 48000 -> "48 000", with a narrow no-break space holding the groups together. */
 function fcfa(amount: number): string {
-  return amount.toLocaleString("fr-FR").replace(/[  \s]/g, " ");
+  return amount.toLocaleString("fr-FR").replace(/[  \s]/g, " ");
 }
 
 export default async function HomePage() {
@@ -51,51 +64,105 @@ export default async function HomePage() {
     .catch(() => 0);
 
   return (
-    <div style={{ minHeight: "100dvh" }}>
+    <div className="mk">
       <MarketingHeader />
 
       <main>
-        <HeroSlideshow
-          slides={[
-            { id: "a", url: MARKETING_PHOTOS.nails },
-            { id: "b", url: MARKETING_PHOTOS.salon },
-            { id: "c", url: MARKETING_PHOTOS.care },
-            { id: "d", url: MARKETING_PHOTOS.hands },
-          ]}
-        >
-          <div className="container site-hero-body">
-            <p className="site-hero-eyebrow">La plateforme des métiers de la beauté</p>
+        {/* ---------------------------------------------------------- Hero */}
+        <section className="mk-hero">
+          <div className="container">
+            <p className="mk-eyebrow">Logiciel de gestion — Bénin</p>
 
-            <h1 className="site-hero-title">
-              Votre activité.
+            <h1 className="mk-hero-title">
+              Le métier est à vous.
               <br />
-              Votre univers.
+              <span className="mk-hero-rest">Le reste est à nous.</span>
             </h1>
 
-            <p className="site-hero-sub">
-              Gérez vos rendez-vous, vos clientes, vos paiements et toute votre
-              activité depuis un seul espace.
+            <p className="mk-hero-sub">
+              Site de réservation, agenda, acomptes, caisse et chiffres — pour
+              les <TradeRotator words={TRADES.map((trade) => trade.label)} />{" "}
+              et tous les métiers de la beauté.
             </p>
 
-            <div className="site-hero-actions">
-              <Link href="#tarifs" className="btn btn-primary">
-                Voir les tarifs →
-              </Link>
-              <Link href="/login" className="btn site-hero-ghost">
-                Accéder à mon espace
-              </Link>
+            <div className="mk-hero-actions">
+              <a href="#demo" className="mk-btn">
+                Simuler mon activité
+              </a>
+              <a href="#tarifs" className="mk-btn mk-btn-ghost">
+                Voir les tarifs
+              </a>
             </div>
-          </div>
-        </HeroSlideshow>
 
-        <section className="section section-curved">
+            <dl className="mk-hero-facts">
+              <div>
+                <dt>Commission sur vos rendez-vous</dt>
+                <dd>0 %</dd>
+              </div>
+              <div>
+                <dt>Vos clientes vous paient</dt>
+                <dd>directement</dd>
+              </div>
+              <div>
+                <dt>À partir de</dt>
+                <dd>{fcfa(PLANS[SHOWN_PLANS[0]].monthly)} F / mois</dd>
+              </div>
+            </dl>
+          </div>
+        </section>
+
+        {/* ------------------------------------------------------- Pour qui */}
+        <section className="mk-trades">
           <div className="container">
-            <div className="section-head">
-              <p className="eyebrow">En un coup d&apos;œil</p>
-              <h2 className="section-title">Voici ce que ça donne.</h2>
-              <p>
-                De la réservation d&apos;une cliente jusqu&apos;à vos chiffres du
-                mois, tout est au même endroit.
+            <h2 className="mk-trades-title">Pour qui ?</h2>
+            <ul className="mk-trades-list">
+              {TRADES.map((trade) => (
+                <li key={trade.id}>{trade.label}</li>
+              ))}
+              {ALSO_SERVED.map((label) => (
+                <li key={label}>{label}</li>
+              ))}
+            </ul>
+            <p className="mk-trades-note">
+              Si vous travaillez sur rendez-vous, la plateforme est faite pour
+              vous. Le vocabulaire, les prestations et les durées sont les
+              vôtres.
+            </p>
+          </div>
+        </section>
+
+        {/* ---------------------------------------------------------- Démo */}
+        <section id="demo" className="mk-section mk-section-quiet">
+          <div className="container">
+            <div className="mk-head">
+              <p className="mk-eyebrow">Voir la démo</p>
+              <h2 className="mk-h2">Composez votre activité, maintenant.</h2>
+              <p className="mk-lead">
+                Choisissez votre métier, donnez un nom à votre activité, dites
+                combien de rendez-vous vous faites par semaine. Vous verrez le
+                site que vos clientes ouvriraient, et les chiffres que vous
+                liriez de votre côté.
+              </p>
+            </div>
+
+            <DemoStudio
+              plans={SHOWN_PLANS.map((plan) => ({
+                name: PLANS[plan].name,
+                monthly: PLANS[plan].monthly,
+              }))}
+            />
+          </div>
+        </section>
+
+        {/* ------------------------------------------------- Product tour */}
+        <section className="mk-section">
+          <div className="container">
+            <div className="mk-head">
+              <p className="mk-eyebrow">En un coup d&apos;œil</p>
+              <h2 className="mk-h2">L&apos;envers du décor.</h2>
+              <p className="mk-lead">
+                De la réservation d&apos;une cliente jusqu&apos;à vos chiffres
+                du mois, tout est au même endroit.
               </p>
             </div>
 
@@ -105,70 +172,36 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section className="section" style={{ paddingTop: 0 }}>
+        {/* -------------------------------------------------- Capabilities */}
+        <section className="mk-section mk-section-quiet">
           <div className="container">
-            <h2
-              className="font-display"
-              style={{
-                fontSize: "clamp(1.6rem, 4vw, 2.2rem)",
-                lineHeight: 1.2,
-                maxWidth: "20ch",
-                margin: "0 0 1.75rem",
-              }}
-            >
+            <h2 className="mk-h2 mk-h2-wide">
               Tout ce qu&apos;il faut pour faire tourner votre activité.
             </h2>
 
-            {/* Asymmetric on purpose: eight identical cards read as a list of
-                specifications, and nobody reads a list of specifications. */}
-            <div className="feature-mosaic">
-              <FeatureCard
-                wide
-                title="Votre propre site"
-                body="Un site à votre image, avec vos photos et votre univers. Pas un formulaire de réservation déguisé."
-                figure={<SiteFigure />}
-              />
-              <FeatureCard
-                title="Réservations"
-                body="Vos clientes voient vos vraies disponibilités. Les doubles réservations sont impossibles."
-                figure={<SlotsFigure />}
-              />
-              <FeatureCard
-                title="Acomptes"
-                body="Elle vous paie directement, envoie son reçu, vous confirmez."
-                figure={<PaidFigure />}
-              />
-              <FeatureCard
-                wide
-                title="Votre équipe"
-                body="Donnez un compte à celles qui travaillent avec vous. Elles gèrent l'agenda, pas vos chiffres."
-                figure={<TeamFigure />}
-              />
+            <div className="mk-caps">
+              {CAPABILITIES.map((capability, index) => (
+                <article key={capability.title} className="mk-cap">
+                  <span aria-hidden="true" className="mk-cap-index">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <h3>{capability.title}</h3>
+                  <p>{capability.body}</p>
+                </article>
+              ))}
             </div>
           </div>
         </section>
 
-        <section className="section" style={{ background: "var(--brand-rose-pale)" }}>
+        {/* ---------------------------------------------------- Avant/Après */}
+        <section className="mk-section">
           <div className="container">
-            <div className="hero-grid">
+            <div className="mk-two">
               <div>
-                <p className="eyebrow">Avant</p>
-                <div style={{ display: "grid", gap: ".5rem", marginTop: ".9rem" }}>
+                <p className="mk-eyebrow">Avant</p>
+                <div className="mk-thread">
                   {BEFORE.map((line, index) => (
-                    <p
-                      key={line}
-                      style={{
-                        margin: 0,
-                        justifySelf: index % 2 ? "end" : "start",
-                        maxWidth: "82%",
-                        background:
-                          index % 2 ? "var(--brand-beige)" : "var(--brand-surface)",
-                        border: "1px solid var(--brand-border)",
-                        borderRadius: 16,
-                        padding: ".6rem .9rem",
-                        fontSize: ".9rem",
-                      }}
-                    >
+                    <p key={line} data-them={index % 2 ? "true" : undefined}>
                       {line}
                     </p>
                   ))}
@@ -176,44 +209,17 @@ export default async function HomePage() {
               </div>
 
               <div>
-                <p className="eyebrow">Après</p>
-                <h2
-                  className="font-display"
-                  style={{
-                    fontSize: "clamp(1.5rem, 3.6vw, 2rem)",
-                    lineHeight: 1.2,
-                    margin: ".6rem 0 1.2rem",
-                  }}
-                >
+                <p className="mk-eyebrow">Après</p>
+                <h2 className="mk-h2">
                   Votre cliente réserve.
                   <br />
                   Vous vous occupez du reste.
                 </h2>
 
-                <ol
-                  style={{
-                    margin: 0,
-                    padding: 0,
-                    listStyle: "none",
-                    display: "grid",
-                    gap: ".5rem",
-                  }}
-                >
+                <ol className="mk-steps">
                   {AFTER.map((step, index) => (
-                    <li
-                      key={step}
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: ".75rem",
-                        background: "var(--brand-surface)",
-                        border: "1px solid var(--brand-border)",
-                        borderRadius: 14,
-                        padding: ".65rem .9rem",
-                        fontSize: ".92rem",
-                      }}
-                    >
-                      <span aria-hidden="true" className="step-number">
+                    <li key={step}>
+                      <span aria-hidden="true" className="mk-step-number">
                         {index + 1}
                       </span>
                       {step}
@@ -225,36 +231,22 @@ export default async function HomePage() {
           </div>
         </section>
 
-
-        <section
-          id="tarifs"
-          className="section"
-          style={{ scrollMarginTop: "1rem", background: "var(--brand-surface)" }}
-        >
+        {/* --------------------------------------------------------- Tarifs */}
+        <section id="tarifs" className="mk-section mk-section-quiet">
           <div className="container">
-            <div style={{ maxWidth: 640, marginBottom: "2rem" }}>
-              <p className="eyebrow">Nos packages</p>
-              <h2
-                className="font-display"
-                style={{ fontSize: "clamp(1.6rem, 4vw, 2.2rem)", lineHeight: 1.2, margin: ".5rem 0 .75rem" }}
-              >
+            <div className="mk-head">
+              <p className="mk-eyebrow">Nos formules</p>
+              <h2 className="mk-h2">
                 Un abonnement simple, sans commission sur vos rendez-vous.
               </h2>
-              <p style={{ margin: 0, color: "var(--brand-muted)", lineHeight: 1.7 }}>
+              <p className="mk-lead">
                 Vos clientes vous paient directement, sur votre propre compte :
                 nous ne prenons rien au passage. Payez au mois, ou réglez
                 l&apos;année et profitez de <strong>deux mois offerts</strong>.
               </p>
             </div>
 
-            <div
-              style={{
-                display: "grid",
-                gap: "1rem",
-                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-                alignItems: "start",
-              }}
-            >
+            <div className="mk-plans">
               {SHOWN_PLANS.map((plan) => (
                 <PlanCard key={plan} plan={plan} />
               ))}
@@ -262,113 +254,140 @@ export default async function HomePage() {
           </div>
         </section>
 
-        <section className="section" id="modules">
+        {/* -------------------------------------------------------- Modules */}
+        <section id="modules" className="mk-section">
           <div className="container">
-            <div style={{ maxWidth: 640, marginBottom: "1.5rem" }}>
-              <p className="eyebrow">Modules à la carte</p>
-              <h2
-                className="font-display"
-                style={{ fontSize: "clamp(1.4rem, 3.5vw, 1.8rem)", lineHeight: 1.2, margin: ".5rem 0 .75rem" }}
-              >
+            <div className="mk-head">
+              <p className="mk-eyebrow">Modules à la carte</p>
+              <h2 className="mk-h2">
                 Vous n&apos;avez besoin que de certaines fonctionnalités ?
               </h2>
-              <p style={{ margin: 0, color: "var(--brand-muted)", lineHeight: 1.7 }}>
-                Ajoutez un module à n&apos;importe quel package et composez votre
-                propre solution.
+              <p className="mk-lead">
+                Ajoutez un module à n&apos;importe quelle formule. Chacun a sa
+                page : ce qu&apos;il change pour vous, ce qu&apos;il change pour
+                vos clientes, et ce qu&apos;il vous faut pour l&apos;utiliser.
               </p>
             </div>
 
-            <div className="card" style={{ padding: 0, overflow: "hidden" }}>
-              <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-                {sellableFeatures().map((feature, index) => (
-                  <li
-                    key={feature}
-                    style={{
-                      display: "flex",
-                      alignItems: "baseline",
-                      justifyContent: "space-between",
-                      gap: "1rem",
-                      padding: ".85rem 1.1rem",
-                      borderTop: index === 0 ? "none" : "1px solid var(--brand-border)",
-                    }}
-                  >
-                    <Link
-                      href={`/modules/${FEATURES[feature].slug}`}
-                      style={{ color: "inherit", textDecoration: "none" }}
-                    >
+            <ul className="mk-modules">
+              {sellableFeatures().map((feature) => (
+                <li key={feature}>
+                  <Link href={`/modules/${FEATURES[feature].slug}`}>
+                    <span className="mk-modules-name">
                       {FEATURES[feature].label}
                       {requirementLabels(feature).length > 0 ? (
-                        <span
-                          style={{
-                            display: "block",
-                            fontSize: ".78rem",
-                            color: "var(--brand-muted)",
-                          }}
-                        >
+                        <small>
                           avec {requirementLabels(feature).join(" et ")}
-                        </span>
+                        </small>
                       ) : null}
-                    </Link>
-                    <span style={{ textAlign: "right", whiteSpace: "nowrap" }}>
-                      <span style={{ fontWeight: 700 }}>
-                        {fcfa(moduleMonthly(feature))} F
-                        <span style={{ fontWeight: 400, color: "var(--brand-muted)" }}>
-                          /mois
-                        </span>
-                      </span>
-                      <span
-                        style={{
-                          display: "block",
-                          fontSize: ".82rem",
-                          color: "var(--brand-muted)",
-                        }}
-                      >
-                        {fcfa(yearlyPrice(moduleMonthly(feature)))} F/an
-                      </span>
                     </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+                    <span className="mk-modules-price">
+                      <b>{fcfa(moduleMonthly(feature))} F</b>
+                      <small>
+                        {fcfa(yearlyPrice(moduleMonthly(feature)))} F / an
+                      </small>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
 
-            <div className="card" style={{ marginTop: "1rem", display: "grid", gap: ".75rem" }}>
-              <p style={{ margin: 0, fontWeight: 700 }}>
-                Besoin d&apos;une configuration particulière ?
-              </p>
-              <p style={{ margin: 0, color: "var(--brand-muted)", lineHeight: 1.7, fontSize: ".92rem" }}>
+            <div className="mk-callout">
+              <h3>Besoin d&apos;une configuration particulière ?</h3>
+              <p>
                 Nous composons votre solution sur mesure à partir de vos besoins
                 réels.
               </p>
               {CONTACT_URL ? (
-                <a href={CONTACT_URL} className="btn btn-primary" style={{ justifySelf: "start" }}>
+                <a href={CONTACT_URL} className="mk-btn">
                   Nous contacter
                 </a>
               ) : null}
             </div>
           </div>
         </section>
+
+        {/* ------------------------------------------------ Qui sommes-nous */}
+        <section id="nous" className="mk-about">
+          <div className="container">
+            <div className="mk-about-grid">
+              <div>
+                <p className="mk-eyebrow">Qui sommes-nous</p>
+                <h2 className="mk-h2">
+                  Une équipe béninoise, pour des métiers d&apos;ici.
+                </h2>
+              </div>
+
+              <div className="mk-about-text">
+                <p>
+                  Prestataires est né à Porto-Novo, d&apos;un constat simple :
+                  les outils de réservation existants sont écrits pour des
+                  salons parisiens. Ils supposent une carte bancaire, une
+                  connexion stable, une secrétaire à l&apos;accueil et des
+                  prestations qui durent trente minutes. Ici, on prend un
+                  acompte par Mobile Money, on répond sur WhatsApp entre deux
+                  clientes, et une pose peut durer trois heures.
+                </p>
+                <p>
+                  Nous construisons donc l&apos;inverse : un outil pensé pour
+                  une professionnelle qui travaille seule ou à deux, qui tient
+                  son agenda dans sa tête et ses comptes dans un cahier, et qui
+                  n&apos;a ni le temps ni l&apos;envie d&apos;apprendre un
+                  logiciel.
+                </p>
+
+                <ul className="mk-list">
+                  <li>
+                    <strong>Vous encaissez, pas nous.</strong> Les paiements de
+                    vos clientes vont sur votre compte. Nous ne prenons aucune
+                    commission sur vos rendez-vous — seulement un abonnement, et
+                    vous savez toujours combien.
+                  </li>
+                  <li>
+                    <strong>Vos données sont les vôtres.</strong> Votre fichier
+                    clientes ne sert à personne d&apos;autre. Nous ne le
+                    revendons pas et nous n&apos;en faisons pas un annuaire.
+                  </li>
+                  <li>
+                    <strong>On répond.</strong> En français, sur WhatsApp, par
+                    des gens qui connaissent le métier.
+                  </li>
+                </ul>
+
+                {CONTACT_URL ? (
+                  <a href={CONTACT_URL} className="mk-btn mk-btn-ghost">
+                    Parler à quelqu&apos;un
+                  </a>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
 
-      <footer className="site-foot">
+      <footer className="mk-foot">
         <div className="container">
-          <div className="site-foot-top">
+          <div className="mk-foot-top">
             <div>
-              <p className="site-foot-name">Prestataires</p>
-              <p className="site-foot-lead">
+              <p className="mk-foot-name">Prestataires</p>
+              <p className="mk-foot-lead">
                 Le business derrière la beauté : rendez-vous, acomptes, clientes
                 et chiffres, dans un seul espace.
               </p>
-              <Link href="#tarifs" className="btn site-foot-cta">
-                Voir les tarifs →
-              </Link>
             </div>
 
-            <div className="site-foot-cols">
+            <div className="mk-foot-cols">
               <section>
                 <h2>Plateforme</h2>
                 <ul>
                   <li>
-                    <Link href="#tarifs">Tarifs</Link>
+                    <a href="#demo">Voir la démo</a>
+                  </li>
+                  <li>
+                    <a href="#tarifs">Tarifs</a>
+                  </li>
+                  <li>
+                    <a href="#modules">Modules</a>
                   </li>
                   <li>
                     <Link href="/login">Espace prestataire</Link>
@@ -377,8 +396,11 @@ export default async function HomePage() {
               </section>
 
               <section>
-                <h2>Contact</h2>
+                <h2>À propos</h2>
                 <ul>
+                  <li>
+                    <a href="#nous">Qui sommes-nous</a>
+                  </li>
                   <li>
                     <a href={CONTACT_URL} target="_blank" rel="noreferrer noopener">
                       WhatsApp
@@ -389,9 +411,9 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <div className="site-foot-bottom">
-            <span>© {new Date().getFullYear()} Prestataires</span>
-            <span className="site-foot-by">
+          <div className="mk-foot-bottom">
+            <span>© {new Date().getFullYear()} Prestataires — Porto-Novo, Bénin</span>
+            <span>
               {providerCount > 0
                 ? `${providerCount} prestataire${providerCount > 1 ? "s" : ""} en ligne`
                 : "Plateforme prête"}
@@ -406,119 +428,48 @@ export default async function HomePage() {
 function PlanCard({ plan }: { plan: Plan }) {
   const definition = PLANS[plan];
   const monthly = definition.monthly;
+
   return (
-    <div
-      className="card"
-      style={{
-        display: "grid",
-        gap: ".9rem",
-        // The recommended plan carries a ring rather than a different
-        // background, so all three stay equally readable.
-        border: definition.recommended
-          ? "2px solid var(--brand-primary)"
-          : "1px solid var(--brand-border)",
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: ".5rem" }}>
-        <span aria-hidden="true">{definition.emoji}</span>
-        <span className="font-display" style={{ fontSize: "1.15rem" }}>
-          {definition.name}
-        </span>
+    // The recommended plan carries a ring rather than a different background,
+    // so all three stay equally readable.
+    <div className="mk-plan" data-pick={definition.recommended ? "true" : undefined}>
+      <div className="mk-plan-head">
+        <span className="mk-plan-name">{definition.name}</span>
         {definition.recommended ? (
-          <span
-            style={{
-              marginLeft: "auto",
-              fontSize: ".7rem",
-              fontWeight: 700,
-              textTransform: "uppercase",
-              letterSpacing: ".06em",
-              color: "var(--brand-primary)",
-              border: "1px solid var(--brand-primary)",
-              borderRadius: "var(--brand-radius)",
-              padding: ".15rem .6rem",
-              whiteSpace: "nowrap",
-            }}
-          >
-            Recommandé
-          </span>
+          <span className="mk-plan-tag">Recommandé</span>
         ) : null}
       </div>
 
-      <div>
-        <p style={{ margin: 0, display: "flex", alignItems: "baseline", gap: ".35rem" }}>
-          <span className="font-display" style={{ fontSize: "1.9rem", lineHeight: 1 }}>
-            {fcfa(monthly)} F
-          </span>
-          <span style={{ color: "var(--brand-muted)", fontSize: ".9rem" }}>/ mois</span>
-        </p>
-
-        <div
-          style={{
-            marginTop: ".6rem",
-            padding: ".55rem .7rem",
-            borderRadius: 12,
-            background: "var(--brand-background)",
-            border: "1px solid var(--brand-border)",
-          }}
-        >
-          <p style={{ margin: 0, fontSize: ".9rem" }}>
-            ou <strong>{fcfa(yearlyPrice(monthly))} F</strong> par an
-          </p>
-          <p
-            style={{
-              margin: ".15rem 0 0",
-              fontSize: ".82rem",
-              fontWeight: 700,
-              color: "var(--brand-primary)",
-            }}
-          >
-            2 mois offerts — vous économisez{" "}
-            {fcfa(monthly * 12 - yearlyPrice(monthly))} F
-          </p>
-        </div>
-      </div>
-
-      <p style={{ margin: 0, color: "var(--brand-muted)", lineHeight: 1.6, fontSize: ".92rem" }}>
-        {definition.pitch}
+      <p className="mk-plan-price">
+        {fcfa(monthly)} F<small> / mois</small>
       </p>
 
+      <div className="mk-plan-year">
+        <p>
+          ou <strong>{fcfa(yearlyPrice(monthly))} F</strong> par an
+        </p>
+        <p className="mk-plan-save">
+          2 mois offerts — vous économisez{" "}
+          {fcfa(monthly * 12 - yearlyPrice(monthly))} F
+        </p>
+      </div>
+
+      <p className="mk-plan-pitch">{definition.pitch}</p>
+
       {definition.extends ? (
-        <p
-          style={{
-            margin: 0,
-            fontSize: ".88rem",
-            fontWeight: 700,
-            paddingBottom: ".5rem",
-            borderBottom: "1px solid var(--brand-border)",
-          }}
-        >
+        <p className="mk-plan-extends">
           Tout {PLANS[definition.extends].name}, plus :
         </p>
       ) : null}
 
-      <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: ".45rem" }}>
+      <ul className="mk-list">
         {planHighlights(plan).map((feature) => (
-          <li
-            key={feature}
-            style={{
-              display: "grid",
-              gridTemplateColumns: "1rem 1fr",
-              gap: ".5rem",
-              fontSize: ".92rem",
-              lineHeight: 1.5,
-            }}
-          >
-            <span aria-hidden="true" style={{ color: "var(--brand-primary)" }}>
-              ✓
-            </span>
-            <span>{feature}</span>
-          </li>
+          <li key={feature}>{feature}</li>
         ))}
       </ul>
     </div>
   );
 }
-
 
 /**
  * What a module costs on its own, everything it depends on included.
@@ -533,6 +484,31 @@ function moduleMonthly(feature: PlanFeature): number {
     0,
   );
 }
+
+/**
+ * The four things the product does, said without a photograph.
+ *
+ * Every picture we could put here would be of one trade, and would exclude the
+ * other five. Numbered text excludes nobody.
+ */
+const CAPABILITIES = [
+  {
+    title: "Votre propre site",
+    body: "Un site à votre image, avec vos photos, vos prestations et vos tarifs. Une adresse à vous, à envoyer en story plutôt qu'un numéro de téléphone.",
+  },
+  {
+    title: "Un agenda qui ne se trompe pas",
+    body: "Vos clientes voient vos vraies disponibilités, celles que vous avez définies. Deux personnes ne peuvent pas réserver le même créneau : la base de données le refuse.",
+  },
+  {
+    title: "Des acomptes encaissés",
+    body: "Elle verse son acompte au moment de réserver, sur votre compte. Moins d'annulations la veille, et une caisse qui commence la journée pleine.",
+  },
+  {
+    title: "Vos chiffres, sans cahier",
+    body: "Ce que vous avez encaissé, vos prestations qui marchent, vos clientes qui reviennent. Lisible en trente secondes le lundi matin.",
+  },
+] as const;
 
 /** The five messages every provider has sent a hundred times. */
 const BEFORE = [
@@ -550,107 +526,3 @@ const AFTER = [
   "Paie son acompte",
   "Reçoit sa confirmation",
 ];
-
-/**
- * A feature, told with a picture of itself.
- *
- * The wide ones carry a figure that needs room; the narrow ones carry a detail.
- * Alternating the two is what stops the section reading as a specification
- * sheet, which is the one thing nobody reads.
- */
-function FeatureCard({
-  title,
-  body,
-  figure,
-  wide,
-}: {
-  title: string;
-  body: string;
-  figure: React.ReactNode;
-  wide?: boolean;
-}) {
-  return (
-    <article className="card feature-card" data-wide={wide ? "true" : undefined}>
-      <div className="feature-figure">{figure}</div>
-      <div>
-        <p style={{ margin: 0, fontWeight: 700 }}>{title}</p>
-        <p
-          style={{
-            margin: ".4rem 0 0",
-            color: "var(--brand-muted)",
-            lineHeight: 1.65,
-            fontSize: ".92rem",
-          }}
-        >
-          {body}
-        </p>
-      </div>
-    </article>
-  );
-}
-
-function SiteFigure() {
-  return (
-    <div className="figure-strip" aria-hidden="true">
-      {[MARKETING_PHOTOS.nails, MARKETING_PHOTOS.detail, MARKETING_PHOTOS.salon].map(
-        (url, index) => (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img
-            key={url}
-            src={url}
-            alt=""
-            loading="lazy"
-            data-lead={index === 0 ? "true" : undefined}
-          />
-        ),
-      )}
-    </div>
-  );
-}
-
-function SlotsFigure() {
-  return (
-    <div className="figure-slots">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={MARKETING_PHOTOS.manicure} alt="" loading="lazy" aria-hidden="true" />
-      <div className="figure-slots-chips" aria-hidden="true">
-        {["09:00", "10:30", "14:00", "16:00"].map((slot) => (
-          <span key={slot} data-chosen={slot === "14:00" ? "true" : undefined}>
-            {slot}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function PaidFigure() {
-  return (
-    <div className="figure-slots">
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={MARKETING_PHOTOS.care} alt="" loading="lazy" aria-hidden="true" />
-      <span className="figure-badge" aria-hidden="true">
-        ✓ Acompte reçu
-      </span>
-    </div>
-  );
-}
-
-function TeamFigure() {
-  return (
-    <div className="figure-strip" aria-hidden="true">
-      {[MARKETING_PHOTOS.salon, MARKETING_PHOTOS.tools, MARKETING_PHOTOS.portrait].map(
-        (url, index) => (
-          /* eslint-disable-next-line @next/next/no-img-element */
-          <img
-            key={url}
-            src={url}
-            alt=""
-            loading="lazy"
-            data-lead={index === 0 ? "true" : undefined}
-          />
-        ),
-      )}
-    </div>
-  );
-}

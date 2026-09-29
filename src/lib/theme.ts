@@ -84,12 +84,27 @@ export const DEFAULT_THEME: ThemeLike = {
   layoutVariant: "classic",
 };
 
-/** Inline style object carrying the provider palette. */
+/**
+ * Inline style object carrying the provider palette.
+ *
+ * Every `--brand-*` the stylesheet reads is written here, including the ones
+ * that look like platform decoration. The defaults in `globals.css` named
+ * colours rather than roles — a rose, a cream, a chocolate — and anything not
+ * overridden stayed the platform's own. That is how a hundred sites end up
+ * wearing the same pink button whatever palette their owner chose.
+ */
 export function themeStyle(theme: ThemeLike | null | undefined): CSSProperties {
   const t = theme ?? DEFAULT_THEME;
 
+  // The colour actions are painted in. A pale primary cannot carry text, so it
+  // is deepened until its own label is readable on it; a primary that already
+  // works is left exactly as she picked it.
+  const strong = readableActionColor(t.primaryColor);
+
   return {
     "--brand-primary": t.primaryColor,
+    "--brand-primary-strong": strong,
+    "--brand-primary-fg": readableTextOn(strong),
     "--brand-secondary": t.secondaryColor,
     "--brand-accent": t.accentColor,
     "--brand-background": t.backgroundColor,
@@ -98,11 +113,76 @@ export function themeStyle(theme: ThemeLike | null | undefined): CSSProperties {
     "--brand-muted": t.mutedTextColor,
     "--brand-border": hexToRgba(t.textColor, 0.12),
     "--brand-radius": RADIUS[t.buttonRadius] ?? RADIUS.full,
+
+    // The three the stylesheet still calls by colour name. Mapped to the role
+    // each one actually plays, so a provider's palette reaches them too.
+    "--brand-chocolate": t.secondaryColor,
+    "--brand-cream": t.backgroundColor,
+    "--brand-beige": t.accentColor,
+    // Soft washes of her primary, flattened over her own surface rather than
+    // over white: on a dark site a translucent tint would turn muddy.
+    "--brand-rose-light": hexToHex(t.primaryColor, t.surfaceColor, 0.16),
+    "--brand-rose-pale": hexToHex(t.primaryColor, t.surfaceColor, 0.07),
+    "--brand-rose": t.primaryColor,
+
     "--font-heading": fontStack(t.headingFont, "Georgia, serif"),
     "--font-body": fontStack(t.bodyFont, "system-ui, sans-serif"),
     backgroundColor: t.backgroundColor,
     color: t.textColor,
   } as CSSProperties;
+}
+
+/** Contrast a button's label must reach against its own background. */
+const ACTION_CONTRAST = 4.5;
+
+/**
+ * Deepen a colour until it can carry a label.
+ *
+ * A provider is free to choose a pastel, and a pastel button with white text
+ * is unreadable. Rather than refusing her colour or silently swapping it, the
+ * action surface is walked towards black or white until its best foreground
+ * reaches the threshold. A colour that already passes comes back untouched.
+ */
+export function readableActionColor(hex: string): string {
+  const parsed = parseHex(hex);
+  if (!parsed) return hex;
+
+  const best = (colour: string) =>
+    Math.max(contrastRatio(INK, colour), contrastRatio(PAPER, colour));
+
+  if (best(hex) >= ACTION_CONTRAST) return normaliseHex(parsed);
+
+  // Toward black for a light colour, toward white for a dark one: whichever
+  // direction its own text is already heading.
+  const towardsBlack = relativeLuminance(hex) > 0.18;
+  const target: [number, number, number] = towardsBlack ? [0, 0, 0] : [255, 255, 255];
+
+  let candidate = parsed;
+  // Twenty steps of five per cent: fine enough that the result still reads as
+  // her colour, and bounded so this can never spin.
+  for (let step = 1; step <= 20; step += 1) {
+    const ratio = step * 0.05;
+    candidate = [
+      Math.round(parsed[0] + (target[0] - parsed[0]) * ratio),
+      Math.round(parsed[1] + (target[1] - parsed[1]) * ratio),
+      Math.round(parsed[2] + (target[2] - parsed[2]) * ratio),
+    ];
+    if (best(normaliseHex(candidate)) >= ACTION_CONTRAST) break;
+  }
+
+  return normaliseHex(candidate);
+}
+
+function parseHex(hex: string): [number, number, number] | null {
+  const match = /^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if (!match) return null;
+  const value = Number.parseInt(match[1], 16);
+  return [(value >> 16) & 255, (value >> 8) & 255, value & 255];
+}
+
+function normaliseHex([r, g, b]: [number, number, number]): string {
+  const clamp = (n: number) => Math.max(0, Math.min(255, n));
+  return `#${[r, g, b].map((n) => clamp(n).toString(16).padStart(2, "0")).join("")}`;
 }
 
 /** Google Fonts href for the two chosen families, or null for system fonts. */

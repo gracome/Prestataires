@@ -4,56 +4,55 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 /**
- * The platform's own header, built on the same floating pill the provider
- * sites use.
+ * The platform's own header.
  *
- * Shared shape, different voice: a provider's bar leads with "Réserver"
- * because her visitor came to book; this one leads with the price, because a
- * provider arriving here is deciding whether to sign up.
+ * It used to borrow the floating pill from the provider sites, which made the
+ * two indistinguishable at a glance — bad for us, worse for a provider who
+ * should feel that her site is hers and not a page of ours. This one is a
+ * plain bar: flat, left-aligned, cream on cream. A tool announces itself
+ * quietly; the beauty belongs on her side.
  */
 
 const LINKS = [
+  { href: "#demo", label: "Démo" },
   { href: "#tarifs", label: "Tarifs" },
   { href: "#modules", label: "Modules" },
+  { href: "#nous", label: "Qui sommes-nous" },
 ];
 
 export function MarketingHeader() {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 120);
+    const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
-    <header className="site-header" data-scrolled={scrolled ? "true" : undefined}>
+    <header className="mk-nav" data-scrolled={scrolled ? "true" : undefined}>
       <div className="container">
-        <div className="site-bar">
-          <nav aria-label="Navigation principale" className="site-nav">
-            {LINKS.map((link) => (
-              <a key={link.href} href={link.href} className="site-nav-link">
-                {link.label}
-              </a>
-            ))}
-          </nav>
+        <Link href="/" className="mk-logo">
+          <span aria-hidden="true" className="mk-logo-mark" />
+          Prestataires
+        </Link>
 
-          <Link href="/" className="site-brand">
-            <span aria-hidden="true" className="site-brand-mark">
-              ✿
-            </span>
-            <span className="site-brand-name">Prestataires</span>
+        <nav aria-label="Navigation principale" className="mk-nav-links">
+          {LINKS.map((link) => (
+            <a key={link.href} href={link.href}>
+              {link.label}
+            </a>
+          ))}
+        </nav>
+
+        <div className="mk-nav-actions">
+          <Link href="/login" className="mk-nav-login">
+            Se connecter
           </Link>
-
-          <div className="site-actions">
-            <Link href="/login" className="site-nav-link site-header-login">
-              Se connecter
-            </Link>
-            <Link href="#tarifs" className="site-cta">
-              Commencer <span aria-hidden="true">›</span>
-            </Link>
-          </div>
+          <a href="#demo" className="mk-btn mk-btn-sm">
+            Essayer
+          </a>
         </div>
       </div>
     </header>

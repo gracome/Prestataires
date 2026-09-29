@@ -14,6 +14,11 @@ import { revokeAllSessions } from "@/lib/auth/session";
 import { MAX_ACCOUNTS_PER_PROVIDER } from "@/lib/auth/permissions";
 import { generatePassword } from "@/lib/platform/providers";
 import {
+  SECTIONS,
+  asLayoutVariant,
+  resolveSectionOrder,
+} from "@/lib/site/sections";
+import {
   adminThemeSchema,
   bookingSettingsSchema,
   changePasswordSchema,
@@ -906,4 +911,60 @@ export async function disableGatewayAction(): Promise<ActionState> {
     status: "success",
     message: "Paiement en ligne désactivé. Les acomptes repassent par dépôt.",
   };
+}
+
+// ---------------------------------------------------------------------------
+// Page composition
+// ---------------------------------------------------------------------------
+
+/**
+ * The order and the visibility of the home page sections.
+ *
+ * Kept apart from the rest of the site settings on purpose: this is the one
+ * screen where a provider decides what her page looks like rather than what it
+ * says, and mixing it into a form of forty text fields would bury it.
+ *
+ * The order is normalised before it is stored, so a stale key from an older
+ * version of the page, or a section she never placed, can never end up
+ * removing anything.
+ */
+export async function updatePageLayoutAction(
+  _state: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const { provider } = await requireProviderApi("site");
+
+  const order = resolveSectionOrder(
+    String(formData.get("sectionOrder") ?? "")
+      .split(",")
+      .map((key) => key.trim())
+      .filter(Boolean),
+  );
+
+  const layoutVariant = asLayoutVariant(String(formData.get("layoutVariant") ?? ""));
+
+  // Every togglable section, read back from the same table the page renders
+  // from, so a new section cannot be forgotten here.
+  const visibility: Record<string, boolean> = {};
+  for (const section of SECTIONS) {
+    if (!section.toggle) continue;
+    visibility[section.toggle] = formData.get(section.toggle) === "on";
+  }
+
+  await prisma.$transaction([
+    prisma.siteSettings.upsert({
+      where: { providerId: provider.id },
+      create: { providerId: provider.id, sectionOrder: order, ...visibility },
+      update: { sectionOrder: order, ...visibility },
+    }),
+    prisma.theme.upsert({
+      where: { providerId: provider.id },
+      create: { providerId: provider.id, layoutVariant },
+      update: { layoutVariant },
+    }),
+  ]);
+
+  refreshSite(provider.slug);
+
+  return { status: "success", message: "Mise en page enregistrée." };
 }

@@ -425,6 +425,14 @@ model SiteSettings {
   /// The dedicated portfolio page at /{slug}/realisations.
   showRealisations Boolean @default(true)
 
+  /// The order her sections appear in, by key.
+  ///
+  /// Empty means the order the platform ships, so an existing site keeps the
+  /// page it had. A key the code no longer knows is ignored, and a section
+  /// missing from the list falls in at its natural place: reordering must
+  /// never be able to make a section disappear.
+  sectionOrder String[] @default([])
+
   heroHeadline    String?
   heroSubheadline String? @db.Text
   /// Short line above the headline, such as the trade and the city.
