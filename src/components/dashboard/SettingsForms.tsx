@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useTransition, useState } from "react";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { IDLE, type ActionState } from "@/lib/validation";
 import {
   changePasswordAction,
@@ -326,11 +327,9 @@ export function PasswordForm() {
         <label className="label" htmlFor="currentPassword">
           Mot de passe actuel
         </label>
-        <input
+        <PasswordInput
           id="currentPassword"
           name="currentPassword"
-          type="password"
-          className="input"
           autoComplete="current-password"
           required
         />
@@ -345,11 +344,9 @@ export function PasswordForm() {
         <label className="label" htmlFor="newPassword">
           Nouveau mot de passe
         </label>
-        <input
+        <PasswordInput
           id="newPassword"
           name="newPassword"
-          type="password"
-          className="input"
           autoComplete="new-password"
           required
           minLength={10}
@@ -368,11 +365,9 @@ export function PasswordForm() {
         <label className="label" htmlFor="confirmPassword">
           Confirmer le nouveau mot de passe
         </label>
-        <input
+        <PasswordInput
           id="confirmPassword"
           name="confirmPassword"
-          type="password"
-          className="input"
           autoComplete="new-password"
           required
         />

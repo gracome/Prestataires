@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { IDLE } from "@/lib/validation";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import { login } from "./actions";
 
 export function LoginForm({ next }: { next?: string }) {
@@ -54,11 +55,9 @@ export function LoginForm({ next }: { next?: string }) {
         <label className="label" htmlFor="password">
           Mot de passe
         </label>
-        <input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
-          className="input"
           autoComplete="current-password"
           required
           aria-invalid={errors.password ? true : undefined}
