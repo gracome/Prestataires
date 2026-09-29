@@ -11,7 +11,6 @@ import {
   yearlyPrice,
 } from "@/lib/plans/catalogue";
 import type { Plan, PlanFeature } from "@prisma/client";
-import { ProductTour } from "@/components/marketing/ProductTour";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
 import { DemoStudio } from "@/components/marketing/DemoStudio";
 import { TradeRotator } from "@/components/marketing/TradeRotator";
@@ -154,26 +153,12 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* ------------------------------------------------- Product tour */}
-        <section className="mk-section">
-          <div className="container">
-            <div className="mk-head">
-              <p className="mk-eyebrow">En un coup d&apos;œil</p>
-              <h2 className="mk-h2">L&apos;envers du décor.</h2>
-              <p className="mk-lead">
-                De la réservation d&apos;une cliente jusqu&apos;à vos chiffres
-                du mois, tout est au même endroit.
-              </p>
-            </div>
-
-            <div className="tour-frame">
-              <ProductTour />
-            </div>
-          </div>
-        </section>
-
         {/* -------------------------------------------------- Capabilities */}
-        <section className="mk-section mk-section-quiet">
+        {/* The product tour used to sit here. Once the demo above let a
+            visitor compose her own site and read her own figures, a mock of
+            somebody else's was both weaker and second: it showed a screen she
+            had already seen a truer version of. */}
+        <section className="mk-section">
           <div className="container">
             <h2 className="mk-h2 mk-h2-wide">
               Tout ce qu&apos;il faut pour faire tourner votre activité.
@@ -189,44 +174,6 @@ export default async function HomePage() {
                   <p>{capability.body}</p>
                 </article>
               ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ---------------------------------------------------- Avant/Après */}
-        <section className="mk-section">
-          <div className="container">
-            <div className="mk-two">
-              <div>
-                <p className="mk-eyebrow">Avant</p>
-                <div className="mk-thread">
-                  {BEFORE.map((line, index) => (
-                    <p key={line} data-them={index % 2 ? "true" : undefined}>
-                      {line}
-                    </p>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <p className="mk-eyebrow">Après</p>
-                <h2 className="mk-h2">
-                  Votre cliente réserve.
-                  <br />
-                  Vous vous occupez du reste.
-                </h2>
-
-                <ol className="mk-steps">
-                  {AFTER.map((step, index) => (
-                    <li key={step}>
-                      <span aria-hidden="true" className="mk-step-number">
-                        {index + 1}
-                      </span>
-                      {step}
-                    </li>
-                  ))}
-                </ol>
-              </div>
             </div>
           </div>
         </section>
@@ -510,19 +457,3 @@ const CAPABILITIES = [
   },
 ] as const;
 
-/** The five messages every provider has sent a hundred times. */
-const BEFORE = [
-  "Tu peux venir à 15h ?",
-  "Attends je regarde.",
-  "Finalement 16h.",
-  "Tu peux envoyer l'acompte ?",
-  "Je n'ai pas encore vu le paiement.",
-];
-
-const AFTER = [
-  "Choisit son service",
-  "Choisit son créneau",
-  "Réserve",
-  "Paie son acompte",
-  "Reçoit sa confirmation",
-];
