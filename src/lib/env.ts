@@ -57,6 +57,13 @@ const schema = z.object({
   /// mailto: address a push service can reach you on if it needs to.
   VAPID_SUBJECT: z.string().optional(),
 
+  // --- Public demo --------------------------------------------------------
+  /// The provider whose site and dashboard anyone may walk through, and the
+  /// account /demo signs a visitor into. Unset, the demo door does not exist:
+  /// that is the safe default, since it is a public way into one real account.
+  DEMO_SLUG: z.string().optional(),
+  DEMO_EMAIL: z.string().optional(),
+
   // --- Google Calendar ----------------------------------------------------
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
