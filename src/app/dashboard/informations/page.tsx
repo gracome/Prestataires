@@ -1,4 +1,5 @@
 import { requireSection } from "@/lib/auth/guard";
+import { PageLayoutForm } from "@/components/dashboard/PageLayoutForm";
 import { prisma } from "@/lib/db";
 import {
   adminColorsFromSite,
@@ -105,6 +106,27 @@ export default async function InformationsPage() {
 
       <Section title="Formations et certifications">
         <HighlightManager kind="CREDENTIAL" items={credentials} />
+      </Section>
+
+      <Section
+        title="Mise en page de votre accueil"
+        description="Choisissez l'allure générale, puis l'ordre de vos sections. C'est ce qui fait que votre site ne ressemble pas à celui de la voisine."
+      >
+        <PageLayoutForm
+          values={{
+            sectionOrder: site?.sectionOrder ?? [],
+            layoutVariant: theme?.layoutVariant ?? "classic",
+            visibility: {
+              showServices: site?.showServices ?? true,
+              showGallery: site?.showGallery ?? true,
+              showAbout: site?.showAbout ?? true,
+              showHours: site?.showHours ?? true,
+              showLocation: site?.showLocation ?? true,
+              showFaq: site?.showFaq ?? true,
+              showContact: site?.showContact ?? true,
+            },
+          }}
+        />
       </Section>
 
       <Section

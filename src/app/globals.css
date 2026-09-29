@@ -2173,3 +2173,1095 @@ table.data tr:last-child td {
     border-bottom: 0;
   }
 }
+
+/* --- Layout variants ------------------------------------------------------
+
+   Three shapes for the same page. The setting existed and was saved from the
+   first day, but nothing ever read it, so every site came out identical
+   whatever its owner picked. These are the rules that make the choice real.
+
+   Written as overrides on the wrapper rather than as three stylesheets: a
+   section only has to describe what it changes, and anything not mentioned
+   keeps the classic treatment.
+   ------------------------------------------------------------------------- */
+
+/* Editorial: text pulled to the left edge and set large, like a magazine
+   opening. The hero is taller, because the words need the room. */
+[data-layout="editorial"] .site-hero {
+  min-height: min(86vh, 740px);
+}
+
+[data-layout="editorial"] .site-hero-body {
+  text-align: left;
+  justify-items: start;
+  max-width: 52rem;
+}
+
+[data-layout="editorial"] .site-hero-title {
+  font-size: clamp(2.4rem, 7vw, 4.2rem);
+  letter-spacing: -0.02em;
+}
+
+[data-layout="editorial"] .site-hero-actions {
+  justify-content: flex-start;
+}
+
+[data-layout="editorial"] .section-head {
+  text-align: left;
+  margin-inline: 0;
+  max-width: 54rem;
+}
+
+[data-layout="editorial"] .section-head h2,
+[data-layout="editorial"] .section-head .section-title {
+  font-size: clamp(1.9rem, 5vw, 3.1rem);
+  letter-spacing: -0.02em;
+}
+
+/* Minimal: a short hero, small sans-serif headings and more air between the
+   sections. For someone whose work should do the talking. */
+[data-layout="minimal"] .site-hero {
+  min-height: min(56vh, 460px);
+  padding-block: 3.5rem 4.5rem;
+}
+
+[data-layout="minimal"] .site-hero-title {
+  font-family: var(--font-body);
+  font-size: clamp(1.7rem, 4.4vw, 2.6rem);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+[data-layout="minimal"] .section-head {
+  margin-bottom: 1.6rem;
+}
+
+[data-layout="minimal"] .section-head h2,
+[data-layout="minimal"] .section-head .section-title {
+  font-family: var(--font-body);
+  font-size: clamp(1.2rem, 2.6vw, 1.55rem);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+[data-layout="minimal"] .section {
+  padding: 4.25rem 0;
+}
+
+@media (min-width: 768px) {
+  [data-layout="minimal"] .section {
+    padding: 6rem 0;
+  }
+}
+
+/* ===========================================================================
+ * Platform skin, part two: the landing page
+ * ---------------------------------------------------------------------------
+ * The rest of the .mk family lives above and dresses the module pages. This
+ * block dresses the home page, on the same rule: flat, typographic, cream and
+ * ink. No photographs — every photograph of a beauty business is a photograph
+ * of one trade, and would quietly exclude the other five.
+ * ======================================================================== */
+
+/* ------------------------------------------------------------------ Header */
+
+.mk-nav {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: color-mix(in srgb, var(--brand-cream) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.25s ease, background 0.25s ease;
+}
+
+.mk-nav[data-scrolled="true"] {
+  background: var(--brand-cream);
+  border-bottom-color: var(--brand-border);
+}
+
+.mk-nav > .container {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  min-height: 66px;
+}
+
+.mk-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  text-decoration: none;
+  color: var(--brand-text);
+  white-space: nowrap;
+}
+
+.mk-logo-mark {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  background: var(--brand-primary-strong);
+  transform: rotate(45deg);
+}
+
+.mk-nav-links {
+  display: none;
+  gap: 1.5rem;
+  margin-inline: auto;
+}
+
+.mk-nav-links a {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--brand-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.mk-nav-links a:hover {
+  color: var(--brand-text);
+}
+
+.mk-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-left: auto;
+}
+
+.mk-nav-login {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--brand-text);
+  text-decoration: none;
+}
+
+@media (min-width: 900px) {
+  .mk-nav-links {
+    display: flex;
+  }
+  .mk-nav-actions {
+    margin-left: 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .mk-nav-login {
+    display: none;
+  }
+}
+
+.mk-btn-ghost {
+  background: transparent;
+  color: var(--brand-text);
+  border: 1px solid var(--brand-border);
+}
+
+.mk-btn-ghost:hover {
+  border-color: var(--brand-text);
+}
+
+.mk-btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+/* -------------------------------------------------------------------- Hero */
+
+.mk-hero {
+  padding-block: clamp(3.5rem, 9vw, 6.5rem) clamp(3rem, 7vw, 5rem);
+  background:
+    radial-gradient(
+      70ch 40ch at 15% -10%,
+      var(--brand-rose-light),
+      transparent 70%
+    ),
+    var(--brand-cream);
+}
+
+.mk-hero-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.5rem, 8vw, 4.75rem);
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  margin: 0.8rem 0 0;
+  max-width: 16ch;
+}
+
+.mk-hero-rest {
+  color: var(--brand-primary-strong);
+}
+
+.mk-hero-sub {
+  margin: 1.5rem 0 0;
+  max-width: 52ch;
+  font-size: clamp(1rem, 2.2vw, 1.15rem);
+  line-height: 1.75;
+  color: var(--brand-muted);
+}
+
+/* The rotating trade word. The ghost copy underneath reserves the width of the
+   longest option, so the sentence around it never reflows as it turns. */
+.mk-rotator {
+  position: relative;
+  display: inline-grid;
+  vertical-align: bottom;
+  text-align: left;
+}
+
+.mk-rotator-ghost,
+.mk-rotator-word {
+  grid-area: 1 / 1;
+  white-space: nowrap;
+}
+
+.mk-rotator-ghost {
+  visibility: hidden;
+}
+
+.mk-rotator-word {
+  font-weight: 700;
+  color: var(--brand-text);
+  animation: mk-rotate-in 0.45s ease both;
+}
+
+@keyframes mk-rotate-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mk-rotator-word {
+    animation: none;
+  }
+}
+
+.mk-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+.mk-hero-facts {
+  display: grid;
+  gap: 1.25rem;
+  margin: 3rem 0 0;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--brand-border);
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  max-width: 44rem;
+}
+
+.mk-hero-facts dt {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--brand-muted);
+  line-height: 1.4;
+}
+
+.mk-hero-facts dd {
+  margin: 0.3rem 0 0;
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  line-height: 1.1;
+}
+
+/* ---------------------------------------------------------------- Pour qui */
+
+.mk-trades {
+  padding-block: 2.5rem;
+  background: var(--brand-chocolate);
+  color: var(--brand-cream);
+}
+
+.mk-trades-title {
+  margin: 0 0 1.1rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--brand-cream) 60%, transparent);
+  font-weight: 600;
+}
+
+.mk-trades-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.mk-trades-list li {
+  font-family: var(--font-heading);
+  font-size: clamp(1.05rem, 2.6vw, 1.5rem);
+  line-height: 1.3;
+}
+
+/* A hairline diamond between entries: the strip reads as one continuous
+   phrase rather than six labels, which is the point — all of them. */
+.mk-trades-list li + li::before {
+  content: "\25C6";
+  margin-right: 1.4rem;
+  font-size: 0.5em;
+  vertical-align: middle;
+  color: var(--brand-primary);
+}
+
+.mk-trades-note {
+  margin: 1.4rem 0 0;
+  max-width: 56ch;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: color-mix(in srgb, var(--brand-cream) 72%, transparent);
+}
+
+/* ------------------------------------------------------- Section furniture */
+
+.mk-head {
+  max-width: 60ch;
+  margin-bottom: 2.25rem;
+}
+
+.mk-h2 {
+  font-family: var(--font-heading);
+  font-size: clamp(1.7rem, 4.5vw, 2.6rem);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  margin: 0.5rem 0 0;
+  max-width: 22ch;
+}
+
+.mk-h2-wide {
+  max-width: 26ch;
+  margin-bottom: 2.25rem;
+}
+
+.mk-lead {
+  margin: 1rem 0 0;
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--brand-muted);
+}
+
+/* ------------------------------------------------------------- Demo studio */
+
+.mk-studio {
+  display: grid;
+  gap: 1.75rem;
+  align-items: start;
+}
+
+@media (min-width: 1000px) {
+  .mk-studio {
+    grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+    gap: 2.25rem;
+  }
+}
+
+.mk-studio-panel {
+  display: grid;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border-radius: 20px;
+  background: var(--brand-cream);
+  border: 1px solid var(--brand-border);
+  position: sticky;
+  top: 86px;
+}
+
+@media (max-width: 999px) {
+  .mk-studio-panel {
+    position: static;
+  }
+}
+
+.mk-field {
+  display: grid;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.mk-field > span,
+.mk-field legend {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--brand-muted);
+  padding: 0;
+}
+
+.mk-field-value {
+  color: var(--brand-primary-strong);
+  font-size: 0.95rem;
+}
+
+.mk-field input[type="text"] {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  border-radius: 12px;
+  border: 1px solid var(--brand-border);
+  background: var(--brand-surface);
+  font: inherit;
+  font-size: 0.95rem;
+  color: var(--brand-text);
+}
+
+.mk-field input[type="text"]:focus-visible {
+  outline: 2px solid var(--brand-primary-strong);
+  outline-offset: 1px;
+}
+
+.mk-field input[type="range"] {
+  width: 100%;
+  accent-color: var(--brand-primary-strong);
+}
+
+.mk-field-row {
+  display: grid;
+  gap: 1.25rem;
+}
+
+@media (min-width: 560px) and (max-width: 999px) {
+  .mk-field-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.mk-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.mk-chip {
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid var(--brand-border);
+  background: var(--brand-surface);
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--brand-text);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.mk-chip:hover {
+  border-color: var(--brand-primary-strong);
+}
+
+.mk-chip[data-on="true"] {
+  background: var(--brand-primary-strong);
+  border-color: var(--brand-primary-strong);
+  color: #fff;
+}
+
+.mk-studio-note {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.6;
+  color: var(--brand-muted);
+}
+
+.mk-studio-stage {
+  display: grid;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+@media (min-width: 720px) {
+  .mk-studio-stage {
+    grid-template-columns: minmax(0, 300px) minmax(0, 1fr);
+  }
+}
+
+.mk-preview {
+  margin: 0;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.mk-preview-cap {
+  font-size: 0.76rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--brand-muted);
+}
+
+/* The client-side half: a phone, because that is the only screen her clients
+   will ever open the site on. */
+.mk-phone {
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid var(--brand-border);
+  background: #fff;
+  box-shadow: 0 18px 40px -28px rgba(51, 32, 44, 0.5);
+}
+
+.mk-phone-bar {
+  padding: 0.5rem 0.9rem;
+  background: var(--brand-cream);
+  border-bottom: 1px solid var(--brand-border);
+}
+
+.mk-phone-url {
+  font-size: 0.7rem;
+  color: var(--brand-muted);
+  word-break: break-all;
+}
+
+.mk-phone-screen {
+  display: grid;
+}
+
+.mk-demo-hero {
+  padding: 1.6rem 1.1rem 1.4rem;
+  background: linear-gradient(
+    160deg,
+    color-mix(in srgb, var(--demo) 22%, #fff),
+    #fff
+  );
+  display: grid;
+  gap: 0.3rem;
+  justify-items: start;
+}
+
+.mk-demo-name {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.45rem;
+  line-height: 1.15;
+  color: var(--brand-text);
+}
+
+.mk-demo-tag {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--brand-muted);
+}
+
+.mk-demo-city {
+  margin: 0.15rem 0 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--demo);
+  font-weight: 600;
+}
+
+.mk-demo-cta {
+  margin-top: 0.8rem;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  background: var(--demo);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.mk-demo-services {
+  margin: 0;
+  padding: 0.4rem 0;
+  list-style: none;
+}
+
+.mk-demo-services li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.6rem 1.1rem;
+  border-top: 1px solid var(--brand-border);
+}
+
+.mk-demo-services li:first-child {
+  border-top: 0;
+}
+
+.mk-demo-services strong {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.mk-demo-services em {
+  font-style: normal;
+  font-size: 0.72rem;
+  color: var(--brand-muted);
+}
+
+.mk-demo-services b {
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.mk-demo-slots {
+  padding: 1rem 1.1rem 1.3rem;
+  border-top: 1px solid var(--brand-border);
+  background: var(--brand-cream);
+}
+
+.mk-demo-slots p {
+  margin: 0 0 0.6rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.mk-demo-slots div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.mk-demo-slots span {
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--brand-border);
+  background: #fff;
+  font-size: 0.75rem;
+}
+
+.mk-demo-slots span[data-on="true"] {
+  background: var(--demo);
+  border-color: var(--demo);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* The provider-side half. */
+.mk-board {
+  border-radius: 20px;
+  border: 1px solid var(--brand-border);
+  background: var(--brand-cream);
+  padding: 1.25rem;
+  display: grid;
+  gap: 1.1rem;
+}
+
+.mk-board-grid {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+}
+
+.mk-board-stat {
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  background: #fff;
+  border: 1px solid var(--brand-border);
+}
+
+.mk-board-label {
+  margin: 0;
+  font-size: 0.74rem;
+  color: var(--brand-muted);
+  line-height: 1.35;
+}
+
+.mk-board-value {
+  margin: 0.3rem 0 0;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  line-height: 1.05;
+  color: var(--brand-text);
+}
+
+.mk-board-hint {
+  margin: 0.25rem 0 0;
+  font-size: 0.72rem;
+  color: var(--brand-muted);
+}
+
+.mk-board-verdict {
+  margin: 0;
+  padding: 0.95rem 1.1rem;
+  border-radius: 14px;
+  background: var(--brand-rose-pale);
+  border: 1px solid color-mix(in srgb, var(--brand-primary) 35%, transparent);
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+.mk-board-fine {
+  margin: 0;
+  font-size: 0.74rem;
+  line-height: 1.6;
+  color: var(--brand-muted);
+}
+
+/* ------------------------------------------------------------ Capabilities */
+
+.mk-caps {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.mk-cap {
+  padding: 1.5rem 1.4rem;
+  border-radius: 18px;
+  background: var(--brand-cream);
+  border: 1px solid var(--brand-border);
+}
+
+.mk-cap-index {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  color: var(--brand-primary-strong);
+}
+
+.mk-cap h3 {
+  margin: 0.5rem 0 0.6rem;
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  line-height: 1.25;
+}
+
+.mk-cap p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--brand-muted);
+}
+
+/* -------------------------------------------------------------- Before and after */
+
+.mk-thread {
+  display: grid;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.mk-thread p {
+  margin: 0;
+  justify-self: start;
+  max-width: 82%;
+  padding: 0.6rem 0.95rem;
+  border-radius: 16px 16px 16px 4px;
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-border);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.mk-thread p[data-them="true"] {
+  justify-self: end;
+  border-radius: 16px 16px 4px 16px;
+  background: var(--brand-beige);
+}
+
+.mk-steps {
+  margin: 1.4rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.mk-steps li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 14px;
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-border);
+  font-size: 0.92rem;
+}
+
+.mk-step-number {
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  flex: none;
+  border-radius: 999px;
+  background: var(--brand-primary-strong);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+/* ------------------------------------------------------------------ Plans */
+
+.mk-plans {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+  align-items: start;
+}
+
+.mk-plan {
+  display: grid;
+  gap: 0.9rem;
+  padding: 1.5rem 1.4rem;
+  border-radius: 20px;
+  background: var(--brand-cream);
+  border: 1px solid var(--brand-border);
+}
+
+.mk-plan[data-pick="true"] {
+  border: 2px solid var(--brand-primary-strong);
+}
+
+.mk-plan-head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.mk-plan-name {
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+}
+
+.mk-plan-tag {
+  margin-left: auto;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--brand-primary-strong);
+  border: 1px solid var(--brand-primary-strong);
+  border-radius: 999px;
+  padding: 0.15rem 0.6rem;
+  white-space: nowrap;
+}
+
+.mk-plan-price {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.mk-plan-price small {
+  font-size: 0.85rem;
+  color: var(--brand-muted);
+}
+
+.mk-plan-year {
+  padding: 0.6rem 0.75rem;
+  border-radius: 12px;
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-border);
+}
+
+.mk-plan-year p {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.mk-plan-save {
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--brand-primary-strong);
+}
+
+.mk-plan-year p.mk-plan-save {
+  margin-top: 0.15rem;
+  font-size: 0.8rem;
+}
+
+.mk-plan-pitch {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: var(--brand-muted);
+}
+
+.mk-plan-extends {
+  margin: 0;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid var(--brand-border);
+  font-size: 0.86rem;
+  font-weight: 700;
+}
+
+/* ---------------------------------------------------------------- Modules */
+
+.mk-modules {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+}
+
+.mk-modules a {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1.1rem;
+  border-radius: 14px;
+  border: 1px solid var(--brand-border);
+  background: var(--brand-cream);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.mk-modules a:hover {
+  border-color: var(--brand-primary-strong);
+  transform: translateY(-1px);
+}
+
+.mk-modules-name {
+  font-weight: 600;
+  font-size: 0.93rem;
+}
+
+.mk-modules-name small {
+  display: block;
+  font-weight: 400;
+  font-size: 0.76rem;
+  color: var(--brand-muted);
+  margin-top: 0.15rem;
+}
+
+.mk-modules-price {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.mk-modules-price b {
+  font-size: 0.93rem;
+}
+
+.mk-modules-price small {
+  display: block;
+  font-size: 0.76rem;
+  color: var(--brand-muted);
+}
+
+/* ------------------------------------------------------------------ About */
+
+.mk-about {
+  padding-block: clamp(3rem, 7vw, 5rem);
+  background: var(--brand-rose-pale);
+  border-top: 1px solid var(--brand-border);
+}
+
+.mk-about-grid {
+  display: grid;
+  gap: 2rem;
+}
+
+@media (min-width: 900px) {
+  .mk-about-grid {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    gap: 3.5rem;
+  }
+}
+
+.mk-about-text {
+  display: grid;
+  gap: 1.15rem;
+  justify-items: start;
+}
+
+.mk-about-text p {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--brand-muted);
+  max-width: 62ch;
+}
+
+.mk-about-text .mk-list li {
+  color: var(--brand-muted);
+}
+
+.mk-about-text .mk-list strong {
+  color: var(--brand-text);
+}
+
+/* ----------------------------------------------------------------- Footer */
+
+.mk-foot {
+  background: var(--brand-chocolate);
+  color: var(--brand-cream);
+  padding-block: 3rem 1.75rem;
+}
+
+.mk-foot-top {
+  display: grid;
+  gap: 2rem;
+}
+
+@media (min-width: 820px) {
+  .mk-foot-top {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4rem;
+  }
+}
+
+.mk-foot-name {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+}
+
+.mk-foot-lead {
+  margin: 0.6rem 0 0;
+  max-width: 40ch;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: color-mix(in srgb, var(--brand-cream) 72%, transparent);
+}
+
+.mk-foot-cols {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(140px, auto));
+}
+
+.mk-foot-cols h2 {
+  margin: 0 0 0.75rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--brand-cream) 55%, transparent);
+}
+
+.mk-foot-cols ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.mk-foot-cols a {
+  font-size: 0.9rem;
+  color: var(--brand-cream);
+  text-decoration: none;
+}
+
+.mk-foot-cols a:hover {
+  text-decoration: underline;
+}
+
+.mk-foot-bottom {
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid color-mix(in srgb, var(--brand-cream) 18%, transparent);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  color: color-mix(in srgb, var(--brand-cream) 65%, transparent);
+}

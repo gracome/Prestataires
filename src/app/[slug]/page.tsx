@@ -1,5 +1,9 @@
 import Link from "next/link";
 import {
+  resolveSectionOrder,
+  type SectionKey,
+} from "@/lib/site/sections";
+import {
   currentOpenState,
   getPublicSiteOrNotFound,
   groupServicesByCategory,
@@ -31,40 +35,46 @@ export default async function ProviderHomePage({
     (site.bookingSettings?.bookingEnabled ?? true) &&
     bookable.length > 0;
 
+  // Her order, not the platform's. The hero stays first whatever she chose:
+  // it is the page's opening and means nothing in the middle.
+  const order = resolveSectionOrder(settings?.sectionOrder);
+
+  // A section is drawn when she has kept it and there is something in it. The
+  // second half matters as much as the first: an empty "Questions fréquentes"
+  // heading with nothing under it looks like a broken page, not a choice.
+  const sections: Record<SectionKey, React.ReactNode> = {
+    services:
+      settings?.showServices !== false && site.services.length > 0 ? (
+        <Services key="services" site={site} bookingOpen={bookingOpen} />
+      ) : null,
+    gallery:
+      settings?.showGallery !== false && site.galleryImages.length > 0 ? (
+        <PortfolioTeaser key="gallery" site={site} />
+      ) : null,
+    about: settings?.showAbout !== false ? <About key="about" site={site} /> : null,
+    commitments: <Commitments key="commitments" site={site} />,
+    hours: settings?.showHours !== false ? <Hours key="hours" site={site} /> : null,
+    location:
+      settings?.showLocation !== false && (site.addressLine || site.city) ? (
+        <Location key="location" site={site} />
+      ) : null,
+    faq:
+      settings?.showFaq !== false && site.faqItems.length > 0 ? (
+        <Faq key="faq" site={site} />
+      ) : null,
+    contact:
+      settings?.showContact !== false ? (
+        <Contact key="contact" site={site} bookingOpen={bookingOpen} />
+      ) : null,
+  };
+
   return (
     <>
       <LocalBusinessJsonLd site={site} />
 
       <Hero site={site} bookingOpen={bookingOpen} />
 
-      {/* The prestations lead, because that is what a visitor came to see.
-          They curve up over the hero photograph. */}
-      {settings?.showServices !== false && site.services.length > 0 ? (
-        <Services site={site} bookingOpen={bookingOpen} />
-      ) : null}
-
-      {settings?.showGallery !== false && site.galleryImages.length > 0 ? (
-        <PortfolioTeaser site={site} />
-      ) : null}
-
-      {settings?.showAbout !== false ? <About site={site} /> : null}
-
-      {/* Reassurance reads once someone knows who she is, not before. */}
-      <Commitments site={site} />
-
-      {settings?.showHours !== false ? <Hours site={site} /> : null}
-
-      {settings?.showLocation !== false && (site.addressLine || site.city) ? (
-        <Location site={site} />
-      ) : null}
-
-      {settings?.showFaq !== false && site.faqItems.length > 0 ? (
-        <Faq site={site} />
-      ) : null}
-
-      {settings?.showContact !== false ? (
-        <Contact site={site} bookingOpen={bookingOpen} />
-      ) : null}
+      {order.map((key) => sections[key])}
     </>
   );
 }
