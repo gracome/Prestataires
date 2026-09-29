@@ -391,12 +391,12 @@ model Theme {
   /// the one looking at it all day.
   /// "neutral", "site", "dark" or "custom" - a preset fills the fields below.
   adminPreset     String @default("neutral")
-  adminBackground String @default("#F6F5F4")
+  adminBackground String @default("#F6F6F7")
   adminSurface    String @default("#FFFFFF")
-  adminText       String @default("#23201F")
-  adminMuted      String @default("#6F6763")
-  adminBorder     String @default("#E6E1DE")
-  adminAccent     String @default("#8A5D5E")
+  adminText       String @default("#1F1E22")
+  adminMuted      String @default("#6B6A72")
+  adminBorder     String @default("#E5E4E9")
+  adminAccent     String @default("#D6336C")
   adminFont       String @default("Inter")
   adminRadius     String @default("medium")
 

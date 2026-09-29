@@ -220,12 +220,12 @@ export type AdminThemeLike = Pick<
 
 export const DEFAULT_ADMIN_THEME: AdminThemeLike = {
   adminPreset: "neutral",
-  adminBackground: "#F6F5F4",
+  adminBackground: "#F6F6F7",
   adminSurface: "#FFFFFF",
-  adminText: "#23201F",
-  adminMuted: "#6F6763",
-  adminBorder: "#E6E1DE",
-  adminAccent: "#8A5D5E",
+  adminText: "#1F1E22",
+  adminMuted: "#6B6A72",
+  adminBorder: "#E5E4E9",
+  adminAccent: "#D6336C",
   adminFont: "Inter",
   adminRadius: "medium",
 };
@@ -243,13 +243,18 @@ export const ADMIN_PRESETS: Record<
   neutral: {
     label: "Neutre",
     description: "Gris très clair et blanc. Reposant sur une longue journée.",
+    // Grey that is actually grey. The earlier values carried a brown tint —
+    // they said "neutre" and looked like weak coffee, and the accent that went
+    // with them was a muddy mauve-brown that nothing else on the platform
+    // wore. The accent is now the brand rose, which is also what a provider
+    // sees on her public site and on our own pages.
     colors: {
-      adminBackground: "#F6F5F4",
+      adminBackground: "#F6F6F7",
       adminSurface: "#FFFFFF",
-      adminText: "#23201F",
-      adminMuted: "#6F6763",
-      adminBorder: "#E6E1DE",
-      adminAccent: "#8A5D5E",
+      adminText: "#1F1E22",
+      adminMuted: "#6B6A72",
+      adminBorder: "#E5E4E9",
+      adminAccent: "#D6336C",
     },
   },
   dark: {
@@ -273,7 +278,10 @@ export const ADMIN_PRESETS: Record<
       adminText: "#2C2520",
       adminMuted: "#7A6C60",
       adminBorder: "#E7DCCF",
-      adminAccent: "#A8714F",
+      // Sand keeps its warm neutrals — that is the whole point of it — but
+      // the accent moves off brown, which on beige read as another shade of
+      // background rather than as something to click.
+      adminAccent: "#C0456E",
     },
   },
   site: {

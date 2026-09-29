@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
   TRADES,
@@ -116,6 +117,17 @@ export function DemoStudio({ plans }: { plans: readonly PlanOption[] }) {
             onChange={(event) => setPerWeek(Number(event.target.value))}
           />
         </label>
+
+        {/* Figures answer "what would I get". The page behind this button
+            answers "what is it like to use", which is the question she asks
+            next and the one a picture cannot answer. Her choices travel with
+            her so she does not start again on a page that is already hers. */}
+        <Link
+          href={`/demo?metier=${tradeId}&nom=${encodeURIComponent(name.trim())}`}
+          className="mk-btn"
+        >
+          Essayer pour de vrai →
+        </Link>
 
         <p className="mk-studio-note">
           Rien n&apos;est enregistré. Tout est calculé dans votre navigateur, à

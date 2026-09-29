@@ -50,9 +50,9 @@ export function MarketingHeader() {
           <Link href="/login" className="mk-nav-login">
             Se connecter
           </Link>
-          <a href="#demo" className="mk-btn mk-btn-sm">
+          <Link href="/demo" className="mk-btn mk-btn-sm">
             Essayer
-          </a>
+          </Link>
         </div>
       </div>
     </header>
