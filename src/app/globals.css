@@ -2909,7 +2909,7 @@ table.data tr:last-child td {
 .mk-cap {
   padding: 1.5rem 1.4rem;
   border-radius: 18px;
-  background: var(--brand-cream);
+  background: var(--brand-surface);
   border: 1px solid var(--brand-border);
 }
 
@@ -2931,64 +2931,6 @@ table.data tr:last-child td {
   font-size: 0.9rem;
   line-height: 1.7;
   color: var(--brand-muted);
-}
-
-/* -------------------------------------------------------------- Before and after */
-
-.mk-thread {
-  display: grid;
-  gap: 0.5rem;
-  margin-top: 1rem;
-}
-
-.mk-thread p {
-  margin: 0;
-  justify-self: start;
-  max-width: 82%;
-  padding: 0.6rem 0.95rem;
-  border-radius: 16px 16px 16px 4px;
-  background: var(--brand-surface);
-  border: 1px solid var(--brand-border);
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-
-.mk-thread p[data-them="true"] {
-  justify-self: end;
-  border-radius: 16px 16px 4px 16px;
-  background: var(--brand-beige);
-}
-
-.mk-steps {
-  margin: 1.4rem 0 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 0.5rem;
-}
-
-.mk-steps li {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.65rem 0.9rem;
-  border-radius: 14px;
-  background: var(--brand-surface);
-  border: 1px solid var(--brand-border);
-  font-size: 0.92rem;
-}
-
-.mk-step-number {
-  display: grid;
-  place-items: center;
-  width: 1.6rem;
-  height: 1.6rem;
-  flex: none;
-  border-radius: 999px;
-  background: var(--brand-primary-strong);
-  color: #fff;
-  font-size: 0.78rem;
-  font-weight: 700;
 }
 
 /* ------------------------------------------------------------------ Plans */
@@ -3107,7 +3049,7 @@ table.data tr:last-child td {
   padding: 0.9rem 1.1rem;
   border-radius: 14px;
   border: 1px solid var(--brand-border);
-  background: var(--brand-cream);
+  background: var(--brand-surface);
   text-decoration: none;
   color: inherit;
   transition: border-color 0.2s ease, transform 0.2s ease;
