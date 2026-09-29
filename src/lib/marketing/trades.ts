@@ -134,16 +134,6 @@ export const TRADES: readonly Trade[] = [
   },
 ] as const;
 
-/** Trades we serve but do not need a full preset for: the strip names them. */
-export const ALSO_SERVED = [
-  "Spas et instituts",
-  "Onglerie à domicile",
-  "Locticiennes",
-  "Perruquières",
-  "Tatouage et piercing",
-  "Pédicure et podologie",
-] as const;
-
 export function tradeById(id: string): Trade {
   return TRADES.find((trade) => trade.id === id) ?? TRADES[0];
 }

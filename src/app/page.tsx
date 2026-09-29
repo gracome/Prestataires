@@ -14,7 +14,7 @@ import type { Plan, PlanFeature } from "@prisma/client";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
 import { DemoStudio } from "@/components/marketing/DemoStudio";
 import { TradeRotator } from "@/components/marketing/TradeRotator";
-import { ALSO_SERVED, TRADES } from "@/lib/marketing/trades";
+import { TRADES } from "@/lib/marketing/trades";
 
 export const dynamic = "force-dynamic";
 
@@ -110,32 +110,6 @@ export default async function HomePage() {
           </div>
         </section>
 
-        {/* ------------------------------------------------------- Pour qui */}
-        <section className="mk-trades">
-          <div className="container">
-            {/* A panel that sits on the page rather than a band cut through
-                it. The dark slab this replaces carried the right words with
-                the wrong manners: it stopped the page dead, and the trades it
-                was meant to welcome read as a warning notice. */}
-            <div className="mk-trades-panel">
-              <h2 className="mk-trades-title">Pour qui ?</h2>
-              <ul className="mk-trades-list">
-                {TRADES.map((trade) => (
-                  <li key={trade.id}>{trade.label}</li>
-                ))}
-                {ALSO_SERVED.map((label) => (
-                  <li key={label}>{label}</li>
-                ))}
-              </ul>
-              <p className="mk-trades-note">
-                Si vous travaillez sur rendez-vous, la plateforme est faite
-                pour vous. Le vocabulaire, les prestations et les durées sont
-                les vôtres.
-              </p>
-            </div>
-          </div>
-        </section>
-
         {/* ---------------------------------------------------------- Démo */}
         <section id="demo" className="mk-section mk-section-quiet">
           <div className="container">
@@ -143,10 +117,8 @@ export default async function HomePage() {
               <p className="mk-eyebrow">Voir la démo</p>
               <h2 className="mk-h2">Composez votre activité, maintenant.</h2>
               <p className="mk-lead">
-                Choisissez votre métier, donnez un nom à votre activité, dites
-                combien de rendez-vous vous faites par semaine. Vous verrez le
-                site que vos clientes ouvriraient, et les chiffres que vous
-                liriez de votre côté.
+                Votre métier, votre rythme, vos tarifs. Vous verrez à quoi
+                votre mois ressemble, et ce que la plateforme coûte en face.
               </p>
             </div>
 

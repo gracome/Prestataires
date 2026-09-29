@@ -1,68 +1,41 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { DemoApp } from "@/components/marketing/DemoApp";
-import { TRADES, tradeById } from "@/lib/marketing/trades";
-import { addDays, dayLabelFr, toLocalDate } from "@/lib/time";
+import { notFound } from "next/navigation";
+import { demoTarget } from "@/lib/demo";
+import { enterDemoDashboard } from "./actions";
 
 /**
- * The demo, as a place rather than a picture.
+ * The live preview.
  *
- * The landing page lets a visitor compose her business and read the figures.
- * That answers "what would I get"; it does not answer "what is it like to use".
- * So this page hands her the thing itself: she books an appointment on her own
- * site, then turns the page over and finds it sitting in her diary, waiting to
- * be confirmed and cashed. Nothing explains the product as well as doing one
- * lap of it.
+ * Two doors into one real account filled with invented data: the site a client
+ * would open, and the dashboard its owner works from. Neither is a mock — both
+ * are the ordinary routes, so whatever a visitor finds working here is working
+ * for the same reason it will work for her.
  *
- * Everything lives in React state. No account, no database, nothing written
- * and nothing kept — which is also why she can press every button without
- * being careful.
- *
- * The days are built on the server and passed down, rather than computed in
- * the browser: the server sits in UTC and the visitor does not, and a date
- * that disagrees across that boundary is a hydration mismatch.
+ * The page exists only where the installation has a demo configured. Elsewhere
+ * it is a 404 rather than an empty invitation.
  */
 
 export const dynamic = "force-dynamic";
 
-/** The business runs on Benin time, which is where the providers are. */
-const TIMEZONE = "Africa/Porto-Novo";
-
-/** How far ahead the booking strip lets her look. A week is plenty to try. */
-const HORIZON = 6;
-
 export const metadata: Metadata = {
-  title: "Essayer la démo — Prestataires",
+  title: "Voir la démonstration — Prestataires",
   description:
-    "Prenez un rendez-vous sur votre site de démonstration, puis retrouvez-le dans votre tableau de bord. Rien n'est enregistré.",
+    "Parcourez un site de prestataire et son tableau de bord, remplis de données fictives. Rien à installer, aucun compte à créer.",
+  // A demonstration account competing with real providers in search results
+  // would be a poor trade for everyone involved.
+  robots: { index: false, follow: false },
 };
 
 export default async function DemoPage({
   searchParams,
 }: {
-  searchParams: Promise<{ metier?: string; nom?: string }>;
+  searchParams: Promise<{ trop?: string }>;
 }) {
-  const query = await searchParams;
+  const demo = await demoTarget();
+  if (!demo) notFound();
 
-  // The landing page carries her choices over, so she does not start again
-  // from scratch on a page whose whole point is that it is already hers.
-  const trade = tradeById(query.metier ?? TRADES[0].id);
-  const name = (query.nom ?? "").trim().slice(0, 40) || trade.sampleName;
-
-  const today = toLocalDate(new Date(), TIMEZONE);
-  const days = Array.from({ length: HORIZON }, (_, offset) => {
-    const date = addDays(today, offset);
-    const [year, month, day] = date.split("-").map(Number);
-    // Noon UTC is the same calendar day everywhere we operate, so the weekday
-    // it yields is the one she would read on her own wall.
-    const dow = new Date(Date.UTC(year, month - 1, day, 12)).getUTCDay();
-    return {
-      date,
-      weekday: dayLabelFr(dow),
-      dayNumber: day,
-      today: offset === 0,
-    };
-  });
+  const { trop } = await searchParams;
 
   return (
     <div className="mk">
@@ -77,7 +50,87 @@ export default async function DemoPage({
         </div>
       </header>
 
-      <DemoApp trade={trade} initialName={name} days={days} />
+      <main className="mk-section">
+        <div className="container">
+          <div className="mk-head">
+            <p className="mk-eyebrow">Démonstration</p>
+            <h1 className="mk-h2">
+              Entrez, regardez, touchez à tout.
+            </h1>
+            <p className="mk-lead">
+              Voici une vraie activité — <strong>{demo.businessName}</strong> —
+              avec ses prestations, ses photos, ses horaires et plusieurs mois
+              de rendez-vous. Tout est inventé, rien n&apos;est fragile : vous
+              pouvez réserver, confirmer, encaisser, modifier.
+            </p>
+          </div>
+
+          {trop ? (
+            <p className="mk-note" role="alert">
+              Trop d&apos;ouvertures coup sur coup. Patientez une minute et
+              réessayez.
+            </p>
+          ) : null}
+
+          <div className="mk-doors">
+            <article className="mk-door">
+              <p className="mk-door-side">Côté cliente</p>
+              <h2>Son site</h2>
+              <p>
+                Ce que voit une cliente qui reçoit le lien : les prestations,
+                les réalisations, les horaires, et la prise de rendez-vous de
+                bout en bout.
+              </p>
+              <Link href={`/${demo.slug}`} className="mk-btn">
+                Ouvrir le site →
+              </Link>
+            </article>
+
+            <article className="mk-door">
+              <p className="mk-door-side">Côté vous</p>
+              <h2>Son tableau de bord</h2>
+              <p>
+                L&apos;agenda, la caisse, les prestations, les clientes et les
+                chiffres du mois. Vous y entrez directement, sans compte et
+                sans mot de passe à recopier.
+              </p>
+              {/* The form is the whole control: a server action, no input, and
+                  the account it opens is fixed in the environment. */}
+              <form action={enterDemoDashboard}>
+                <button type="submit" className="mk-btn">
+                  Ouvrir le tableau de bord →
+                </button>
+              </form>
+            </article>
+          </div>
+
+          <p className="mk-board-fine mk-doors-note">
+            La démonstration est partagée : ce que vous y changez, quelqu&apos;un
+            d&apos;autre le verra, et ce qu&apos;il a changé avant vous est
+            peut-être déjà là. Si vous réservez en donnant votre adresse, la
+            confirmation vous arrivera pour de vrai — c&apos;est le même envoi
+            que celui que recevraient vos clientes.
+          </p>
+        </div>
+      </main>
+
+      <section className="dm-foot">
+        <div className="container">
+          <h2>Ça vous parle ?</h2>
+          <p>
+            Vous auriez la même chose, avec vos prestations, vos tarifs et votre
+            adresse. Il n&apos;y a rien à installer.
+          </p>
+          <div className="dm-foot-actions">
+            <Link href="/#tarifs" className="mk-btn">
+              Voir les tarifs
+            </Link>
+            <Link href="/#nous" className="mk-btn mk-btn-ghost">
+              Qui sommes-nous
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
