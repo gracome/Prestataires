@@ -2473,10 +2473,24 @@ table.data tr:last-child td {
 
 /* ---------------------------------------------------------------- Pour qui */
 
+/* A soft panel resting on the page, not a dark band cut through it. The slab
+   this replaces stopped the page dead, and the trades it was meant to welcome
+   read as a warning notice. Same words, better manners. */
 .mk-trades {
-  padding-block: 2.5rem;
-  background: var(--brand-chocolate);
-  color: var(--brand-cream);
+  padding-block: clamp(2rem, 5vw, 3.25rem);
+  background: var(--brand-cream);
+}
+
+.mk-trades-panel {
+  padding: clamp(1.6rem, 4vw, 2.5rem) clamp(1.3rem, 4vw, 2.5rem);
+  border-radius: 28px;
+  background: linear-gradient(
+    145deg,
+    var(--brand-rose-pale),
+    var(--brand-cream) 55%,
+    #fdf3ec
+  );
+  border: 1px solid color-mix(in srgb, var(--brand-primary) 16%, transparent);
 }
 
 .mk-trades-title {
@@ -2484,14 +2498,14 @@ table.data tr:last-child td {
   font-size: 0.72rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--brand-cream) 60%, transparent);
+  color: var(--brand-primary-strong);
   font-weight: 600;
 }
 
 .mk-trades-list {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem 1.4rem;
+  gap: 0.5rem 1.3rem;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -2499,18 +2513,22 @@ table.data tr:last-child td {
 
 .mk-trades-list li {
   font-family: var(--font-heading);
-  font-size: clamp(1.05rem, 2.6vw, 1.5rem);
-  line-height: 1.3;
+  font-size: clamp(1.05rem, 2.5vw, 1.45rem);
+  line-height: 1.35;
+  color: var(--brand-chocolate);
 }
 
-/* A hairline diamond between entries: the strip reads as one continuous
-   phrase rather than six labels, which is the point — all of them. */
+/* A small rose dot between entries: the list reads as one continuous phrase
+   rather than twelve labels, which is the point — all of them. */
 .mk-trades-list li + li::before {
-  content: "\25C6";
-  margin-right: 1.4rem;
-  font-size: 0.5em;
+  content: "";
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  margin-right: 1.3rem;
+  border-radius: 999px;
   vertical-align: middle;
-  color: var(--brand-primary);
+  background: color-mix(in srgb, var(--brand-primary) 55%, transparent);
 }
 
 .mk-trades-note {
@@ -2518,7 +2536,7 @@ table.data tr:last-child td {
   max-width: 56ch;
   font-size: 0.92rem;
   line-height: 1.7;
-  color: color-mix(in srgb, var(--brand-cream) 72%, transparent);
+  color: var(--brand-muted);
 }
 
 /* ------------------------------------------------------- Section furniture */
@@ -3132,9 +3150,13 @@ table.data tr:last-child td {
 
 /* ----------------------------------------------------------------- Footer */
 
+/* Pale rather than dark. A chocolate slab is the conventional way to end a
+   page, but it lands like a door closing; a warm tint that deepens towards the
+   bottom ends it just as clearly and lets go of the reader more gently. */
 .mk-foot {
-  background: var(--brand-chocolate);
-  color: var(--brand-cream);
+  background: linear-gradient(180deg, var(--brand-cream), var(--brand-rose-pale));
+  color: var(--brand-text);
+  border-top: 1px solid var(--brand-border);
   padding-block: 3rem 1.75rem;
 }
 
@@ -3154,6 +3176,7 @@ table.data tr:last-child td {
   margin: 0;
   font-family: var(--font-heading);
   font-size: 1.5rem;
+  color: var(--brand-chocolate);
 }
 
 .mk-foot-lead {
@@ -3161,7 +3184,7 @@ table.data tr:last-child td {
   max-width: 40ch;
   font-size: 0.92rem;
   line-height: 1.7;
-  color: color-mix(in srgb, var(--brand-cream) 72%, transparent);
+  color: var(--brand-muted);
 }
 
 .mk-foot-cols {
@@ -3175,7 +3198,7 @@ table.data tr:last-child td {
   font-size: 0.72rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--brand-cream) 55%, transparent);
+  color: var(--brand-primary-strong);
 }
 
 .mk-foot-cols ul {
@@ -3188,7 +3211,7 @@ table.data tr:last-child td {
 
 .mk-foot-cols a {
   font-size: 0.9rem;
-  color: var(--brand-cream);
+  color: var(--brand-text);
   text-decoration: none;
 }
 
@@ -3199,13 +3222,13 @@ table.data tr:last-child td {
 .mk-foot-bottom {
   margin-top: 2.5rem;
   padding-top: 1.25rem;
-  border-top: 1px solid color-mix(in srgb, var(--brand-cream) 18%, transparent);
+  border-top: 1px solid var(--brand-border);
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 0.75rem;
   font-size: 0.8rem;
-  color: color-mix(in srgb, var(--brand-cream) 65%, transparent);
+  color: var(--brand-muted);
 }
 
 /* ===========================================================================
@@ -3225,8 +3248,9 @@ table.data tr:last-child td {
   position: sticky;
   top: 0;
   z-index: 30;
-  background: var(--brand-chocolate);
-  color: var(--brand-cream);
+  background: color-mix(in srgb, var(--brand-rose-pale) 92%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--brand-border);
   padding-block: 0.6rem;
 }
 
@@ -3242,11 +3266,11 @@ table.data tr:last-child td {
   margin: 0;
   font-size: 0.8rem;
   line-height: 1.5;
-  color: color-mix(in srgb, var(--brand-cream) 78%, transparent);
+  color: var(--brand-muted);
 }
 
 .dm-bar-note strong {
-  color: var(--brand-cream);
+  color: var(--brand-text);
 }
 
 .dm-switch {
@@ -3254,7 +3278,7 @@ table.data tr:last-child td {
   gap: 0.25rem;
   padding: 0.22rem;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--brand-cream) 14%, transparent);
+  background: color-mix(in srgb, var(--brand-primary) 10%, transparent);
 }
 
 .dm-switch button {
@@ -3265,7 +3289,7 @@ table.data tr:last-child td {
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: var(--brand-cream);
+  color: var(--brand-muted);
   font: inherit;
   font-size: 0.83rem;
   font-weight: 600;
@@ -3273,21 +3297,9 @@ table.data tr:last-child td {
 }
 
 .dm-switch button[data-on="true"] {
-  background: var(--brand-cream);
-  color: var(--brand-chocolate);
-}
-
-.dm-badge {
-  display: grid;
-  place-items: center;
-  min-width: 1.15rem;
-  height: 1.15rem;
-  padding-inline: 0.3rem;
-  border-radius: 999px;
-  background: var(--brand-primary-strong);
-  color: #fff;
-  font-size: 0.68rem;
-  font-weight: 700;
+  background: var(--brand-surface);
+  color: var(--brand-text);
+  box-shadow: 0 2px 8px -4px rgba(51, 32, 44, 0.35);
 }
 
 .dm-setup {
@@ -3854,18 +3866,17 @@ table.data tr:last-child td {
 .dm-row-actions button {
   padding: 0.35rem 0.75rem;
   border-radius: 999px;
-  border: 1px solid var(--brand-text);
-  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--brand-primary) 40%, transparent);
+  background: var(--brand-rose-pale);
   font: inherit;
   font-size: 0.78rem;
   font-weight: 600;
-  color: var(--brand-text);
+  color: var(--brand-primary-strong);
   cursor: pointer;
 }
 
 .dm-row-actions button:hover {
-  background: var(--brand-text);
-  color: var(--brand-cream);
+  border-color: var(--brand-primary-strong);
 }
 
 .dm-row-actions .dm-danger {

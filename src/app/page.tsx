@@ -113,20 +113,26 @@ export default async function HomePage() {
         {/* ------------------------------------------------------- Pour qui */}
         <section className="mk-trades">
           <div className="container">
-            <h2 className="mk-trades-title">Pour qui ?</h2>
-            <ul className="mk-trades-list">
-              {TRADES.map((trade) => (
-                <li key={trade.id}>{trade.label}</li>
-              ))}
-              {ALSO_SERVED.map((label) => (
-                <li key={label}>{label}</li>
-              ))}
-            </ul>
-            <p className="mk-trades-note">
-              Si vous travaillez sur rendez-vous, la plateforme est faite pour
-              vous. Le vocabulaire, les prestations et les durées sont les
-              vôtres.
-            </p>
+            {/* A panel that sits on the page rather than a band cut through
+                it. The dark slab this replaces carried the right words with
+                the wrong manners: it stopped the page dead, and the trades it
+                was meant to welcome read as a warning notice. */}
+            <div className="mk-trades-panel">
+              <h2 className="mk-trades-title">Pour qui ?</h2>
+              <ul className="mk-trades-list">
+                {TRADES.map((trade) => (
+                  <li key={trade.id}>{trade.label}</li>
+                ))}
+                {ALSO_SERVED.map((label) => (
+                  <li key={label}>{label}</li>
+                ))}
+              </ul>
+              <p className="mk-trades-note">
+                Si vous travaillez sur rendez-vous, la plateforme est faite
+                pour vous. Le vocabulaire, les prestations et les durées sont
+                les vôtres.
+              </p>
+            </div>
           </div>
         </section>
 
