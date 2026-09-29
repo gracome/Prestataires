@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { PasswordInput } from "@/components/ui/PasswordInput";
 import type { GatewayMode } from "@prisma/client";
 import {
   disableGatewayAction,
@@ -90,22 +91,18 @@ export function PaymentGatewayForm({
 
         <label style={label}>
           Clé secrète
-          <input
-            type="password"
+          <PasswordInput
             name="secretKey"
             placeholder={account ? "Inchangée" : "sk_sandbox_…"}
-            className="input"
             autoComplete="off"
           />
         </label>
 
         <label style={label}>
           Clé de signature du webhook
-          <input
-            type="password"
+          <PasswordInput
             name="webhookSecret"
             placeholder={account?.hasWebhookSecret ? "Inchangée" : "wh_…"}
-            className="input"
             autoComplete="off"
           />
         </label>

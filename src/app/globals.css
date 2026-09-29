@@ -3928,3 +3928,48 @@ table.data tr:last-child td {
   gap: 0.7rem;
   justify-content: center;
 }
+
+/* ---------------------------------------------------------------------------
+ * Password fields you can look at
+ * ---------------------------------------------------------------------------
+ * The eye sits inside the field rather than beside it, so the control belongs
+ * to the input it governs and the form keeps one column. The field reserves
+ * room for it on the right; without that the last characters typed would slide
+ * under the button, which is exactly the moment somebody wants to read them.
+ * ------------------------------------------------------------------------ */
+
+.pw {
+  position: relative;
+  display: block;
+}
+
+.pw-input {
+  padding-right: 3rem;
+}
+
+.pw-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.35rem;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 2.3rem;
+  height: 2.3rem;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--brand-muted);
+  cursor: pointer;
+}
+
+.pw-toggle:hover {
+  color: var(--brand-text);
+  background: color-mix(in srgb, var(--brand-primary) 10%, transparent);
+}
+
+.pw-toggle:focus-visible {
+  outline: 2px solid var(--brand-primary);
+  outline-offset: 2px;
+}
