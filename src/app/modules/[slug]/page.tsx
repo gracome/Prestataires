@@ -87,10 +87,10 @@ export default async function ModulePage({
     <div className="mk">
       <header className="mk-topbar">
         <div className="container">
-          <Link href="/" className="mk-back">
-            ← Prestataires
+          <Link href="/prestataire" className="mk-back">
+            ← Prestataire
           </Link>
-          <Link href="/#tarifs" className="mk-topbar-cta">
+          <Link href="/prestataire#tarifs" className="mk-topbar-cta">
             Voir les tarifs
           </Link>
         </div>
@@ -164,7 +164,7 @@ export default async function ModulePage({
                   inclut ce module et tout ce qui l&apos;accompagne. C&apos;est
                   souvent le meilleur calcul.
                 </p>
-                <Link href="/#tarifs" className="mk-btn">
+                <Link href="/prestataire#tarifs" className="mk-btn">
                   Comparer les formules →
                 </Link>
               </div>
