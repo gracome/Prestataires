@@ -41,10 +41,10 @@ export default async function DemoPage({
     <div className="mk">
       <header className="mk-topbar">
         <div className="container">
-          <Link href="/" className="mk-back">
-            ← Prestataires
+          <Link href="/prestataire" className="mk-back">
+            ← Prestataire
           </Link>
-          <Link href="/#tarifs" className="mk-topbar-cta">
+          <Link href="/prestataire#tarifs" className="mk-topbar-cta">
             Voir les tarifs
           </Link>
         </div>
@@ -122,7 +122,7 @@ export default async function DemoPage({
             adresse. Il n&apos;y a rien à installer.
           </p>
           <div className="dm-foot-actions">
-            <Link href="/#tarifs" className="mk-btn">
+            <Link href="/prestataire#tarifs" className="mk-btn">
               Voir les tarifs
             </Link>
             <Link href="/#nous" className="mk-btn mk-btn-ghost">
