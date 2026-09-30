@@ -148,7 +148,7 @@ export default async function ServicePage({
   const others = OFFERS.filter((offer) => offer.slug !== slugToOffer(slug));
 
   return (
-    <div className="mk">
+    <div className="mk" data-skin="studio">
       <CompanyHeader />
 
       <main>

@@ -27,7 +27,7 @@ export const dynamic = "force-dynamic";
  */
 
 export const metadata: Metadata = {
-  title: `${COMPANY.name} — ${COMPANY.tagline}`,
+  title: `${COMPANY.name} — studio digital à Porto-Novo`,
   description:
     "Plateforme de réservation pour les métiers de la beauté, sites web sur mesure et formations au digital. À Porto-Novo et Cotonou.",
 };
@@ -39,7 +39,7 @@ export default async function HomePage() {
     .catch(() => 0);
 
   return (
-    <div className="mk">
+    <div className="mk" data-skin="studio">
       <CompanyHeader />
 
       <main>
