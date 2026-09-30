@@ -3255,3 +3255,65 @@ table.data tr:last-child td {
 .mk-steps-grid .mk-list li {
   font-size: 0.92rem;
 }
+
+/* ===========================================================================
+ * The studio skin
+ * ---------------------------------------------------------------------------
+ * Build with Gracias is not Prestataire. The rose, the cream and the warm
+ * beige belong to a beauty product; wearing them on the studio's own pages
+ * said the company was that product, which is exactly the confusion the split
+ * into /prestataire was meant to end.
+ *
+ * So the company pages redefine the same tokens rather than introducing a new
+ * family: every .mk-* rule already written keeps working, and only the colours
+ * underneath it change. Ivory instead of cream, deep petrol instead of rose,
+ * ink instead of chocolate.
+ *
+ * Petrol on white measures 6.4:1, comfortably past AA, which is what lets it
+ * carry small bold text on buttons and hairline callouts without a second,
+ * darker variant for text.
+ *
+ * Playfair stays: the shift in palette is enough to separate the two, and the
+ * serif is most of what makes either of them feel considered rather than
+ * assembled.
+ * ======================================================================== */
+
+.mk[data-skin="studio"] {
+  --brand-cream: #faf8f5;
+  --brand-surface: #ffffff;
+  --brand-background: #faf8f5;
+  --brand-border: #e7e3dc;
+
+  --brand-text: #16181d;
+  --brand-muted: #666b73;
+  --brand-chocolate: #16181d;
+
+  --brand-primary: #0e6b62;
+  --brand-primary-strong: #0b564f;
+  --brand-primary-fg: #ffffff;
+
+  /* The pale and light tints the layout uses for callouts, accents and the
+     flagship card. Kept under their original names so no rule has to know
+     which skin it is running in. */
+  --brand-rose-pale: #eef4f2;
+  --brand-rose-light: #dbeae6;
+  --brand-beige: #efe8de;
+}
+
+/* The hero glow follows the accent rather than staying pink. */
+.mk[data-skin="studio"] .mk-hero {
+  background:
+    radial-gradient(
+      70ch 40ch at 12% -12%,
+      var(--brand-rose-light),
+      transparent 68%
+    ),
+    var(--brand-cream);
+}
+
+/* A studio's mark is drawn, not blushed: a square on its corner reads as a
+   tool, where the rose diamond read as an ornament. */
+.mk[data-skin="studio"] .mk-logo-mark {
+  border-radius: 2px;
+  background: var(--brand-primary-strong);
+}

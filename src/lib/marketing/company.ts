@@ -14,7 +14,7 @@
 
 export const COMPANY = {
   /** Displayed in the header, the footer and every page title. */
-  name: "NOM_ENTREPRISE",
+  name: "Build with Gracias",
   /** One line, under the name. Not a slogan — what the company actually does. */
   tagline: "Studio digital — Porto-Novo, Bénin",
   city: "Porto-Novo",
