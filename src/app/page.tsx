@@ -16,10 +16,10 @@ export const dynamic = "force-dynamic";
  * has. This page has to let all three through.
  *
  * So it sells nothing on the doorstep. It says who we are, shows the three
- * things we do — Prestataire first, because it is the one that exists as a
- * product rather than as an engagement — and sends each visitor to the page
- * that actually answers her. The platform's own argument lives at
- * /prestataire, where there is room to make it.
+ * things we do, each carrying the same weight — custom work, training, and one
+ * product — and sends each visitor to the page that actually answers her. The
+ * platform has its own argument at /prestataire, where there is room to make
+ * it; it does not get to make it here, over the others.
  *
  * It wears the .mk skin, flat and typographic, never the photographic one a
  * provider's site wears. When the two looked alike, the product looked like a
@@ -61,10 +61,13 @@ export default async function HomePage() {
               parce que c&apos;est la réalité du terrain.
             </p>
 
+            {/* Both lead to the company, not to one of its products: a
+                visitor who has not said what she came for should not be
+                pushed towards the thing we happen to sell off the shelf. */}
             <div className="mk-hero-actions">
-              <Link href="/prestataire" className="mk-btn">
-                Découvrir Prestataire
-              </Link>
+              <a href="#services" className="mk-btn">
+                Ce que nous faisons
+              </a>
               <a href={COMPANY.whatsapp} className="mk-btn mk-btn-ghost">
                 Parler de votre projet
               </a>
@@ -82,14 +85,8 @@ export default async function HomePage() {
 
             <div className="mk-offers">
               {OFFERS.map((offer) => (
-                <article
-                  key={offer.slug}
-                  className="mk-offer"
-                  data-flagship={offer.flagship ? "true" : undefined}
-                >
-                  {offer.flagship ? (
-                    <p className="mk-offer-tag">Notre produit</p>
-                  ) : null}
+                <article key={offer.slug} className="mk-offer">
+                  <p className="mk-offer-tag">{offer.kind}</p>
 
                   <h3>{offer.name}</h3>
                   <p className="mk-offer-summary">{offer.summary}</p>
@@ -100,10 +97,7 @@ export default async function HomePage() {
                     ))}
                   </ul>
 
-                  <Link
-                    href={offer.href}
-                    className={offer.flagship ? "mk-btn" : "mk-btn mk-btn-ghost"}
-                  >
+                  <Link href={offer.href} className="mk-btn mk-btn-ghost">
                     {offer.cta} →
                   </Link>
                 </article>
@@ -136,16 +130,16 @@ export default async function HomePage() {
                   Nous construisons donc l&apos;inverse : des outils pensés pour
                   des gens qui travaillent seuls ou à deux, qui n&apos;ont ni le
                   temps ni l&apos;envie d&apos;apprendre un logiciel, et pour
-                  qui chaque franc compte. C&apos;est vrai de Prestataire, des
-                  sites que nous construisons et de ce que nous enseignons.
+                  qui chaque franc compte. C&apos;est vrai des sites que nous
+                  construisons, de ce que nous enseignons et des produits que
+                  nous éditons.
                 </p>
 
                 <ul className="mk-list">
                   <li>
-                    <strong>Vous encaissez, pas nous.</strong> Sur Prestataire,
-                    les paiements de vos clientes vont sur votre compte. Aucune
-                    commission sur vos rendez-vous — un abonnement, et vous
-                    savez toujours combien.
+                    <strong>Un prix, pas un pourcentage.</strong> Nous ne
+                    prenons rien au passage sur ce que vous encaissez. Vous
+                    payez ce qui a été convenu, et vous savez toujours combien.
                   </li>
                   <li>
                     <strong>Ce que nous construisons vous appartient.</strong>{" "}

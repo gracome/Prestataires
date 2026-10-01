@@ -33,9 +33,7 @@ export function CompanyHeader({ product }: { product?: string }) {
         { href: "#modules", label: "Modules" },
       ]
     : [
-        { href: "/prestataire", label: "Prestataire" },
-        { href: "/services/sites-web", label: "Sites web" },
-        { href: "/services/formations", label: "Formations" },
+        { href: "/#services", label: "Ce que nous faisons" },
         { href: "/#nous", label: "Qui sommes-nous" },
       ];
 
@@ -61,13 +59,23 @@ export function CompanyHeader({ product }: { product?: string }) {
           ))}
         </nav>
 
+        {/* The call to action is the company's, not a product's. A header
+            button marked "voir la démo" offered one of three things to every
+            visitor, including the two who came for the other two. On a product
+            page it earns its place; everywhere else, writing to us does. */}
         <div className="mk-nav-actions">
           <Link href="/login" className="mk-nav-login">
             Se connecter
           </Link>
-          <Link href="/demo" className="mk-btn mk-btn-sm">
-            Voir la démo
-          </Link>
+          {product ? (
+            <Link href="/demo" className="mk-btn mk-btn-sm">
+              Voir la démo
+            </Link>
+          ) : (
+            <a href={COMPANY.whatsapp} className="mk-btn mk-btn-sm">
+              Nous écrire
+            </a>
+          )}
         </div>
       </div>
     </header>

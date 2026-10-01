@@ -34,14 +34,14 @@ export function CompanyFooter({ note }: { note?: string }) {
               </ul>
             </section>
 
+            {/* This column used to belong to Prestataire alone — demo, prices,
+                sign-in — which gave one of three offers a quarter of the foot
+                of every page on the site. */}
             <section>
-              <h2>Prestataire</h2>
+              <h2>Entreprise</h2>
               <ul>
                 <li>
-                  <Link href="/demo">Voir la démo</Link>
-                </li>
-                <li>
-                  <Link href="/prestataire#tarifs">Tarifs</Link>
+                  <Link href="/#nous">Qui sommes-nous</Link>
                 </li>
                 <li>
                   <Link href="/login">Espace client</Link>
@@ -61,9 +61,6 @@ export function CompanyFooter({ note }: { note?: string }) {
                   <a href={`tel:${COMPANY.phone.replace(/\s/g, "")}`}>
                     {COMPANY.phone}
                   </a>
-                </li>
-                <li>
-                  <Link href="/#nous">Qui sommes-nous</Link>
                 </li>
               </ul>
             </section>
