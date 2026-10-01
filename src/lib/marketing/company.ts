@@ -36,25 +36,22 @@ export type Offer = {
   href: string;
   /** The label on that link, phrased as what happens next. */
   cta: string;
-  /** The first product gets a wider card and is named as such. */
-  flagship?: boolean;
+  /**
+   * What kind of thing it is — a product you subscribe to, or work we do for
+   * you. It distinguishes the cards by nature rather than by rank: one of
+   * these is bought off the shelf and two begin with a conversation, which is
+   * a useful thing for a visitor to know and not a claim that either matters
+   * more.
+   */
+  kind: "Produit" | "Prestation";
 };
 
+/**
+ * Listed in the order a stranger meets them, not in order of importance.
+ * Custom work first because it is the broadest ask, then training, then the
+ * one product. Nothing here is the company's headline act.
+ */
 export const OFFERS: readonly Offer[] = [
-  {
-    slug: "prestataire",
-    name: "Prestataire",
-    summary:
-      "La plateforme de réservation pour les métiers de la beauté : un site à votre image, un agenda qui ne se trompe pas, des acomptes encaissés et vos chiffres au même endroit.",
-    covers: [
-      "Un site de réservation à votre nom",
-      "Agenda, acomptes, caisse et clientes",
-      "Abonnement mensuel, sans commission",
-    ],
-    href: "/prestataire",
-    cta: "Découvrir Prestataire",
-    flagship: true,
-  },
   {
     slug: "sites",
     name: "Sites web sur mesure",
@@ -66,7 +63,8 @@ export const OFFERS: readonly Offer[] = [
       "Maintenance et évolutions",
     ],
     href: "/services/sites-web",
-    cta: "Parler de votre projet",
+    cta: "En savoir plus",
+    kind: "Prestation",
   },
   {
     slug: "formations",
@@ -79,7 +77,22 @@ export const OFFERS: readonly Offer[] = [
       "Supports en français, adaptés au terrain",
     ],
     href: "/services/formations",
-    cta: "Voir les formations",
+    cta: "En savoir plus",
+    kind: "Prestation",
+  },
+  {
+    slug: "prestataire",
+    name: "Prestataire",
+    summary:
+      "Notre plateforme de réservation pour les métiers de la beauté : un site à son image, un agenda qui ne se trompe pas, des acomptes encaissés et les chiffres du mois au même endroit.",
+    covers: [
+      "Un site de réservation à votre nom",
+      "Agenda, acomptes, caisse et clientes",
+      "Abonnement mensuel, sans commission",
+    ],
+    href: "/prestataire",
+    cta: "En savoir plus",
+    kind: "Produit",
   },
 ] as const;
 
