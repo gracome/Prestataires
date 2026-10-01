@@ -107,62 +107,48 @@ export default async function HomePage() {
         </section>
 
         {/* -------------------------------------------------- Qui sommes-nous */}
+        {/* A heading that carries the whole statement, then the promises laid
+            out as four short columns. The previous version was a two-column
+            article: a wall of prose against a stack of ticked lines, ending on
+            a lone button. Nobody reads a wall, and four promises that matter
+            deserve to be looked at rather than scrolled past. */}
         <section id="nous" className="mk-about">
           <div className="container">
-            <div className="mk-about-grid">
-              <div>
-                <p className="mk-eyebrow">Qui sommes-nous</p>
-                <h2 className="mk-h2">
-                  Un atelier, pas une agence.
-                </h2>
-              </div>
+            <div className="mk-about-head">
+              <p className="mk-eyebrow">Qui sommes-nous</p>
+              <h2 className="mk-statement">
+                Un atelier à {COMPANY.city}, qui part de votre activité
+                — <span>jamais de la technologie.</span>
+              </h2>
+              <p className="mk-about-lead">
+                Nous construisons des sites et des outils pour des entreprises
+                et des indépendants d&apos;ici, nous formons les équipes qui
+                s&apos;en servent, et nous éditons nos propres produits quand un
+                besoin revient trop souvent pour être redéveloppé à chaque fois.
+              </p>
+            </div>
 
-              <div className="mk-about-text">
-                <p>
-                  {COMPANY.name} est un studio installé à {COMPANY.city}. Nous
-                  construisons des sites et des outils pour des entreprises et
-                  des indépendants d&apos;ici, nous formons les équipes qui
-                  s&apos;en servent, et nous éditons nos propres produits quand
-                  un besoin revient si souvent qu&apos;il mérite mieux
-                  qu&apos;un développement à chaque fois.
-                </p>
-                <p>
-                  Nous partons de l&apos;activité, jamais de la technologie. Ce
-                  qui compte, c&apos;est ce que vous vendez, qui vous l&apos;
-                  achète et ce qui vous fait perdre du temps ; le reste sont des
-                  moyens. C&apos;est aussi pour ça que nous disons parfois
-                  qu&apos;un projet ne vaut pas la peine d&apos;être construit —
-                  une page bien tenue suffit souvent là où on nous demande une
-                  application.
-                </p>
+            <ul className="mk-principles">
+              {PRINCIPLES.map((principle, index) => (
+                <li key={principle.title}>
+                  <span aria-hidden="true" className="mk-principle-number">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
+                  <h3>{principle.title}</h3>
+                  <p>{principle.body}</p>
+                </li>
+              ))}
+            </ul>
 
-                <ul className="mk-list">
-                  <li>
-                    <strong>Un prix, pas un pourcentage.</strong> Vous payez ce
-                    qui a été convenu. Nous ne prenons rien au passage sur ce
-                    que votre activité rapporte.
-                  </li>
-                  <li>
-                    <strong>Ce que nous construisons vous appartient.</strong>{" "}
-                    Le code, le nom de domaine, les comptes et les données sont
-                    à vous. Vous pouvez partir avec, et changer de prestataire
-                    sans tout recommencer.
-                  </li>
-                  <li>
-                    <strong>Livré ne veut pas dire abandonné.</strong> Un site
-                    vit : il se met à jour, il casse, il évolue. Nous restons
-                    joignables après la mise en ligne.
-                  </li>
-                  <li>
-                    <strong>On répond.</strong> En français, sur WhatsApp, par
-                    les gens qui ont fait le travail.
-                  </li>
-                </ul>
-
-                <a href={COMPANY.whatsapp} className="mk-btn mk-btn-ghost">
-                  Parler à quelqu&apos;un
-                </a>
-              </div>
+            <div className="mk-about-foot">
+              <p>
+                Il nous arrive de dire qu&apos;un projet ne vaut pas la peine
+                d&apos;être construit. Une page bien tenue suffit souvent là où
+                on nous demande une application.
+              </p>
+              <a href={COMPANY.whatsapp} className="mk-btn">
+                Parler à quelqu&apos;un →
+              </a>
             </div>
           </div>
         </section>
@@ -178,3 +164,30 @@ export default async function HomePage() {
     </div>
   );
 }
+
+/**
+ * What we promise, in four lines.
+ *
+ * Each one is a thing a client can hold us to and a thing a competitor would
+ * hesitate to write down — which is the test a promise has to pass before it
+ * earns space on a home page. Anything that would be true of any studio in the
+ * world ("qualité", "à l'écoute") is not here.
+ */
+const PRINCIPLES = [
+  {
+    title: "Un prix, pas un pourcentage",
+    body: "Vous payez ce qui a été convenu. Nous ne prenons rien au passage sur ce que votre activité rapporte.",
+  },
+  {
+    title: "Ce qu'on construit vous appartient",
+    body: "Le code, le domaine, les comptes, les données. Vous pouvez partir avec et changer de prestataire sans tout recommencer.",
+  },
+  {
+    title: "Livré ne veut pas dire abandonné",
+    body: "Un site vit : il se met à jour, il casse, il évolue. Nous restons joignables après la mise en ligne.",
+  },
+  {
+    title: "On répond",
+    body: "En français, sur WhatsApp, par les gens qui ont fait le travail — pas par un formulaire.",
+  },
+] as const;
