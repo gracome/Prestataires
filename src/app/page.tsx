@@ -54,11 +54,11 @@ export default async function HomePage() {
             </h1>
 
             <p className="mk-hero-sub">
-              Nous construisons des outils et des sites pour les
-              professionnelles et les entreprises béninoises, et nous formons
-              celles et ceux qui s&apos;en servent. Nos produits supposent un
-              téléphone, du Mobile Money et une connexion qui va et vient —
-              parce que c&apos;est la réalité du terrain.
+              Nous construisons des sites et des outils pour les entreprises et
+              les indépendants du Bénin, et nous formons les équipes qui
+              s&apos;en servent. Ce que nous livrons marche sur un téléphone,
+              encaisse par Mobile Money et tient sur une connexion qui va et
+              vient — parce que c&apos;est le terrain.
             </p>
 
             {/* Both lead to the company, not to one of its products: a
@@ -113,43 +113,49 @@ export default async function HomePage() {
               <div>
                 <p className="mk-eyebrow">Qui sommes-nous</p>
                 <h2 className="mk-h2">
-                  Une équipe béninoise, pour des métiers d&apos;ici.
+                  Un atelier, pas une agence.
                 </h2>
               </div>
 
               <div className="mk-about-text">
                 <p>
-                  {COMPANY.name} est né à {COMPANY.city}, d&apos;un constat
-                  simple : les outils qu&apos;on nous propose sont écrits
-                  ailleurs, pour ailleurs. Ils supposent une carte bancaire, une
-                  connexion stable, une secrétaire à l&apos;accueil. Ici, on
-                  encaisse par Mobile Money, on répond sur WhatsApp entre deux
-                  clientes, et on tient ses comptes dans un cahier.
+                  {COMPANY.name} est un studio installé à {COMPANY.city}. Nous
+                  construisons des sites et des outils pour des entreprises et
+                  des indépendants d&apos;ici, nous formons les équipes qui
+                  s&apos;en servent, et nous éditons nos propres produits quand
+                  un besoin revient si souvent qu&apos;il mérite mieux
+                  qu&apos;un développement à chaque fois.
                 </p>
                 <p>
-                  Nous construisons donc l&apos;inverse : des outils pensés pour
-                  des gens qui travaillent seuls ou à deux, qui n&apos;ont ni le
-                  temps ni l&apos;envie d&apos;apprendre un logiciel, et pour
-                  qui chaque franc compte. C&apos;est vrai des sites que nous
-                  construisons, de ce que nous enseignons et des produits que
-                  nous éditons.
+                  Nous partons de l&apos;activité, jamais de la technologie. Ce
+                  qui compte, c&apos;est ce que vous vendez, qui vous l&apos;
+                  achète et ce qui vous fait perdre du temps ; le reste sont des
+                  moyens. C&apos;est aussi pour ça que nous disons parfois
+                  qu&apos;un projet ne vaut pas la peine d&apos;être construit —
+                  une page bien tenue suffit souvent là où on nous demande une
+                  application.
                 </p>
 
                 <ul className="mk-list">
                   <li>
-                    <strong>Un prix, pas un pourcentage.</strong> Nous ne
-                    prenons rien au passage sur ce que vous encaissez. Vous
-                    payez ce qui a été convenu, et vous savez toujours combien.
+                    <strong>Un prix, pas un pourcentage.</strong> Vous payez ce
+                    qui a été convenu. Nous ne prenons rien au passage sur ce
+                    que votre activité rapporte.
                   </li>
                   <li>
                     <strong>Ce que nous construisons vous appartient.</strong>{" "}
-                    Vos données, votre nom de domaine, votre fichier clients.
-                    Nous ne les revendons pas et nous n&apos;en faisons pas un
-                    annuaire.
+                    Le code, le nom de domaine, les comptes et les données sont
+                    à vous. Vous pouvez partir avec, et changer de prestataire
+                    sans tout recommencer.
+                  </li>
+                  <li>
+                    <strong>Livré ne veut pas dire abandonné.</strong> Un site
+                    vit : il se met à jour, il casse, il évolue. Nous restons
+                    joignables après la mise en ligne.
                   </li>
                   <li>
                     <strong>On répond.</strong> En français, sur WhatsApp, par
-                    des gens qui connaissent le terrain.
+                    les gens qui ont fait le travail.
                   </li>
                 </ul>
 
