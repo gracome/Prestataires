@@ -2917,7 +2917,11 @@ table.data tr:last-child td {
 
 /* Pale rather than dark. A chocolate slab is the conventional way to end a
    page, but it lands like a door closing; a warm tint that deepens towards the
-   bottom ends it just as clearly and lets go of the reader more gently. */
+   bottom ends it just as clearly and lets go of the reader more gently.
+
+   The brand and the three link columns share one grid. They used to be two
+   blocks — name on the left, columns pinned right — and on a wide screen a
+   third of the footer was empty between them. */
 .mk-foot {
   background: linear-gradient(180deg, var(--brand-cream), var(--brand-rose-pale));
   color: var(--brand-text);
@@ -2925,15 +2929,52 @@ table.data tr:last-child td {
   padding-block: 3rem 1.75rem;
 }
 
-.mk-foot-top {
+/* The invitation. A footer that only lists links has nothing to say; this is
+   the one line worth reading at the bottom of any page of a studio's site. */
+.mk-foot-call {
   display: grid;
-  gap: 2rem;
+  gap: 1.25rem;
+  align-items: center;
+  padding-bottom: 2.5rem;
+  margin-bottom: 2.5rem;
+  border-bottom: 1px solid var(--brand-border);
 }
 
-@media (min-width: 820px) {
-  .mk-foot-top {
+@media (min-width: 760px) {
+  .mk-foot-call {
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: 4rem;
+    gap: 2.5rem;
+  }
+}
+
+.mk-foot-call h2 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 3.6vw, 2.1rem);
+  line-height: 1.15;
+  color: var(--brand-chocolate);
+}
+
+.mk-foot-call p {
+  margin: 0.55rem 0 0;
+  max-width: 48ch;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--brand-muted);
+}
+
+.mk-foot-grid {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+}
+
+/* The brand column carries more than a label, so it earns more room — but as
+   a share of the row, never as a block the others are pushed away from. */
+@media (min-width: 920px) {
+  .mk-foot-grid {
+    grid-template-columns: 1.5fr repeat(3, minmax(0, 1fr));
+    gap: 2.5rem;
   }
 }
 
@@ -2945,47 +2986,57 @@ table.data tr:last-child td {
 }
 
 .mk-foot-lead {
-  margin: 0.6rem 0 0;
-  max-width: 40ch;
+  margin: 0.4rem 0 0;
+  max-width: 34ch;
   font-size: 0.92rem;
   line-height: 1.7;
   color: var(--brand-muted);
 }
 
-.mk-foot-cols {
-  display: grid;
-  gap: 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(140px, auto));
+.mk-foot-where {
+  margin: 1.1rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.8;
+  color: var(--brand-muted);
 }
 
-.mk-foot-cols h2 {
-  margin: 0 0 0.75rem;
+.mk-foot-where a {
+  color: var(--brand-text);
+  text-decoration: none;
+}
+
+.mk-foot-where a:hover {
+  text-decoration: underline;
+}
+
+.mk-foot-grid h2 {
+  margin: 0 0 0.85rem;
   font-size: 0.72rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--brand-primary-strong);
 }
 
-.mk-foot-cols ul {
+.mk-foot-grid ul {
   margin: 0;
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 0.45rem;
+  gap: 0.5rem;
 }
 
-.mk-foot-cols a {
+.mk-foot-grid a {
   font-size: 0.9rem;
   color: var(--brand-text);
   text-decoration: none;
 }
 
-.mk-foot-cols a:hover {
+.mk-foot-grid a:hover {
   text-decoration: underline;
 }
 
 .mk-foot-bottom {
-  margin-top: 2.5rem;
+  margin-top: 2.75rem;
   padding-top: 1.25rem;
   border-top: 1px solid var(--brand-border);
   display: flex;
