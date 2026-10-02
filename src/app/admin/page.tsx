@@ -300,7 +300,7 @@ async function Board({ query }: { query: Query }) {
               </p>
             ) : (
               <div className="table-scroll">
-                <table className="data">
+                <table className="data" data-stack>
                   <thead>
                     <tr>
                       <th scope="col">Activité</th>
@@ -312,14 +312,16 @@ async function Board({ query }: { query: Query }) {
                   <tbody>
                     {ranking.map((row) => (
                       <tr key={row.id}>
-                        <td style={{ fontWeight: 600 }}>
+                        <td data-label="Activité" style={{ fontWeight: 600 }}>
                           <Link href={`/admin/prestataires/${row.id}`}>
                             {row.businessName}
                           </Link>
                         </td>
-                        <td>{row.appointments}</td>
-                        <td style={{ whiteSpace: "nowrap" }}>{row.honoured}</td>
-                        <td style={{ minWidth: 110 }}>
+                        <td data-label="Rendez-vous">{row.appointments}</td>
+                        <td data-label="Honorés" style={{ whiteSpace: "nowrap" }}>
+                          {row.honoured}
+                        </td>
+                        <td data-label="Part" style={{ minWidth: 110 }}>
                           <span className="pf-share">
                             <span aria-hidden="true">
                               <span style={{ width: `${Math.round(row.share * 100)}%` }} />
