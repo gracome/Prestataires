@@ -148,6 +148,31 @@ Un appel réussi renvoie un rapport JSON des actions effectuées. Une réponse 5
 signale un `CRON_SECRET` absent côté Vercel, une 401 un secret qui ne
 correspond pas.
 
+### Remise à zéro de la démonstration
+
+`POST /api/demo/reset` reconstruit le prestataire de démonstration : les
+rendez-vous sont effacés, les sessions ouvertes par le bouton de `/demo` sont
+révoquées, puis le jeu de données est réinstallé.
+
+Le tableau de bord de démonstration est une porte publique vers un vrai compte.
+C'est ce qui le rend convaincant, et c'est aussi ce qui le fait dériver : une
+visiteuse peut annuler tous les rendez-vous, renommer les prestations et vider
+la galerie, et la suivante jugerait le produit sur les décombres.
+
+Créer une seconde tâche sur cron-job.org :
+
+- URL : `https://<projet>.vercel.app/api/demo/reset`
+- Méthode : POST, **une fois par jour** (la nuit)
+- En-tête : `Authorization: Bearer <CRON_SECRET>` — le même secret
+
+Volontairement séparé de la maintenance des 5 minutes : celle-ci doit rester
+courte et fréquente, celle-là efface et réécrit quelques centaines de lignes et
+prend une trentaine de secondes.
+
+Variables requises : `DEMO_SLUG` et `DEMO_EMAIL`. Sans elles la réponse est
+`{"ran": false}` — cette installation n'a pas de démonstration, ce n'est pas
+une erreur.
+
 ## 7. Vérification
 
 - `https://<projet>.vercel.app/belle-mains` affiche le site de démonstration
