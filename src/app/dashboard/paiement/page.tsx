@@ -89,7 +89,7 @@ async function PaiementContent({ providerId }: { providerId: string }) {
           </p>
         ) : (
           <div className="card table-scroll" style={{ padding: 0 }}>
-            <table className="data">
+            <table className="data" data-stack>
               <thead>
                 <tr>
                   <th scope="col">Prestation</th>
@@ -107,7 +107,7 @@ async function PaiementContent({ providerId }: { providerId: string }) {
                   });
                   return (
                     <tr key={service.id}>
-                      <td>
+                      <td data-label="Prestation">
                         {service.name}
                         <span style={{ display: "block", color: "var(--admin-muted)", fontSize: ".82rem" }}>
                           {formatDurationFr(service.durationMinutes)}
@@ -116,11 +116,13 @@ async function PaiementContent({ providerId }: { providerId: string }) {
                             : ""}
                         </span>
                       </td>
-                      <td>{formatMoney(service.price, provider.currency, provider.locale)}</td>
-                      <td style={{ fontWeight: 600 }}>
+                      <td data-label="Prix">
+                        {formatMoney(service.price, provider.currency, provider.locale)}
+                      </td>
+                      <td data-label="Acompte" style={{ fontWeight: 600 }}>
                         {formatMoney(deposit, provider.currency, provider.locale)}
                       </td>
-                      <td>
+                      <td data-label="Solde sur place">
                         {formatMoney(service.price - deposit, provider.currency, provider.locale)}
                       </td>
                     </tr>

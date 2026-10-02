@@ -94,7 +94,7 @@ async function NotificationsContent({ providerId }: { providerId: string }) {
           />
         ) : (
           <div className="card table-scroll" style={{ padding: 0 }}>
-            <table className="data">
+            <table className="data" data-stack>
               <thead>
                 <tr>
                   <th scope="col">Date</th>
@@ -111,13 +111,13 @@ async function NotificationsContent({ providerId }: { providerId: string }) {
                   };
                   return (
                     <tr key={log.id}>
-                      <td style={{ whiteSpace: "nowrap" }}>
+                      <td data-label="Date" style={{ whiteSpace: "nowrap" }}>
                         {formatLongDateFr(log.createdAt, tz)}
                         <span style={{ display: "block", color: "var(--admin-muted)", fontSize: ".82rem" }}>
                           {formatLocalTime(log.createdAt, tz)}
                         </span>
                       </td>
-                      <td>
+                      <td data-label="Type">
                         {log.appointmentId ? (
                           <Link href={`/dashboard/reservations/${log.appointmentId}`}>
                             {TEMPLATE_LABELS[log.template] ?? log.template}
@@ -131,8 +131,10 @@ async function NotificationsContent({ providerId }: { providerId: string }) {
                           </span>
                         ) : null}
                       </td>
-                      <td style={{ wordBreak: "break-word" }}>{log.recipient}</td>
-                      <td>
+                      <td data-label="Destinataire" style={{ wordBreak: "break-word" }}>
+                        {log.recipient}
+                      </td>
+                      <td data-label="Statut">
                         <span className={`pill pill-${status.tone}`}>{status.label}</span>
                         {log.error ? (
                           <span

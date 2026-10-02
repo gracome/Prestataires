@@ -236,7 +236,7 @@ async function Day({
           description="Depuis le début du mois, sur les encaissements saisis."
         >
           <div className="card table-scroll" style={{ padding: 0 }}>
-            <table className="data">
+            <table className="data" data-stack>
               <thead>
                 <tr>
                   <th scope="col">Prestation</th>
@@ -247,9 +247,13 @@ async function Day({
               <tbody>
                 {breakdown.map((row) => (
                   <tr key={row.label}>
-                    <td style={{ fontWeight: 600 }}>{row.label}</td>
-                    <td>{row.count}</td>
-                    <td style={{ whiteSpace: "nowrap" }}>{money(row.amount)}</td>
+                    <td data-label="Prestation" style={{ fontWeight: 600 }}>
+                      {row.label}
+                    </td>
+                    <td data-label="Fois">{row.count}</td>
+                    <td data-label="Total" style={{ whiteSpace: "nowrap" }}>
+                      {money(row.amount)}
+                    </td>
                   </tr>
                 ))}
               </tbody>
