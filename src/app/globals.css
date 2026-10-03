@@ -3179,61 +3179,6 @@ table.data tr:last-child td {
   }
 }
 
-/* Three cards of equal weight. The first one used to take the whole top row
-   on a tinted background, which announced a headline act the company does not
-   have: one product and two kinds of work, none of them the main one. */
-.mk-offers {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-  align-items: stretch;
-}
-
-.mk-offer {
-  display: grid;
-  gap: 0.85rem;
-  align-content: start;
-  justify-items: start;
-  padding: 1.75rem 1.6rem;
-  border-radius: 22px;
-  background: var(--brand-cream);
-  border: 1px solid var(--brand-border);
-}
-
-/* The link sits on the bottom edge whatever the summary's length, so three
-   cards of unequal text still read as one row. */
-.mk-offer > .mk-btn {
-  margin-top: auto;
-}
-
-.mk-offer-tag {
-  margin: 0;
-  font-size: 0.7rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  font-weight: 700;
-  color: var(--brand-primary-strong);
-}
-
-.mk-offer h3 {
-  margin: 0;
-  font-family: var(--font-heading);
-  font-size: clamp(1.4rem, 3vw, 1.85rem);
-  line-height: 1.15;
-}
-
-.mk-offer-summary {
-  margin: 0;
-  font-size: 0.97rem;
-  line-height: 1.75;
-  color: var(--brand-muted);
-  max-width: 62ch;
-}
-
-.mk-offer .mk-list li {
-  font-size: 0.9rem;
-}
-
 /* Three columns of prose on a service page: what it covers, how it runs, what
    comes with it. Hairlines rather than cards — this is reading, not choosing. */
 .mk-steps-grid {
@@ -3426,4 +3371,226 @@ table.data tr:last-child td {
   font-size: 0.95rem;
   line-height: 1.75;
   color: var(--brand-muted);
+}
+
+/* ===========================================================================
+ * Home page, second pass
+ * ---------------------------------------------------------------------------
+ * The page was three stacked blocks of prose. It now runs as six movements
+ * with different shapes — tall statement, thin band, three columns, wide
+ * panel, statement, foot — because without a change of shape there is nothing
+ * to tell a reader she has arrived somewhere new, and she scrolls past all of
+ * it at the same speed.
+ *
+ * Hairlines and space do the work that borders used to. Three bordered boxes
+ * in a row is the shape of a pricing table, and only one of the three things
+ * this company sells has a price.
+ * ======================================================================== */
+
+/* -------------------------------------------------------------------- Hero */
+
+/* Taller and quieter: the statement needs room around it more than it needs
+   anything next to it. */
+.mk-hero {
+  padding-block: clamp(4rem, 11vw, 8rem) clamp(3.5rem, 8vw, 6rem);
+}
+
+.mk-hero-title {
+  max-width: 15ch;
+}
+
+/* ------------------------------------------------------------------- Faits */
+
+/* A thin band between two tall sections — the change of pace is the point as
+   much as the content. Four things a visitor could check, rather than four
+   adjectives. */
+.mk-facts {
+  border-block: 1px solid var(--brand-border);
+  background: var(--brand-surface);
+  padding-block: 1.75rem;
+}
+
+.mk-facts dl {
+  display: grid;
+  gap: 1.5rem 2rem;
+  margin: 0;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+}
+
+.mk-facts div {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.mk-facts dt {
+  margin: 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  color: var(--brand-muted);
+}
+
+.mk-facts dd {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(1.15rem, 2.4vw, 1.45rem);
+  line-height: 1.1;
+  color: var(--brand-chocolate);
+}
+
+/* ---------------------------------------------------------------- Services */
+
+.mk-offers {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 2.5rem 2.25rem;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+
+/* The rule across the top is what turns three paragraphs into a row. Without
+   it they read as a list that happens to wrap. */
+.mk-offers > li {
+  display: grid;
+  gap: 0.75rem;
+  align-content: start;
+  padding-top: 1.1rem;
+  border-top: 2px solid var(--brand-chocolate);
+}
+
+.mk-offer-meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 0;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--brand-muted);
+}
+
+.mk-offer-meta span {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  letter-spacing: 0;
+  color: var(--brand-primary-strong);
+}
+
+.mk-offers h3 {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: clamp(1.35rem, 2.8vw, 1.7rem);
+  line-height: 1.15;
+  color: var(--brand-chocolate);
+}
+
+.mk-offer-summary {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--brand-muted);
+}
+
+.mk-offers .mk-list li {
+  font-size: 0.88rem;
+}
+
+/* A link, not a button. Three buttons in a row asks a visitor to choose
+   before she has read; a link invites her to carry on. */
+.mk-offer-link {
+  justify-self: start;
+  margin-top: 0.3rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--brand-primary-strong);
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 2px;
+}
+
+.mk-offer-link:hover {
+  color: var(--brand-chocolate);
+}
+
+/* ------------------------------------------------------------ Notre travail */
+
+.mk-case {
+  padding-block: clamp(3rem, 8vw, 5rem);
+  background: linear-gradient(
+    160deg,
+    var(--brand-rose-light),
+    var(--brand-cream) 70%
+  );
+  border-block: 1px solid var(--brand-border);
+}
+
+.mk-case-grid {
+  display: grid;
+  gap: 2.5rem;
+  align-items: start;
+}
+
+@media (min-width: 920px) {
+  .mk-case-grid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+    gap: 4rem;
+  }
+}
+
+.mk-case-text {
+  margin: 1.25rem 0 0;
+  max-width: 54ch;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--brand-muted);
+}
+
+.mk-case-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem 1.75rem;
+  margin-top: 2rem;
+}
+
+/* Facts about the product, as a list of hairline rows: it reads as a spec next
+   to the prose, which is exactly the second voice this section needs. */
+.mk-case-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+}
+
+.mk-case-list li {
+  display: grid;
+  gap: 0.3rem;
+  padding: 1.1rem 0;
+  border-top: 1px solid color-mix(in srgb, var(--brand-chocolate) 14%, transparent);
+}
+
+.mk-case-list li:last-child {
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--brand-chocolate) 14%, transparent);
+}
+
+.mk-case-list b {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 400;
+  color: var(--brand-chocolate);
+}
+
+.mk-case-list span {
+  font-size: 0.88rem;
+  line-height: 1.65;
+  color: var(--brand-muted);
+}
+
+/* --------------------------------------------------------------- Qui nous */
+
+.mk-about {
+  padding-block: clamp(3.5rem, 8vw, 5.5rem);
 }
