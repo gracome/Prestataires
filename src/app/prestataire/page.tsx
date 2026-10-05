@@ -82,15 +82,16 @@ export default async function PrestatairePage() {
             <p className="mk-eyebrow">Logiciel de gestion — Bénin</p>
 
             <h1 className="mk-hero-title">
-              Le métier est à vous.
+              Votre site.
               <br />
-              <span className="mk-hero-rest">Le reste est à nous.</span>
+              <span className="mk-hero-rest">Votre nom dessus.</span>
             </h1>
 
             <p className="mk-hero-sub">
               Site de réservation, agenda, acomptes, caisse et chiffres — pour
               les <TradeRotator words={TRADES.map((trade) => trade.label)} />{" "}
-              et tous les métiers de la beauté.
+              et tous les métiers de la beauté. Vos clientes retiennent votre
+              nom, pas le nôtre.
             </p>
 
             <div className="mk-hero-actions">
@@ -116,6 +117,84 @@ export default async function PrestatairePage() {
                 <dd>{fcfa(PLANS[SHOWN_PLANS[0]].monthly)} F / mois</dd>
               </div>
             </dl>
+          </div>
+        </section>
+
+        {/* -------------------------------------------------- Annuaire ou site */}
+        {/* The argument that decides against the directories, made without
+            naming one. Naming a competitor advertises it, dates the page, and
+            starts a fight on ground we do not control; describing the pattern
+            lands the same blow and still reads true in two years.
+
+            It leads the page because it is the one difference a provider
+            cannot undo later: everything else is a feature she could be sold
+            elsewhere, but the name her clients remember is decided the day she
+            chooses where her page lives. */}
+        <section className="mk-versus">
+          <div className="container">
+            <div className="mk-head">
+              <p className="mk-eyebrow">La différence qui compte</p>
+              <h2 className="mk-h2">
+                Une fiche dans un annuaire, ou un site à vous.
+              </h2>
+              <p className="mk-lead">
+                Beaucoup de plateformes vous donnent une page à leur nom, dans
+                leur catalogue, à côté de vos concurrentes. Vos clientes
+                repartent en ayant retenu la marque de la plateforme — pas la
+                vôtre.
+              </p>
+            </div>
+
+            <div className="mk-versus-grid">
+              <article className="mk-versus-them">
+                <h3>Sur un annuaire</h3>
+                <ul>
+                  <li>
+                    Votre nom en petit, sous le leur. Une cliente peut repartir
+                    sans l&apos;avoir retenu.
+                  </li>
+                  <li>
+                    Vous êtes affichée à côté de vos concurrentes, et la
+                    visibilité se paie.
+                  </li>
+                  <li>
+                    La même page que toutes les autres, aux mêmes couleurs.
+                  </li>
+                  <li>
+                    Le jour où vous partez, vos clientes ne savent pas où vous
+                    retrouver.
+                  </li>
+                </ul>
+              </article>
+
+              <article className="mk-versus-us">
+                <h3>Avec Prestataire</h3>
+                <ul>
+                  <li>
+                    Votre nom, vos couleurs, vos photos. Le nôtre
+                    n&apos;apparaît pas.
+                  </li>
+                  <li>
+                    Votre propre adresse à envoyer en story. Personne
+                    d&apos;autre dessus.
+                  </li>
+                  <li>
+                    Aucune concurrente sur votre page. Il n&apos;y a pas de
+                    catalogue.
+                  </li>
+                  <li>
+                    Votre fichier clientes est à vous. Vous pouvez partir avec.
+                  </li>
+                </ul>
+              </article>
+            </div>
+
+            <p className="mk-versus-note">
+              C&apos;est la seule différence sur laquelle vous ne pourrez pas
+              revenir plus tard : tout le reste se rattrape, mais le nom que
+              vos clientes retiennent se décide le jour où vous choisissez où
+              votre page est hébergée.
+            </p>
           </div>
         </section>
 
