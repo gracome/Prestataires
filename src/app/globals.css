@@ -3594,3 +3594,93 @@ table.data tr:last-child td {
 .mk-about {
   padding-block: clamp(3.5rem, 8vw, 5.5rem);
 }
+
+/* ---------------------------------------------------------------------------
+ * Directory or your own site
+ * ---------------------------------------------------------------------------
+ * Two columns that have to be read as opposed, without one of them being drawn
+ * as a loser: a provider who is on a directory today should recognise her
+ * situation, not feel mocked for it. So the left column is quiet and grey
+ * rather than struck through, and only the right one carries the accent.
+ * ------------------------------------------------------------------------ */
+
+.mk-versus {
+  padding-block: clamp(3rem, 8vw, 4.5rem);
+  background: var(--brand-surface);
+  border-block: 1px solid var(--brand-border);
+}
+
+.mk-versus-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  align-items: start;
+}
+
+.mk-versus-grid article {
+  padding: 1.6rem 1.5rem;
+  border-radius: 20px;
+}
+
+.mk-versus-them {
+  background: var(--brand-background);
+  border: 1px solid var(--brand-border);
+}
+
+.mk-versus-us {
+  background: var(--brand-rose-pale);
+  border: 1px solid color-mix(in srgb, var(--brand-primary) 30%, transparent);
+}
+
+.mk-versus-grid h3 {
+  margin: 0 0 1.1rem;
+  font-family: var(--font-heading);
+  font-size: 1.25rem;
+  color: var(--brand-text);
+}
+
+.mk-versus-us h3 {
+  color: var(--brand-primary-strong);
+}
+
+.mk-versus-grid ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.85rem;
+}
+
+.mk-versus-grid li {
+  position: relative;
+  padding-left: 1.5rem;
+  font-size: 0.93rem;
+  line-height: 1.65;
+  color: var(--brand-muted);
+}
+
+/* A dash on the left and a tick on the right. Not a cross: the point is that
+   one column is a different arrangement, not that it is a failure. */
+.mk-versus-them li::before {
+  content: "–";
+  position: absolute;
+  left: 0.2rem;
+  color: var(--brand-muted);
+  font-weight: 700;
+}
+
+.mk-versus-us li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: var(--brand-primary-strong);
+  font-weight: 700;
+}
+
+.mk-versus-note {
+  margin: 1.75rem 0 0;
+  max-width: 70ch;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--brand-text);
+}
