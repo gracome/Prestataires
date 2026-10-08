@@ -54,7 +54,7 @@ export default async function ProviderHomePage({
       settings?.showGallery !== false && site.galleryImages.length > 0 ? (
         <PortfolioTeaser key="gallery" site={site} />
       ) : null,
-    about: settings?.showAbout !== false ? <About key="about" site={site} /> : null,
+    about: settings?.showAbout !== false ? <About key="about" site={site} bookingOpen={bookingOpen} /> : null,
     commitments: <Commitments key="commitments" site={site} />,
     hours: settings?.showHours !== false ? <Hours key="hours" site={site} /> : null,
     location:
@@ -77,7 +77,27 @@ export default async function ProviderHomePage({
 
       <Hero site={site} bookingOpen={bookingOpen} />
 
-      {order.map((key) => sections[key])}
+      {/* Every other section sits on a tinted band. On a dark palette the
+          sections otherwise ran together as one black page with no edges.
+          The first one keeps the page colour (it carries the curve over the
+          hero), and the commitments strip is a band of its own, so it is
+          left out of the count. */}
+      {(() => {
+        let position = 0;
+        return order.map((key) => {
+          const node = sections[key];
+          if (!node || key === "commitments") return node;
+          const tinted = position % 2 === 1;
+          position += 1;
+          return tinted ? (
+            <div key={key} className="section-band">
+              {node}
+            </div>
+          ) : (
+            node
+          );
+        });
+      })()}
     </>
   );
 }
@@ -320,7 +340,7 @@ function Services({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolea
       <div className="container">
         <SectionHead
           eyebrow="Prestations"
-          title="Choisissez ce qui vous ressemble"
+          title="Mes savoir-faire"
           intro={
             site.siteSettings?.servicesIntro?.trim() ||
             "Chaque prestation a sa fiche, avec le déroulé étape par étape, la durée réelle et ce qui est compris dans le prix."
@@ -337,14 +357,8 @@ function Services({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolea
             page all catalogue and left her no room. */}
         {families.length > 1 ? (
           <ul
-            style={{
-              listStyle: "none",
-              margin: 0,
-              padding: 0,
-              display: "grid",
-              gap: "1rem",
-              gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 260px), 1fr))",
-            }}
+            className="family-grid"
+            style={{ "--family-count": Math.min(families.length, 4) } as React.CSSProperties}
           >
             {families.map((family) => (
               <li key={family.slug}>
@@ -423,10 +437,7 @@ function PortfolioTeaser({ site }: { site: PublicSite }) {
     <section
       className="section"
       id="galerie"
-      style={{
-        scrollMarginTop: 80,
-        background: "color-mix(in srgb, var(--brand-accent) 14%, var(--brand-background))",
-      }}
+      style={{ scrollMarginTop: 80 }}
     >
       <div className="container">
         <SectionHead
@@ -434,7 +445,7 @@ function PortfolioTeaser({ site }: { site: PublicSite }) {
           title="Le travail parle de lui-même"
           intro={
             site.siteSettings?.realisationsIntro?.trim() ||
-            "Quelques rendus récents. Chaque photo correspond à une prestation que vous pouvez réserver."
+            "Quelques réalisations récentes. Chaque photo correspond à une prestation que vous pouvez réserver."
           }
           action={
             site.siteSettings?.showRealisations !== false ? (
@@ -481,10 +492,15 @@ function PortfolioTeaser({ site }: { site: PublicSite }) {
 }
 
 /**
- * About: portrait, story, a sentence in her own words, and the training that
- * backs the claims. A wall of text was the weak point before.
+ * About, told in her voice — the whole site speaks as her.
+ *
+ * Laid out like a magazine page: a picture on one side, the words on the
+ * other. Her portrait when she has given one; otherwise three of her own
+ * realisations, one per trade where she has several, so the section still
+ * opens on her work rather than on a block of text. A gallery photo is never
+ * captioned with her name: the person in it is a customer.
  */
-function About({ site }: { site: PublicSite }) {
+function About({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean }) {
   const settings = site.siteSettings;
   const title = settings?.aboutTitle?.trim() || "À propos";
   const body = settings?.aboutBody?.trim() || site.description?.trim();
@@ -494,147 +510,111 @@ function About({ site }: { site: PublicSite }) {
 
   if (!body && !quote && credentials.length === 0) return null;
 
+  // One photograph per category first, then whatever comes next.
+  const mosaic: PublicSite["galleryImages"] = [];
+  if (!portrait) {
+    const seen = new Set<string>();
+    for (const image of site.galleryImages) {
+      const key = image.categoryId ?? image.id;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      mosaic.push(image);
+      if (mosaic.length === 3) break;
+    }
+    for (const image of site.galleryImages) {
+      if (mosaic.length === 3) break;
+      if (!mosaic.includes(image)) mosaic.push(image);
+    }
+  }
+
+  const firstName = site.ownerName.split(" ")[0];
+  const social = site.socialLinks[0];
+
   return (
-    <section className="section" id="a-propos" style={{ scrollMarginTop: 80 }}>
-      <div className="container">
-        <div
-          style={{
-            display: "grid",
-            gap: "2.5rem",
-            gridTemplateColumns: portrait
-              ? "repeat(auto-fit, minmax(min(100%, 280px), 1fr))"
-              : "1fr",
-            alignItems: "start",
-          }}
-        >
-          {portrait ? (
-            <div style={{ position: "relative" }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={portrait}
-                alt={site.ownerName}
-                loading="lazy"
-                style={{
-                  display: "block",
-                  width: "100%",
-                  aspectRatio: "4 / 5",
-                  objectFit: "cover",
-                  borderRadius: 20,
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  left: "1rem",
-                  bottom: "1rem",
-                  right: "1rem",
-                  background: "var(--brand-surface)",
-                  borderRadius: 14,
-                  padding: ".75rem .9rem",
-                }}
-              >
-                <p style={{ margin: 0, fontWeight: 700, fontSize: ".95rem" }}>
-                  {site.ownerName}
-                </p>
-                {site.tagline ? (
-                  <p style={{ margin: ".1rem 0 0", fontSize: ".82rem", color: "var(--brand-muted)" }}>
-                    {site.tagline}
-                  </p>
-                ) : null}
-              </div>
+    <section className="section about" id="a-propos" style={{ scrollMarginTop: 80 }}>
+      <div className="container about-grid" data-visual={portrait || mosaic.length > 0 ? "" : undefined}>
+        {portrait ? (
+          <figure className="about-portrait">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={portrait} alt={site.ownerName} loading="lazy" />
+            <figcaption>
+              <span className="about-portrait-name">{site.ownerName}</span>
+              {site.tagline ? <span className="about-portrait-role">{site.tagline}</span> : null}
+            </figcaption>
+          </figure>
+        ) : mosaic.length > 0 ? (
+          <div className="about-mosaic" data-count={mosaic.length} aria-hidden="true">
+            {mosaic.map((image) => (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img key={image.id} src={image.url} alt="" loading="lazy" />
+            ))}
+          </div>
+        ) : null}
+
+        <div className="about-text">
+          <p className="eyebrow">À propos</p>
+          <h2 className="font-display about-title">{title}</h2>
+
+          {quote ? <blockquote className="about-quote">{quote}</blockquote> : null}
+
+          {body ? (
+            <div className="about-body">
+              {body.split(/\n{2,}/).map((paragraph, index) => (
+                <p key={index}>{paragraph}</p>
+              ))}
             </div>
           ) : null}
 
-          <div>
-            <p className="eyebrow">{site.ownerName}</p>
-            <h2
-              className="font-display"
-              style={{ fontSize: "clamp(1.7rem, 5vw, 2.4rem)", margin: ".35rem 0 1.25rem" }}
-            >
-              {title}
-            </h2>
+          <p className="about-signature">{firstName}</p>
 
-            {quote ? (
-              <blockquote
-                style={{
-                  margin: "0 0 1.5rem",
-                  paddingLeft: "1.1rem",
-                  borderLeft: "3px solid var(--brand-primary)",
-                  fontFamily: "var(--font-heading)",
-                  fontSize: "1.2rem",
-                  lineHeight: 1.5,
-                  fontStyle: "italic",
-                }}
-              >
-                {quote}
-              </blockquote>
-            ) : null}
+          {bookingOpen || social ? (
+            <div className="about-actions">
+              {bookingOpen ? (
+                <Link href={`/${site.slug}/reservation`} className="btn btn-primary">
+                  Prendre rendez-vous
+                </Link>
+              ) : null}
+              {social ? (
+                <a href={social.url} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
+                  Mon travail sur {socialLabel(social.platform)}
+                </a>
+              ) : null}
+            </div>
+          ) : null}
 
-            {body ? (
-              <div className="prose-sm">
-                {body.split(/\n{2,}/).map((paragraph, index) => (
-                  <p key={index}>{paragraph}</p>
+          {credentials.length > 0 ? (
+            <div className="about-credentials">
+              <h3>Formations et certifications</h3>
+              <ul>
+                {credentials.map((item) => (
+                  <li key={item.id}>
+                    {item.meta ? <span className="about-credential-meta">{item.meta}</span> : null}
+                    <span>
+                      <strong>{item.title}</strong>
+                      {item.description ? <span className="about-credential-desc">{item.description}</span> : null}
+                    </span>
+                  </li>
                 ))}
-              </div>
-            ) : null}
-
-            {credentials.length > 0 ? (
-              <div style={{ marginTop: "1.75rem" }}>
-                <h3
-                  style={{
-                    fontSize: ".78rem",
-                    letterSpacing: ".14em",
-                    textTransform: "uppercase",
-                    color: "var(--brand-muted)",
-                    margin: "0 0 .85rem",
-                    fontWeight: 600,
-                  }}
-                >
-                  Formations et certifications
-                </h3>
-                <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: ".6rem" }}>
-                  {credentials.map((item) => (
-                    <li
-                      key={item.id}
-                      style={{
-                        display: "flex",
-                        gap: ".85rem",
-                        alignItems: "baseline",
-                        paddingBottom: ".6rem",
-                        borderBottom: "1px solid var(--brand-border)",
-                      }}
-                    >
-                      {item.meta ? (
-                        <span
-                          style={{
-                            fontVariantNumeric: "tabular-nums",
-                            color: "var(--brand-primary)",
-                            fontWeight: 700,
-                            fontSize: ".85rem",
-                            flexShrink: 0,
-                          }}
-                        >
-                          {item.meta}
-                        </span>
-                      ) : null}
-                      <span style={{ fontSize: ".92rem", lineHeight: 1.55 }}>
-                        <strong style={{ fontWeight: 600 }}>{item.title}</strong>
-                        {item.description ? (
-                          <span style={{ display: "block", color: "var(--brand-muted)", fontSize: ".85rem" }}>
-                            {item.description}
-                          </span>
-                        ) : null}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ) : null}
-          </div>
+              </ul>
+            </div>
+          ) : null}
         </div>
       </div>
     </section>
   );
+}
+
+/** "tiktok" → "TikTok": the platform as people write it. */
+function socialLabel(platform: string): string {
+  const known: Record<string, string> = {
+    tiktok: "TikTok",
+    instagram: "Instagram",
+    facebook: "Facebook",
+    youtube: "YouTube",
+    snapchat: "Snapchat",
+    whatsapp: "WhatsApp",
+  };
+  return known[platform.toLowerCase()] ?? platform;
 }
 
 function Hours({ site }: { site: PublicSite }) {
