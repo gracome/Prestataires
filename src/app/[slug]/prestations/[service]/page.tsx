@@ -367,7 +367,7 @@ export default async function ServiceDetailPage({
           ) : null}
 
           {service.galleryImages.length > 0 ? (
-            <Block title="Quelques rendus">
+            <Block title="En photos">
               <ul
                 style={{
                   listStyle: "none",

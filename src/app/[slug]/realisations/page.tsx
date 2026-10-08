@@ -68,7 +68,7 @@ export default async function RealisationsPage({
   const categories = galleryCategories(site.galleryImages).map((c) => c.name);
   const whatsapp = whatsappLink(
     site,
-    "Bonjour, j'ai vu vos réalisations et j'aimerais un rendu similaire.",
+    "Bonjour, j'ai vu vos réalisations et j'aimerais la même chose. Voici la photo :",
   );
 
   return (
@@ -139,10 +139,10 @@ export default async function RealisationsPage({
           >
             <div>
               <p className="font-display" style={{ margin: 0, fontSize: "1.25rem" }}>
-                Un rendu vous plaît ?
+                Ce style vous fait envie ?
               </p>
               <p style={{ margin: ".35rem 0 0", color: "var(--brand-muted)", fontSize: ".92rem" }}>
-                Réservez la prestation correspondante, ou envoyez la photo en message.
+                Réservez la même prestation en ligne, ou envoyez-moi la photo sur WhatsApp : je vous dis ce qui est possible pour vous.
               </p>
             </div>
             <div style={{ display: "flex", gap: ".6rem", flexWrap: "wrap" }}>

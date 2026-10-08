@@ -87,14 +87,8 @@ export default async function ServicesCataloguePage({
           </p>
         ) : families.length > 1 ? (
           <ul
-            style={{
-              listStyle: "none",
-              margin: 0,
-              padding: 0,
-              display: "grid",
-              gap: "1rem",
-              gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 320px), 1fr))",
-            }}
+            className="family-grid"
+            style={{ "--family-count": Math.min(families.length, 4) } as React.CSSProperties}
           >
             {families.map((family) => (
               <li key={family.slug}>

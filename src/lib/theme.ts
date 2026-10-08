@@ -117,6 +117,10 @@ export function themeStyle(theme: ThemeLike | null | undefined): CSSProperties {
     // The three the stylesheet still calls by colour name. Mapped to the role
     // each one actually plays, so a provider's palette reaches them too.
     "--brand-chocolate": t.secondaryColor,
+    // Text laid on that dark band (the footer). It used to be her background
+    // colour, which is cream on a light site and black on a dark one — black
+    // on a black footer. It is now whichever of ink or paper reads on it.
+    "--brand-on-chocolate": readableTextOn(t.secondaryColor),
     "--brand-cream": t.backgroundColor,
     "--brand-beige": t.accentColor,
     // Soft washes of her primary, flattened over her own surface rather than
