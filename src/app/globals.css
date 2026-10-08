@@ -858,6 +858,165 @@ table.data tr:last-child td {
   outline-offset: -3px;
 }
 
+/* --- Catalogue: families, then a price list ------------------------------ */
+
+/* A trade on the catalogue's first page. Text sits at the bottom, where the
+   scrim is darkest, and the card is wider than a prestation's: there are only
+   a handful of them. */
+.family-card {
+  aspect-ratio: 4 / 3;
+}
+
+.family-card-body {
+  position: absolute;
+  inset: auto 1.25rem 1.2rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.family-card-title {
+  font-family: var(--font-heading);
+  font-size: clamp(1.5rem, 3.4vw, 2rem);
+  line-height: 1.1;
+}
+
+.family-card-cta {
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--brand-primary);
+}
+
+.family-tabs {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  margin: 0 0 2rem;
+  scrollbar-width: none;
+}
+
+.family-tab {
+  flex: none;
+  padding: 0.55rem 1rem;
+  border-radius: 999px;
+  border: 1px solid var(--brand-border);
+  color: var(--brand-text);
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.family-tab[aria-current="page"] {
+  background: var(--brand-primary-strong, var(--brand-primary));
+  border-color: transparent;
+  color: var(--brand-primary-fg, #fff);
+}
+
+.service-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--brand-border);
+}
+
+.service-menu-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.15rem 0;
+  border-bottom: 1px solid var(--brand-border);
+}
+
+.service-menu-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.service-menu-thumb {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  object-fit: cover;
+}
+
+.service-menu-text {
+  display: grid;
+  gap: 0.2rem;
+  min-width: 0;
+}
+
+.service-menu-name {
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  line-height: 1.25;
+}
+
+.service-menu-main:hover .service-menu-name {
+  color: var(--brand-primary);
+}
+
+.service-menu-star {
+  margin-left: 0.5rem;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--brand-primary);
+  vertical-align: middle;
+}
+
+.service-menu-desc {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--brand-muted);
+}
+
+.service-menu-duration {
+  font-size: 0.8rem;
+  color: var(--brand-muted);
+}
+
+.service-menu-side {
+  flex: none;
+  display: grid;
+  justify-items: end;
+  gap: 0.45rem;
+}
+
+.service-menu-price {
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.service-menu-book {
+  min-height: 38px;
+  padding: 0.5rem 1rem;
+  font-size: 0.85rem;
+}
+
+/* On a phone the price and the button drop under the name rather than
+   squeezing it into a column three words wide. */
+@media (max-width: 540px) {
+  .service-menu-row {
+    flex-wrap: wrap;
+  }
+  .service-menu-side {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .photo-card-img,
   .photo-card-arrow {
@@ -1618,6 +1777,18 @@ table.data tr:last-child td {
 
 .site-header > .container {
   pointer-events: auto;
+}
+
+/* The header floats, so it takes no room of its own. The home page wants
+   that — its photograph runs up behind the pill — but every other page opened
+   with its first lines (a breadcrumb, an eyebrow, a back link) underneath it.
+   Those pages start below the pill instead. */
+.site-main {
+  padding-top: calc(0.75rem + 60px);
+}
+
+.site-main:has(> .site-hero) {
+  padding-top: 0;
 }
 
 /* The pill. Glass while the hero is behind it, solid once past. */

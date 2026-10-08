@@ -123,7 +123,7 @@ export default async function ProviderSiteLayout({
         bookingEnabled={bookingEnabled}
       />
 
-      <main id="contenu">{children}</main>
+      <main id="contenu" className="site-main">{children}</main>
 
       <SiteFooter site={site} />
     </div>

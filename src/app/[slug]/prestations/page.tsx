@@ -3,11 +3,14 @@ import Link from "next/link";
 import {
   getPublicSite,
   getPublicSiteOrNotFound,
-  groupServicesByCategory, bookingSubscribed
+  serviceFamilies,
+  bookingSubscribed,
 } from "@/lib/providers/public-site";
 import { toServiceCard } from "@/lib/providers/service-card";
-import { ServiceCard } from "@/components/public/ServiceCard";
+import { FamilyCard } from "@/components/public/FamilyCard";
+import { ServiceMenu } from "@/components/public/ServiceMenu";
 import { appUrl } from "@/lib/env";
+import { formatMoney } from "@/lib/money";
 
 export const revalidate = 60;
 
@@ -47,7 +50,9 @@ export default async function ServicesCataloguePage({
     (site.siteSettings?.showBooking ?? true) &&
     (site.bookingSettings?.bookingEnabled ?? true);
 
-  const groups = groupServicesByCategory(site.services);
+  // Two trades or more open on the trades; a single one goes straight to its
+  // price list, since a page holding one card would be a click for nothing.
+  const families = serviceFamilies(site);
 
   return (
     <div style={{ paddingBlock: "2.5rem 4rem" }}>
@@ -80,47 +85,46 @@ export default async function ServicesCataloguePage({
           <p className="card" style={{ color: "var(--brand-muted)" }}>
             Aucune prestation n&apos;est publiée pour le moment.
           </p>
-        ) : (
-          <div style={{ display: "grid", gap: "3rem" }}>
-            {groups.map((group) => (
-              <section key={group.category?.id ?? "sans-categorie"}>
-                {group.category ? (
-                  <h2
-                    className="font-display"
-                    style={{ fontSize: "1.4rem", margin: "0 0 1.15rem" }}
-                  >
-                    {group.category.name}
-                  </h2>
-                ) : null}
-
-                <ul
-                  style={{
-                    listStyle: "none",
-                    margin: 0,
-                    padding: 0,
-                    display: "grid",
-                    gap: "1rem",
-                    gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 280px), 1fr))",
-                  }}
-                >
-                  {group.services.map((service, position) => (
-                    <li key={service.id}>
-                      <ServiceCard
-                        index={position}
-                        providerSlug={site.slug}
-                        bookingOpen={bookingOpen}
-                        service={toServiceCard(service, {
-                          currency: site.currency,
-                          locale: site.locale,
-                          showPrices,
-                        })}
-                      />
-                    </li>
-                  ))}
-                </ul>
-              </section>
+        ) : families.length > 1 ? (
+          <ul
+            style={{
+              listStyle: "none",
+              margin: 0,
+              padding: 0,
+              display: "grid",
+              gap: "1rem",
+              gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 320px), 1fr))",
+            }}
+          >
+            {families.map((family) => (
+              <li key={family.slug}>
+                <FamilyCard
+                  href={`/${site.slug}/prestations/categorie/${family.slug}`}
+                  name={family.name}
+                  description={family.description}
+                  imageUrl={family.imageUrl}
+                  count={family.services.length}
+                  fromLabel={
+                    showPrices && family.fromPrice !== null
+                      ? formatMoney(family.fromPrice, site.currency, site.locale)
+                      : null
+                  }
+                />
+              </li>
             ))}
-          </div>
+          </ul>
+        ) : (
+          <ServiceMenu
+            providerSlug={site.slug}
+            bookingOpen={bookingOpen}
+            services={site.services.map((service) =>
+              toServiceCard(service, {
+                currency: site.currency,
+                locale: site.locale,
+                showPrices,
+              }),
+            )}
+          />
         )}
 
         <div

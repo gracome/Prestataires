@@ -17,6 +17,7 @@ import type {
 } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { hasFeature } from "@/lib/auth/features";
+import { slugify } from "@/lib/ids";
 
 /**
  * Everything the public site of one provider needs, in a single query.
@@ -148,6 +149,54 @@ export function groupServicesByCategory(
     if (!a.category) return 1;
     if (!b.category) return -1;
     return a.category.position - b.category.position;
+  });
+}
+
+/**
+ * A family of prestations, as the catalogue's first page shows it.
+ *
+ * A provider who does hair, nails and lashes is three trades, and a visitor
+ * comes for one of them. The catalogue opens on those trades — her categories
+ * — and only then lists what each one contains, rather than putting twenty
+ * prestations on a single page.
+ */
+export type ServiceFamily = {
+  /** Null for the prestations she left ungrouped. */
+  category: Category | null;
+  slug: string;
+  name: string;
+  description: string | null;
+  services: ShowcaseService[];
+  imageUrl: string | null;
+  /** Lowest bookable price, in minor units; null when everything is on quote. */
+  fromPrice: number | null;
+};
+
+export const UNGROUPED_FAMILY_SLUG = "autres";
+
+export function serviceFamilies(site: PublicSite): ServiceFamily[] {
+  return groupServicesByCategory(site.services).map(({ category, services }) => {
+    const priced = services.filter((s) => s.priceType !== "QUOTE_ONLY");
+
+    // The family's picture: a popular prestation's photo first, then any
+    // prestation's, then a portfolio photo filed under the category.
+    const imageUrl =
+      services.find((s) => s.popular && s.imageUrl)?.imageUrl ??
+      services.find((s) => s.imageUrl)?.imageUrl ??
+      (category
+        ? site.galleryImages.find((image) => image.categoryId === category.id)?.url
+        : undefined) ??
+      null;
+
+    return {
+      category,
+      slug: category ? slugify(category.name) || category.id : UNGROUPED_FAMILY_SLUG,
+      name: category?.name ?? "Autres prestations",
+      description: category?.description ?? null,
+      services,
+      imageUrl,
+      fromPrice: priced.length > 0 ? Math.min(...priced.map((s) => s.price)) : null,
+    };
   });
 }
 
