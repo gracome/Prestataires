@@ -60,7 +60,9 @@ export function ServiceCard({
 
         <span className="photo-card-body">
           <span className="photo-card-meta">
-            {service.quoteOnly ? "Sur devis" : `À partir de ${service.priceLabel}`}
+            {/* The label already says "dès" for a starting price and nothing
+                for a fixed one; prefixing "À partir de" made both wrong. */}
+            {service.priceLabel.charAt(0).toUpperCase() + service.priceLabel.slice(1)}
             {service.popular ? <span className="photo-card-star"> · Populaire</span> : null}
           </span>
 
