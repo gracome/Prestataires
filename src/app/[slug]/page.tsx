@@ -7,6 +7,7 @@ import {
   currentOpenState,
   getPublicSiteOrNotFound,
   groupServicesByCategory,
+  serviceFamilies,
   telLink,
   whatsappLink,
   type PublicSite, bookingSubscribed
@@ -14,6 +15,8 @@ import {
 import { dayLabelFr, formatMinuteOfDay } from "@/lib/time";
 import { LocalBusinessJsonLd } from "@/components/public/JsonLd";
 import { ServiceCard } from "@/components/public/ServiceCard";
+import { FamilyCard } from "@/components/public/FamilyCard";
+import { formatMoney } from "@/lib/money";
 import { HeroSlideshow, type HeroSlide } from "@/components/public/HeroSlideshow";
 import { toServiceCard } from "@/lib/providers/service-card";
 
@@ -303,6 +306,7 @@ function SectionHead({
 
 function Services({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean }) {
   const groups = groupServicesByCategory(site.services);
+  const families = serviceFamilies(site);
   const showPrices = site.siteSettings?.showPricing !== false;
 
   return (
@@ -328,52 +332,85 @@ function Services({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolea
           }
         />
 
-        <div style={{ display: "grid", gap: "2.5rem" }}>
-          {groups.map((group) => (
-            <div key={group.category?.id ?? "sans-categorie"}>
-              {group.category ? (
-                <h3
+        {/* Several trades: the home page names them and lets the catalogue
+            list what each holds. Every prestation as a photo card made the
+            page all catalogue and left her no room. */}
+        {families.length > 1 ? (
+          <ul
+            style={{
+              listStyle: "none",
+              margin: 0,
+              padding: 0,
+              display: "grid",
+              gap: "1rem",
+              gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 260px), 1fr))",
+            }}
+          >
+            {families.map((family) => (
+              <li key={family.slug}>
+                <FamilyCard
+                  href={`/${site.slug}/prestations/categorie/${family.slug}`}
+                  name={family.name}
+                  description={family.description}
+                  imageUrl={family.imageUrl}
+                  count={family.services.length}
+                  fromLabel={
+                    showPrices && family.fromPrice !== null
+                      ? formatMoney(family.fromPrice, site.currency, site.locale)
+                      : null
+                  }
+                />
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div style={{ display: "grid", gap: "2.5rem" }}>
+            {groups.map((group) => (
+              <div key={group.category?.id ?? "sans-categorie"}>
+                {group.category ? (
+                  <h3
+                    style={{
+                      fontSize: ".8rem",
+                      letterSpacing: ".14em",
+                      textTransform: "uppercase",
+                      color: "var(--brand-muted)",
+                      margin: "0 0 1rem",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {group.category.name}
+                  </h3>
+                ) : null}
+  
+                <ul
                   style={{
-                    fontSize: ".8rem",
-                    letterSpacing: ".14em",
-                    textTransform: "uppercase",
-                    color: "var(--brand-muted)",
-                    margin: "0 0 1rem",
-                    fontWeight: 600,
+                    listStyle: "none",
+                    margin: 0,
+                    padding: 0,
+                    display: "grid",
+                    gap: "1rem",
+                    gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 270px), 1fr))",
                   }}
                 >
-                  {group.category.name}
-                </h3>
-              ) : null}
-
-              <ul
-                style={{
-                  listStyle: "none",
-                  margin: 0,
-                  padding: 0,
-                  display: "grid",
-                  gap: "1rem",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 270px), 1fr))",
-                }}
-              >
-                {group.services.map((service, position) => (
-                  <li key={service.id}>
-                    <ServiceCard
-                      index={position}
-                      providerSlug={site.slug}
-                      bookingOpen={bookingOpen}
-                      service={toServiceCard(service, {
-                        currency: site.currency,
-                        locale: site.locale,
-                        showPrices,
-                      })}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
+                  {group.services.map((service, position) => (
+                    <li key={service.id}>
+                      <ServiceCard
+                        index={position}
+                        providerSlug={site.slug}
+                        bookingOpen={bookingOpen}
+                        service={toServiceCard(service, {
+                          currency: site.currency,
+                          locale: site.locale,
+                          showPrices,
+                        })}
+                      />
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
