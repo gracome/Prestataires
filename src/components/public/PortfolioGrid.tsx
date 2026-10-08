@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 
 /**
  * The portfolio (cahier des charges section 4, "montrer ses réalisations").
@@ -132,7 +132,7 @@ export function PortfolioGrid({
         }}
       >
         {visible.map((item, index) => (
-          <li key={item.id}>
+          <li key={item.id} style={{ display: "flex" }}>
             <button
               type="button"
               onClick={(event) => {
@@ -142,6 +142,7 @@ export function PortfolioGrid({
               style={{
                 display: "block",
                 width: "100%",
+                height: "100%",
                 padding: 0,
                 border: "1px solid var(--brand-border)",
                 borderRadius: 14,
@@ -166,23 +167,28 @@ export function PortfolioGrid({
                   objectFit: "cover",
                 }}
               />
-              {item.caption || item.serviceName ? (
-                <span
-                  style={{
-                    display: "block",
-                    padding: ".6rem .75rem .7rem",
-                    fontSize: ".82rem",
-                    lineHeight: 1.45,
-                  }}
-                >
-                  {item.caption ? <strong style={{ fontWeight: 600 }}>{item.caption}</strong> : null}
-                  {item.serviceName ? (
-                    <span style={{ display: "block", color: "var(--brand-muted)", marginTop: ".1rem" }}>
-                      {item.serviceName}
-                    </span>
-                  ) : null}
-                </span>
-              ) : null}
+              {/* A fixed-height caption — two lines of title, one of prestation,
+                  clipped past that — so every card in the grid is the same
+                  size whatever she wrote. The full text is in the viewer. */}
+              <span
+                style={{
+                  display: "block",
+                  padding: ".6rem .75rem .7rem",
+                  fontSize: ".82rem",
+                  lineHeight: 1.45,
+                  height: "calc(1.3rem + 4.35em + .1rem)",
+                  overflow: "hidden",
+                }}
+              >
+                {item.caption ? (
+                  <strong style={{ ...clampLines(2), fontWeight: 600 }}>{item.caption}</strong>
+                ) : null}
+                {item.serviceName ? (
+                  <span style={{ ...clampLines(1), color: "var(--brand-muted)", marginTop: ".1rem" }}>
+                    {item.serviceName}
+                  </span>
+                ) : null}
+              </span>
             </button>
           </li>
         ))}
@@ -330,4 +336,14 @@ function IconButton({
       <span className="visually-hidden">{label}</span>
     </button>
   );
+}
+
+/** Cut text to a number of lines with an ellipsis. */
+function clampLines(lines: number): CSSProperties {
+  return {
+    display: "-webkit-box",
+    WebkitLineClamp: lines,
+    WebkitBoxOrient: "vertical",
+    overflow: "hidden",
+  };
 }
