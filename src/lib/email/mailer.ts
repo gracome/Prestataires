@@ -14,6 +14,13 @@ export type MailMessage = {
   html: string;
   text: string;
   replyTo?: string;
+  /**
+   * Display name shown as the sender, in place of the one in MAIL_FROM. The
+   * address stays the platform's: only a domain we have authenticated can
+   * send without landing in spam, so a provider lends her name, not her
+   * mailbox. Replies reach her through `replyTo`.
+   */
+  fromName?: string;
 };
 
 export type MailResult = {
@@ -59,6 +66,24 @@ function sendToConsole(message: MailMessage): void {
   );
 }
 
+/**
+ * The From header for one message: MAIL_FROM as configured, or its address
+ * under another name.
+ *
+ * The name comes from what a provider typed as her business name, so line
+ * breaks are dropped (a header must not be able to start another header) and
+ * it is always quoted: "Fanny Beauty & Hair" or "Studio L.N." would otherwise
+ * not be valid display names.
+ */
+export function senderFor(mailFrom: string, fromName?: string): string {
+  const name = fromName?.replace(/\s+/g, " ").trim();
+  if (!name) return mailFrom;
+
+  const address = /<([^>]+)>/.exec(mailFrom)?.[1]?.trim() ?? mailFrom.trim();
+  const quoted = name.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  return `"${quoted}" <${address}>`;
+}
+
 async function sendViaSmtp(message: MailMessage): Promise<void> {
   const config = env();
   if (!config.SMTP_HOST) {
@@ -76,7 +101,7 @@ async function sendViaSmtp(message: MailMessage): Promise<void> {
   });
 
   await transport.sendMail({
-    from: config.MAIL_FROM,
+    from: senderFor(config.MAIL_FROM, message.fromName),
     to: message.to,
     subject: message.subject,
     text: message.text,
@@ -98,7 +123,7 @@ async function sendViaResend(message: MailMessage): Promise<void> {
       "content-type": "application/json",
     },
     body: JSON.stringify({
-      from: config.MAIL_FROM,
+      from: senderFor(config.MAIL_FROM, message.fromName),
       to: [message.to],
       subject: message.subject,
       html: message.html,
