@@ -137,6 +137,9 @@ export async function notifyAppointment(
     html: rendered.html,
     text: rendered.text,
     replyTo: toProvider ? (appointment.customerEmail ?? undefined) : provider.email,
+    // The customer hears from the business she booked with, not from the
+    // platform behind it. Messages to the provider stay signed by us.
+    fromName: toProvider ? undefined : provider.businessName,
   });
 
   await prisma.notificationLog.update({
