@@ -451,6 +451,8 @@ model SiteSettings {
   aboutPortraitUrl String?
   /// One sentence in her own words, set as a pull quote.
   aboutQuote       String? @db.Text
+  /// A line under her signed name, like the motto on a business card.
+  aboutSignature   String?
 
   /// Intro paragraphs for the two dedicated pages.
   servicesIntro     String? @db.Text

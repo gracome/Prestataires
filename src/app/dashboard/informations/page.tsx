@@ -170,6 +170,7 @@ export default async function InformationsPage() {
             aboutTitle: site?.aboutTitle ?? "",
             aboutBody: site?.aboutBody ?? "",
             aboutQuote: site?.aboutQuote ?? "",
+            aboutSignature: site?.aboutSignature ?? "",
             aboutPortraitUrl: site?.aboutPortraitUrl ?? "",
             servicesIntro: site?.servicesIntro ?? "",
             realisationsIntro: site?.realisationsIntro ?? "",
