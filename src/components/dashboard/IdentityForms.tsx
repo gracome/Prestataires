@@ -397,7 +397,7 @@ export function SiteSettingsForm({ values }: { values: SiteValues }) {
         id="aboutSignature"
         label="Sous votre signature"
         defaultValue={values.aboutSignature}
-        hint="Une courte ligne sous votre prénom, comme sur une carte de visite. Par exemple : « Coiffeuse et fondatrice »."
+        hint="Votre slogan, en quelques mots, sous votre prénom. Par exemple : « Sublimer chaque détail, révéler chaque style. »"
       />
       <div className="field">
         <label className="label" htmlFor="aboutBody">

@@ -3991,12 +3991,12 @@ table.data tr:last-child td {
   color: var(--brand-primary);
 }
 
+/* Her motto, said rather than titled: quiet, in her own case. */
 .about-signature-line {
-  margin: 0.35rem 0 0;
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  margin: 0.4rem 0 0;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: 1.05rem;
   color: var(--brand-muted);
 }
 
@@ -4083,9 +4083,10 @@ table.data tr:last-child td {
   }
 }
 
-/* Alternate band on the home page, a wash of her own primary colour over her
-   surface: visible on a black site as on a cream one, and always hers. */
+/* Alternate band on the home page: her surface, lifted by a touch of her text
+   colour. Neutral on purpose. A wash of her primary turned a black and pink
+   site plum, and her pink belongs to buttons and accents, not to a wall. */
 .section-band {
-  background: color-mix(in srgb, var(--brand-primary) 8%, var(--brand-surface));
+  background: color-mix(in srgb, var(--brand-text) 5%, var(--brand-surface));
   border-block: 1px solid var(--brand-border);
 }
