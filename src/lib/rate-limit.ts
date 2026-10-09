@@ -88,5 +88,6 @@ export const LIMITS = {
   booking: { limit: 12, windowSeconds: 60 * 60 },
   proofUpload: { limit: 10, windowSeconds: 60 * 60 },
   quoteRequest: { limit: 6, windowSeconds: 60 * 60 },
+  review: { limit: 6, windowSeconds: 60 * 60 },
   availability: { limit: 240, windowSeconds: 60 * 60 },
 } as const;

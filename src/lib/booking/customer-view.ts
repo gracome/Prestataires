@@ -5,6 +5,7 @@ import type {
   PaymentInstruction,
   PaymentProof,
   Provider,
+  Review,
   Service,
   Theme,
 } from "@prisma/client";
@@ -26,6 +27,7 @@ export type CustomerBooking = Appointment & {
   };
   service: Service;
   paymentProofs: PaymentProof[];
+  review: Review | null;
 };
 
 export const getBookingByToken = cache(
@@ -47,6 +49,7 @@ export const getBookingByToken = cache(
         },
         service: true,
         paymentProofs: { orderBy: { submittedAt: "desc" } },
+        review: true,
       },
     });
 
@@ -80,6 +83,7 @@ export const getBookingByToken = cache(
           },
           service: true,
           paymentProofs: { orderBy: { submittedAt: "desc" } },
+          review: true,
         },
       });
     }

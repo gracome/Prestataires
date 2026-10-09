@@ -31,7 +31,8 @@ export type TemplateName =
   | "customer.payment.rejected"
   | "customer.booking.expired"
   | "customer.booking.cancelled"
-  | "customer.reminder";
+  | "customer.reminder"
+  | "customer.review.request";
 
 export type RenderedEmail = {
   subject: string;
@@ -563,4 +564,36 @@ export function customerReminder(ctx: AppointmentContext): RenderedEmail {
   });
 
   return { subject: `Rappel — votre rendez-vous ${when(ctx)}`, ...rendered };
+}
+
+/**
+ * After the appointment: a short, warm note asking for her opinion, with the
+ * link that lets her leave it. Sent once, a few hours after she left.
+ */
+export function customerReviewRequest(ctx: AppointmentContext): RenderedEmail {
+  const { appointment, provider, service } = ctx;
+
+  const rendered = renderEmail({
+    title: "Votre avis compte",
+    preheader: `Comment s'est passé votre rendez-vous chez ${provider.businessName} ?`,
+    businessName: provider.businessName,
+    primaryColor: ctx.primaryColor,
+    blocks: [
+      {
+        kind: "paragraph",
+        text: `Bonjour ${appointment.customerName}, merci pour votre visite (${service.name}).`,
+      },
+      {
+        kind: "paragraph",
+        text: "Comment s'est passé votre rendez-vous ? Une note et quelques mots suffisent : votre avis aide les prochaines clientes à choisir, et il me fait toujours très plaisir.",
+      },
+      {
+        kind: "button",
+        label: "Donner mon avis",
+        url: `${customerLink(appointment)}#avis`,
+      },
+    ],
+  });
+
+  return { subject: `Votre avis sur votre rendez-vous chez ${provider.businessName}`, ...rendered };
 }

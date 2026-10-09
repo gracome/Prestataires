@@ -23,6 +23,7 @@ export type IconName =
   | "card"
   | "quote"
   | "bell"
+  | "star"
   | "sliders"
   | "logout"
   | "chevron-left"
@@ -102,6 +103,9 @@ const PATHS: Record<IconName, ReactNode> = {
       <path d="M18 8.5a6 6 0 1 0-12 0c0 5.5-2 7-2 7h16s-2-1.5-2-7" />
       <path d="M10.3 19.5a2.2 2.2 0 0 0 3.4 0" />
     </>
+  ),
+  star: (
+    <path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z" />
   ),
   sliders: (
     <>

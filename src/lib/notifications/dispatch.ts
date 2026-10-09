@@ -67,6 +67,7 @@ export type AppointmentNotification = Extract<
   | "customer.booking.expired"
   | "customer.booking.cancelled"
   | "customer.reminder"
+  | "customer.review.request"
 >;
 
 /**
@@ -179,6 +180,8 @@ function renderFor(
       return templates.customerCancelled(ctx);
     case "customer.reminder":
       return templates.customerReminder(ctx);
+    case "customer.review.request":
+      return templates.customerReviewRequest(ctx);
   }
 }
 

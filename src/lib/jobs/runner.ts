@@ -25,6 +25,7 @@ export type JobReport = {
   expiryEmails: number;
   completed: number;
   remindersSent: number;
+  reviewRequests: number;
   calendarsSynced: number;
   sessionsPurged: number;
   subscriptionsSuspended: number;
@@ -49,6 +50,7 @@ export async function runScheduledJobs(
   let expiryEmails = 0;
   let completed = 0;
   let remindersSent = 0;
+  let reviewRequests = 0;
   let calendarsSynced = 0;
   let sessionsPurged = 0;
   let subscriptionsSuspended = 0;
@@ -73,6 +75,9 @@ export async function runScheduledJobs(
       remindersSent = await sendReminders(now, errors);
     }
 
+    // 4b. Ask for an opinion once the appointment is behind her.
+    reviewRequests = await sendReviewRequests(now, errors);
+
     // 5. Refresh Google busy periods.
     if (options.syncCalendars !== false) {
       calendarsSynced = await syncCalendars(errors);
@@ -95,6 +100,7 @@ export async function runScheduledJobs(
     expiryEmails,
     completed,
     remindersSent,
+    reviewRequests,
     calendarsSynced,
     sessionsPurged,
     subscriptionsSuspended,
@@ -185,6 +191,37 @@ async function sendReminders(now: Date, errors: string[]): Promise<number> {
     }
   }
 
+  return sent;
+}
+
+/**
+ * The review request: a couple of hours after the appointment ended, when
+ * the result is fresh but she has left the salon, and never once she has
+ * already left a review. Past three days the moment has gone, so older
+ * appointments are not chased. The notification log makes it once only.
+ */
+async function sendReviewRequests(now: Date, errors: string[]): Promise<number> {
+  const from = new Date(now.getTime() - 72 * 3_600_000);
+  const to = new Date(now.getTime() - 2 * 3_600_000);
+
+  const appointments = await prisma.appointment.findMany({
+    where: {
+      status: "COMPLETED",
+      serviceEndsAt: { gte: from, lte: to },
+      customerEmail: { not: null },
+      review: null,
+      notifications: { none: { template: "customer.review.request" } },
+    },
+    select: { id: true },
+    take: 200,
+  });
+
+  let sent = 0;
+  for (const appointment of appointments) {
+    const result = await notifyAppointment("customer.review.request", appointment.id);
+    if (result.status === "SENT") sent += 1;
+    else if (result.status === "FAILED") errors.push(`review request: ${result.error}`);
+  }
   return sent;
 }
 

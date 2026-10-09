@@ -7,6 +7,7 @@ import type {
   PaymentInstruction,
   Provider,
   ProviderHighlight,
+  Review,
   Service,
   Category,
   ServiceStep,
@@ -45,6 +46,7 @@ export type PublicSite = Provider & {
   faqItems: FaqItem[];
   socialLinks: SocialLink[];
   paymentInstructions: PaymentInstruction[];
+  reviews: Review[];
 };
 
 /** Slugs that would collide with the platform's own routes. */
@@ -101,6 +103,13 @@ export const getPublicSite = cache(
         paymentInstructions: {
           where: { active: true },
           orderBy: { position: "asc" },
+        },
+        // Every visible review, newest first: the average is taken over
+        // all of them, the page shows the most recent few.
+        reviews: {
+          where: { hidden: false },
+          orderBy: { createdAt: "desc" },
+          take: 500,
         },
       },
     });

@@ -96,6 +96,15 @@ export const cancelBookingSchema = z.object({
   reason: z.string().trim().max(500).optional(),
 });
 
+export const reviewSchema = z.object({
+  rating: z.coerce.number().int().min(1, "Choisissez une note.").max(5),
+  comment: z
+    .string()
+    .trim()
+    .min(10, "Quelques mots de plus, s'il vous plaît.")
+    .max(1000, "1000 caractères au maximum."),
+});
+
 // ---------------------------------------------------------------------------
 // Authentication
 // ---------------------------------------------------------------------------

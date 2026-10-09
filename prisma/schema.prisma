@@ -234,29 +234,30 @@ model Provider {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
-  users               User[]
-  services            Service[]
-  categories          Category[]
-  workingHours        WorkingHours[]
-  timeBlocks          TimeBlock[]
-  appointments        Appointment[]
-  paymentInstructions PaymentInstruction[]
-  sales               Sale[]
-  pushSubscriptions   PushSubscription[]
-  paymentGateway      PaymentGatewayAccount?
-  calendarConnection  CalendarConnection?
-  bookingSettings     BookingSettings?
-  theme               Theme?
-  siteSettings        SiteSettings?
-  galleryImages       GalleryImage[]
-  highlights          ProviderHighlight[]
-  faqItems            FaqItem[]
-  socialLinks         SocialLink[]
-  quoteRequests       QuoteRequest[]
-  quoteSettings       QuoteSettings?
-  notifications       NotificationLog[]
+  users                User[]
+  services             Service[]
+  categories           Category[]
+  workingHours         WorkingHours[]
+  timeBlocks           TimeBlock[]
+  appointments         Appointment[]
+  paymentInstructions  PaymentInstruction[]
+  sales                Sale[]
+  pushSubscriptions    PushSubscription[]
+  paymentGateway       PaymentGatewayAccount?
+  calendarConnection   CalendarConnection?
+  bookingSettings      BookingSettings?
+  theme                Theme?
+  siteSettings         SiteSettings?
+  galleryImages        GalleryImage[]
+  highlights           ProviderHighlight[]
+  faqItems             FaqItem[]
+  socialLinks          SocialLink[]
+  quoteRequests        QuoteRequest[]
+  quoteSettings        QuoteSettings?
+  notifications        NotificationLog[]
   subscriptionPayments SubscriptionPayment[]
-  auditLogs           AuditLog[]
+  auditLogs            AuditLog[]
+  reviews              Review[]
 
   @@index([status])
   @@map("providers")
@@ -280,7 +281,7 @@ model User {
   createdAt DateTime @default(now()) @db.Timestamptz(3)
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
-  sessions  Session[] @relation("SessionUser")
+  sessions  Session[]  @relation("SessionUser")
   auditLogs AuditLog[]
 
   /// Sessions this account opened on someone else’s behalf, for support.
@@ -302,21 +303,21 @@ model User {
 /// Server-side sessions so a login can be revoked immediately.
 /// Only the SHA-256 hash of the cookie token is stored.
 model Session {
-  id        String    @id @default(cuid())
-  userId    String
-  user      User      @relation("SessionUser", fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation("SessionUser", fields: [userId], references: [id], onDelete: Cascade)
 
   /// Set when a platform administrator opened this session to help the
   /// provider. Support access is never anonymous: the provider can see who
   /// came in and when.
   impersonatorId String?
-  impersonator   User?   @relation("SessionImpersonator", fields: [impersonatorId], references: [id], onDelete: SetNull)
-  tokenHash String    @unique
-  userAgent String?
-  ipAddress String?
-  expiresAt DateTime  @db.Timestamptz(3)
-  revokedAt DateTime? @db.Timestamptz(3)
-  createdAt DateTime  @default(now()) @db.Timestamptz(3)
+  impersonator   User?     @relation("SessionImpersonator", fields: [impersonatorId], references: [id], onDelete: SetNull)
+  tokenHash      String    @unique
+  userAgent      String?
+  ipAddress      String?
+  expiresAt      DateTime  @db.Timestamptz(3)
+  revokedAt      DateTime? @db.Timestamptz(3)
+  createdAt      DateTime  @default(now()) @db.Timestamptz(3)
 
   @@index([userId])
   @@index([expiresAt])
@@ -443,7 +444,7 @@ model SiteSettings {
   /// Show the work in the hero as a carousel rather than one cover photo.
   /// Ignored when there are fewer than two photos to turn: a carousel of one
   /// is a picture with extra controls.
-  heroCarousel    Boolean @default(true)
+  heroCarousel Boolean @default(true)
 
   aboutTitle       String?
   aboutBody        String? @db.Text
@@ -603,12 +604,13 @@ model Service {
   quoteRequests QuoteRequest[]
   steps         ServiceStep[]
   galleryImages GalleryImage[]
+  reviews       Review[]
+  sales         Sale[]
 
   @@unique([providerId, slug])
   @@index([providerId, active])
   @@index([categoryId])
   @@map("services")
-  sales Sale[]
 }
 
 /// One shared grouping, used by prestations and by portfolio photos.
@@ -775,6 +777,7 @@ model Appointment {
   paymentProofs PaymentProof[]
   events        AppointmentEvent[]
   notifications NotificationLog[]
+  review        Review?
 
   @@index([providerId, startsAt])
   @@index([providerId, status])
@@ -1191,4 +1194,31 @@ model PaymentGatewayAccount {
   updatedAt DateTime @updatedAt @db.Timestamptz(3)
 
   @@map("payment_gateway_accounts")
+}
+
+/// A customer's word on a prestation, left after her appointment.
+///
+/// Only reachable through her booking's private link, and once per
+/// appointment, so every review on a site comes from someone who actually sat
+/// in the chair. The provider cannot edit one; she can only hide it.
+model Review {
+  id            String      @id @default(cuid())
+  providerId    String
+  provider      Provider    @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  appointmentId String      @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  serviceId     String?
+  service       Service?    @relation(fields: [serviceId], references: [id], onDelete: SetNull)
+
+  /// Shown the way the public site shows it: first name and initial.
+  customerName String
+  /// 1 to 5, enforced by a check constraint as well as by validation.
+  rating       Int
+  comment      String  @db.Text
+  hidden       Boolean @default(false)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+
+  @@index([providerId, hidden, createdAt])
+  @@map("reviews")
 }

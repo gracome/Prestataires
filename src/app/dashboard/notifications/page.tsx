@@ -24,6 +24,7 @@ const TEMPLATE_LABELS: Record<string, string> = {
   "customer.booking.expired": "Réservation expirée (cliente)",
   "customer.booking.cancelled": "Annulation (cliente)",
   "customer.reminder": "Rappel de rendez-vous (cliente)",
+  "customer.review.request": "Demande d'avis (cliente)",
 };
 
 const STATUS_LABELS: Record<string, { label: string; tone: string }> = {
