@@ -17,7 +17,6 @@ import { LocalBusinessJsonLd } from "@/components/public/JsonLd";
 import { ServiceCard } from "@/components/public/ServiceCard";
 import { FamilyCard } from "@/components/public/FamilyCard";
 import { formatMoney } from "@/lib/money";
-import { summarizeReviews } from "@/lib/reviews";
 import { HeroSlideshow, type HeroSlide } from "@/components/public/HeroSlideshow";
 import { toServiceCard } from "@/lib/providers/service-card";
 
@@ -597,11 +596,9 @@ function About({ site }: { site: PublicSite }) {
 
 /**
  * What her customers said, after their appointment, through their own
- * booking link. The average leads, because it is what a visitor scans for;
- * the most recent words follow, because they are what she believes.
+ * booking link: their most recent words, each with its own stars.
  */
 function Reviews({ site }: { site: PublicSite }) {
-  const { count, average } = summarizeReviews(site.reviews);
   const services = new Map(site.services.map((service) => [service.id, service.name]));
   const latest = site.reviews.slice(0, 6);
   const month = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric", timeZone: site.timezone });
@@ -609,17 +606,7 @@ function Reviews({ site }: { site: PublicSite }) {
   return (
     <section className="section" id="avis" style={{ scrollMarginTop: 80 }}>
       <div className="container">
-        <SectionHead eyebrow="Avis" title="Ce que l'on dit de mon travail" />
-
-        <div className="reviews-summary">
-          <span className="font-display reviews-average">{average.toLocaleString("fr-FR")}</span>
-          <span>
-            <Stars rating={average} />
-            <span className="reviews-count">
-              {count} avis vérifié{count > 1 ? "s" : ""}, laissé{count > 1 ? "s" : ""} après un rendez-vous
-            </span>
-          </span>
-        </div>
+        <SectionHead eyebrow="Avis" title="Ce que pensent mes clientes" />
 
         <ul className="reviews-grid">
           {latest.map((review) => (
