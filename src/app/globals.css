@@ -3872,6 +3872,13 @@ table.data tr:last-child td {
   .about-grid[data-visual] {
     grid-template-columns: 5fr 6fr;
     gap: 4.5rem;
+    align-items: start;
+  }
+  /* The picture stays in view while her text scrolls past it. */
+  .about-portrait,
+  .about-mosaic {
+    position: sticky;
+    top: 96px;
   }
 }
 

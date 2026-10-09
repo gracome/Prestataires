@@ -539,7 +539,7 @@ function About({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean }
             <img src={portrait} alt={site.ownerName} loading="lazy" />
             <figcaption>
               <span className="about-portrait-name">{site.ownerName}</span>
-              {site.tagline ? <span className="about-portrait-role">{site.tagline}</span> : null}
+              <span className="about-portrait-role">Fondatrice de {site.businessName}</span>
             </figcaption>
           </figure>
         ) : mosaic.length > 0 ? (
