@@ -40,6 +40,7 @@ const NAV: NavEntry[] = [
   { href: "/dashboard/services", label: "Prestations et tarifs", icon: "tag", section: "services" },
   { href: "/dashboard/horaires", label: "Horaires et absences", icon: "clock", section: "hours" },
   { href: "/dashboard/galerie", label: "Galerie", icon: "image", section: "gallery" },
+  { href: "/dashboard/avis", label: "Avis clientes", icon: "star", section: "reviews" },
   { href: "/dashboard/informations", label: "Informations et apparence", icon: "palette", section: "site" },
   { href: "/dashboard/paiement", label: "Paiement et acompte", icon: "sliders", section: "payment" },
   { href: "/dashboard/devis", label: "Demandes de devis", icon: "quote", section: "quotes", badgeKey: "devis" },

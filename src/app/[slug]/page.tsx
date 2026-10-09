@@ -17,6 +17,7 @@ import { LocalBusinessJsonLd } from "@/components/public/JsonLd";
 import { ServiceCard } from "@/components/public/ServiceCard";
 import { FamilyCard } from "@/components/public/FamilyCard";
 import { formatMoney } from "@/lib/money";
+import { summarizeReviews } from "@/lib/reviews";
 import { HeroSlideshow, type HeroSlide } from "@/components/public/HeroSlideshow";
 import { toServiceCard } from "@/lib/providers/service-card";
 
@@ -55,6 +56,7 @@ export default async function ProviderHomePage({
         <PortfolioTeaser key="gallery" site={site} />
       ) : null,
     about: settings?.showAbout !== false ? <About key="about" site={site} /> : null,
+    reviews: site.reviews.length > 0 ? <Reviews key="reviews" site={site} /> : null,
     commitments: <Commitments key="commitments" site={site} />,
     hours: settings?.showHours !== false ? <Hours key="hours" site={site} /> : null,
     location:
@@ -590,6 +592,64 @@ function About({ site }: { site: PublicSite }) {
         </div>
       </div>
     </section>
+  );
+}
+
+/**
+ * What her customers said, after their appointment, through their own
+ * booking link. The average leads, because it is what a visitor scans for;
+ * the most recent words follow, because they are what she believes.
+ */
+function Reviews({ site }: { site: PublicSite }) {
+  const { count, average } = summarizeReviews(site.reviews);
+  const services = new Map(site.services.map((service) => [service.id, service.name]));
+  const latest = site.reviews.slice(0, 6);
+  const month = new Intl.DateTimeFormat("fr-FR", { month: "long", year: "numeric", timeZone: site.timezone });
+
+  return (
+    <section className="section" id="avis" style={{ scrollMarginTop: 80 }}>
+      <div className="container">
+        <SectionHead eyebrow="Avis" title="Ce que l'on dit de mon travail" />
+
+        <div className="reviews-summary">
+          <span className="font-display reviews-average">{average.toLocaleString("fr-FR")}</span>
+          <span>
+            <Stars rating={average} />
+            <span className="reviews-count">
+              {count} avis vérifié{count > 1 ? "s" : ""}, laissé{count > 1 ? "s" : ""} après un rendez-vous
+            </span>
+          </span>
+        </div>
+
+        <ul className="reviews-grid">
+          {latest.map((review) => (
+            <li key={review.id} className="review-card">
+              <Stars rating={review.rating} />
+              <p className="review-comment">{review.comment}</p>
+              <p className="review-author">
+                <strong>{review.customerName}</strong>
+                {review.serviceId && services.get(review.serviceId) ? ` · ${services.get(review.serviceId)}` : null}
+                <span className="review-date">{month.format(review.createdAt)}</span>
+              </p>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  );
+}
+
+/** Five stars, filled to the rating, with the number spelled for screen readers. */
+function Stars({ rating }: { rating: number }) {
+  const full = Math.round(rating);
+  return (
+    <span className="review-stars-static" aria-label={`${rating.toLocaleString("fr-FR")} sur 5`}>
+      {[1, 2, 3, 4, 5].map((value) => (
+        <span key={value} aria-hidden="true" data-on={value <= full ? "" : undefined}>
+          ★
+        </span>
+      ))}
+    </span>
   );
 }
 

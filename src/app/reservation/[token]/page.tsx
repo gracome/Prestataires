@@ -20,6 +20,8 @@ import { ProofUpload } from "@/components/booking/ProofUpload";
 import { PayOnline } from "@/components/booking/PayOnline";
 import { settleReturnFromGateway } from "@/lib/payments/gateway";
 import { CancelBooking } from "@/components/booking/CancelBooking";
+import { ReviewForm } from "@/components/booking/ReviewForm";
+import { canLeaveReview } from "@/lib/reviews";
 
 export const dynamic = "force-dynamic";
 
@@ -296,6 +298,21 @@ export default async function CustomerBookingPage({
           <div style={{ marginTop: "1.5rem" }}>
             <CancelBooking token={token} />
           </div>
+        ) : null}
+
+        {/* After the appointment: her opinion, once. */}
+        {booking.review ? (
+          <section id="avis" className="card" style={{ marginTop: "1.5rem" }}>
+            <p style={{ margin: 0, fontWeight: 700 }}>Merci pour votre avis !</p>
+            <p style={{ margin: ".35rem 0 0", color: "var(--brand-muted)", fontSize: ".92rem" }}>
+              {"★".repeat(booking.review.rating)}
+              {"☆".repeat(5 - booking.review.rating)} · {booking.review.comment}
+            </p>
+          </section>
+        ) : canLeaveReview(booking, now) ? (
+          <section id="avis" style={{ marginTop: "1.5rem" }}>
+            <ReviewForm token={token} businessName={provider.businessName} />
+          </section>
         ) : null}
 
         <p style={{ marginTop: "2rem", fontSize: ".8rem", color: "var(--brand-muted)", lineHeight: 1.6 }}>

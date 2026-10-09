@@ -15,6 +15,7 @@
 export type SectionKey =
   | "services"
   | "gallery"
+  | "reviews"
   | "about"
   | "commitments"
   | "hours"
@@ -56,6 +57,11 @@ export const SECTIONS: SectionDefinition[] = [
     label: "Réalisations",
     hint: "Un aperçu de vos photos, avec un lien vers la galerie complète.",
     toggle: "showGallery",
+  },
+  {
+    key: "reviews",
+    label: "Avis",
+    hint: "La note moyenne et les derniers avis de vos clientes. Apparaît dès le premier avis.",
   },
   {
     key: "about",
