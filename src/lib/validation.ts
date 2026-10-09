@@ -362,6 +362,7 @@ export const siteSettingsSchema = z.object({
   aboutTitle: z.string().trim().max(160).optional(),
   aboutBody: z.string().trim().max(4000).optional(),
   aboutQuote: z.string().trim().max(400).optional(),
+  aboutSignature: z.string().trim().max(140).optional(),
   aboutPortraitUrl: z.string().url().optional().or(z.literal("")),
   servicesIntro: z.string().trim().max(600).optional(),
   realisationsIntro: z.string().trim().max(600).optional(),

@@ -284,6 +284,7 @@ export type SiteValues = {
   aboutTitle: string;
   aboutBody: string;
   aboutQuote: string;
+  aboutSignature: string;
   aboutPortraitUrl: string;
   servicesIntro: string;
   realisationsIntro: string;
@@ -392,6 +393,12 @@ export function SiteSettingsForm({ values }: { values: SiteValues }) {
           vôtre.
         </p>
       </div>
+      <Text
+        id="aboutSignature"
+        label="Sous votre signature"
+        defaultValue={values.aboutSignature}
+        hint="Une courte ligne sous votre prénom, comme sur une carte de visite. Par exemple : « Coiffeuse et fondatrice »."
+      />
       <div className="field">
         <label className="label" htmlFor="aboutBody">
           Texte

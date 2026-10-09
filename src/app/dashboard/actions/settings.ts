@@ -305,6 +305,7 @@ export async function saveSiteSettingsAction(
     aboutTitle: read(formData, "aboutTitle"),
     aboutBody: read(formData, "aboutBody"),
     aboutQuote: read(formData, "aboutQuote"),
+    aboutSignature: read(formData, "aboutSignature"),
     aboutPortraitUrl: read(formData, "aboutPortraitUrl"),
     servicesIntro: read(formData, "servicesIntro"),
     realisationsIntro: read(formData, "realisationsIntro"),
@@ -338,6 +339,7 @@ export async function saveSiteSettingsAction(
     aboutTitle: nullable(parsed.data.aboutTitle ?? ""),
     aboutBody: nullable(parsed.data.aboutBody ?? ""),
     aboutQuote: nullable(parsed.data.aboutQuote ?? ""),
+    aboutSignature: nullable(parsed.data.aboutSignature ?? ""),
     aboutPortraitUrl:
       portraitUpload.url ?? nullable(parsed.data.aboutPortraitUrl ?? ""),
     servicesIntro: nullable(parsed.data.servicesIntro ?? ""),

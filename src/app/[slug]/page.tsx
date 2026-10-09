@@ -565,7 +565,12 @@ function About({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean }
             </div>
           ) : null}
 
-          <p className="about-signature">{firstName}</p>
+          <div className="about-signature">
+            <p className="about-signature-name">{firstName}</p>
+            {settings?.aboutSignature?.trim() ? (
+              <p className="about-signature-line">{settings.aboutSignature.trim()}</p>
+            ) : null}
+          </div>
 
           {bookingOpen || social ? (
             <div className="about-actions">

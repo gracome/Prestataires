@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const family = serviceFamilies(site).find((f) => f.slug === categorie);
   if (!family) return { title: "Page introuvable" };
 
-  const title = `${family.name} — ${site.businessName}`;
+  const title = `${family.name} · ${site.businessName}`;
   const description =
     family.description?.trim() ||
     `${family.name} chez ${site.businessName}${site.city ? ` à ${site.city}` : ""} : prestations, durées et tarifs.`;

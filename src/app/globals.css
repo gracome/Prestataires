@@ -3925,6 +3925,8 @@ table.data tr:last-child td {
   width: 100%;
   aspect-ratio: 4 / 5;
   object-fit: cover;
+  /* Faces sit in the upper part of a portrait: crop from below, not above. */
+  object-position: center 20%;
   border-radius: 22px;
 }
 
@@ -3977,11 +3979,25 @@ table.data tr:last-child td {
 }
 
 .about-signature {
-  margin: 1.25rem 0 0;
+  margin-top: 1.25rem;
+}
+
+.about-signature-name {
+  margin: 0;
   font-family: var(--font-heading);
   font-style: italic;
   font-size: 2rem;
+  line-height: 1.1;
   color: var(--brand-primary);
+}
+
+.about-signature-line {
+  margin: 0.35rem 0 0;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--brand-muted);
 }
 
 .about-actions {
