@@ -74,7 +74,6 @@ export default async function RealisationsPage({
   return (
     <div style={{ paddingBlock: "2.5rem 4rem" }}>
       <div className="container">
-        <p className="eyebrow">Vitrine</p>
         <h1
           className="font-display"
           style={{
@@ -83,7 +82,7 @@ export default async function RealisationsPage({
             letterSpacing: "-0.02em",
           }}
         >
-          Réalisations
+          Mes réalisations
         </h1>
         <p
           style={{
@@ -101,7 +100,7 @@ export default async function RealisationsPage({
         {items.length === 0 ? (
           <div className="card" style={{ textAlign: "center", padding: "3rem 1.5rem" }}>
             <p className="font-display" style={{ margin: 0, fontSize: "1.2rem" }}>
-              La vitrine se remplit bientôt
+              Mes premières réalisations arrivent bientôt
             </p>
             <p
               style={{
@@ -139,10 +138,10 @@ export default async function RealisationsPage({
           >
             <div>
               <p className="font-display" style={{ margin: 0, fontSize: "1.25rem" }}>
-                Ce style vous fait envie ?
+                Une réalisation vous a tapé dans l&apos;œil ?
               </p>
               <p style={{ margin: ".35rem 0 0", color: "var(--brand-muted)", fontSize: ".92rem" }}>
-                Réservez la même prestation en ligne, ou envoyez-moi la photo sur WhatsApp : je vous dis ce qui est possible pour vous.
+                Réservez votre créneau en ligne, ou envoyez-moi sa capture sur WhatsApp : je vous dis comment la réaliser pour vous.
               </p>
             </div>
             <div style={{ display: "flex", gap: ".6rem", flexWrap: "wrap" }}>

@@ -450,7 +450,7 @@ function PortfolioTeaser({ site }: { site: PublicSite }) {
           action={
             site.siteSettings?.showRealisations !== false ? (
               <Link href={`/${site.slug}/realisations`} className="btn btn-secondary">
-                Voir la vitrine complète
+                Voir toutes mes réalisations
               </Link>
             ) : null
           }
