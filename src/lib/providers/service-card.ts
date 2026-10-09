@@ -28,7 +28,7 @@ export function toServiceCard(
     ? "Tarif sur demande"
     : quoteOnly
       ? "Sur devis"
-      : `${service.priceType === "STARTING_FROM" ? "dès " : ""}${formatMoney(service.price, currency, locale)}`;
+      : `${service.priceType === "STARTING_FROM" ? "à partir de " : ""}${formatMoney(service.price, currency, locale)}`;
 
   return {
     slug: service.slug,

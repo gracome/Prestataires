@@ -36,7 +36,7 @@ export function FamilyCard({
         <span className="family-card-body">
           <span className="photo-card-meta">
             {count} prestation{count > 1 ? "s" : ""}
-            {fromLabel ? ` · dès ${fromLabel}` : null}
+            {fromLabel ? ` · à partir de ${fromLabel}` : null}
           </span>
           <span className="family-card-title">{name}</span>
           {description ? <span className="photo-card-desc">{description}</span> : null}

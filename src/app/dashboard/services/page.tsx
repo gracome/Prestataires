@@ -82,7 +82,7 @@ async function ServicesContent({ providerId }: { providerId: string }) {
       priceLabel:
         service.priceType === "QUOTE_ONLY"
           ? "Sur devis"
-          : `${service.priceType === "STARTING_FROM" ? "dès " : ""}${formatMoney(service.price, provider.currency, provider.locale)}`,
+          : `${service.priceType === "STARTING_FROM" ? "à partir de " : ""}${formatMoney(service.price, provider.currency, provider.locale)}`,
       depositLabel:
         deposit > 0 ? formatMoney(deposit, provider.currency, provider.locale) : null,
       // A prestation with no photo and no steps reads as a bare price line on

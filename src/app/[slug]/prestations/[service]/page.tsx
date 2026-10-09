@@ -160,7 +160,7 @@ export default async function ServiceDetailPage({
                   value={
                     quoteOnly
                       ? "Sur devis"
-                      : `${service.priceType === "STARTING_FROM" ? "dès " : ""}${formatMoney(service.price, site.currency, site.locale)}`
+                      : `${service.priceType === "STARTING_FROM" ? "à partir de " : ""}${formatMoney(service.price, site.currency, site.locale)}`
                   }
                   strong
                 />
