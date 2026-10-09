@@ -54,7 +54,7 @@ export default async function ProviderHomePage({
       settings?.showGallery !== false && site.galleryImages.length > 0 ? (
         <PortfolioTeaser key="gallery" site={site} />
       ) : null,
-    about: settings?.showAbout !== false ? <About key="about" site={site} bookingOpen={bookingOpen} /> : null,
+    about: settings?.showAbout !== false ? <About key="about" site={site} /> : null,
     commitments: <Commitments key="commitments" site={site} />,
     hours: settings?.showHours !== false ? <Hours key="hours" site={site} /> : null,
     location:
@@ -500,7 +500,7 @@ function PortfolioTeaser({ site }: { site: PublicSite }) {
  * opens on her work rather than on a block of text. A gallery photo is never
  * captioned with her name: the person in it is a customer.
  */
-function About({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean }) {
+function About({ site }: { site: PublicSite }) {
   const settings = site.siteSettings;
   const title = settings?.aboutTitle?.trim() || "À propos";
   const body = settings?.aboutBody?.trim() || site.description?.trim();
@@ -528,7 +528,6 @@ function About({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean }
   }
 
   const firstName = site.ownerName.split(" ")[0];
-  const social = site.socialLinks[0];
 
   return (
     <section className="section about" id="a-propos" style={{ scrollMarginTop: 80 }}>
@@ -572,21 +571,6 @@ function About({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean }
             ) : null}
           </div>
 
-          {bookingOpen || social ? (
-            <div className="about-actions">
-              {bookingOpen ? (
-                <Link href={`/${site.slug}/reservation`} className="btn btn-primary">
-                  Prendre rendez-vous
-                </Link>
-              ) : null}
-              {social ? (
-                <a href={social.url} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
-                  Mon travail sur {socialLabel(social.platform)}
-                </a>
-              ) : null}
-            </div>
-          ) : null}
-
           {credentials.length > 0 ? (
             <div className="about-credentials">
               <h3>Formations et certifications</h3>
@@ -607,19 +591,6 @@ function About({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean }
       </div>
     </section>
   );
-}
-
-/** "tiktok" → "TikTok": the platform as people write it. */
-function socialLabel(platform: string): string {
-  const known: Record<string, string> = {
-    tiktok: "TikTok",
-    instagram: "Instagram",
-    facebook: "Facebook",
-    youtube: "YouTube",
-    snapchat: "Snapchat",
-    whatsapp: "WhatsApp",
-  };
-  return known[platform.toLowerCase()] ?? platform;
 }
 
 function Hours({ site }: { site: PublicSite }) {
