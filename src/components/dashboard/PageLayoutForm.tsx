@@ -58,11 +58,14 @@ export function PageLayoutForm({ values }: { values: PageLayoutValues }) {
       <input type="hidden" name="layoutVariant" value={layout} />
 
       <fieldset className="card" style={{ border: 0, margin: 0, padding: "1rem" }}>
-        <legend style={{ fontWeight: 700, fontSize: ".95rem", padding: "0 .3rem" }}>
+        {/* A legend sits on the fieldset's top border whatever the padding;
+            floated, it returns to the flow and reads like the cards' h3. */}
+        <legend style={{ float: "left", width: "100%", padding: 0, fontWeight: 700, fontSize: ".95rem" }}>
           Allure générale
         </legend>
         <p
           style={{
+            clear: "both",
             margin: ".2rem 0 .9rem",
             fontSize: ".85rem",
             color: "var(--admin-muted)",
