@@ -1,0 +1,76 @@
+# Sauvegarde de la base, chaque nuit.
+#
+# L'offre gratuite de Supabase ne propose aucune sauvegarde téléchargeable :
+# si le projet disparaît, tout disparaît avec lui. Ce workflow fait une copie
+# complète de la base (pg_dump) et la range dans les artefacts du dépôt, chez
+# GitHub, donc ailleurs que chez l'hébergeur de la base.
+#
+# La copie contient les noms, téléphones et e-mails des clientes. Elle est donc
+# CHIFFRÉE avant d'être envoyée : sur un dépôt public, n'importe quel compte
+# GitHub peut télécharger les artefacts. Sans la phrase secrète, le fichier est
+# illisible.
+#
+# Deux secrets à créer dans Settings > Secrets and variables > Actions :
+#   BACKUP_DATABASE_URL  la valeur de DIRECT_URL (port 5432, Session pooler)
+#   BACKUP_PASSPHRASE    une longue phrase secrète, gardée hors du dépôt
+#
+# Restaurer une copie :
+#   gpg --decrypt backup.dump.gpg > backup.dump
+#   pg_restore --clean --if-exists --no-owner --dbname "<DIRECT_URL>" backup.dump
+
+name: Sauvegarde de la base
+
+on:
+  schedule:
+    # 02:00 UTC, 03:00 à Porto-Novo : personne ne réserve à cette heure-là.
+    - cron: "0 2 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: database-backup
+  cancel-in-progress: false
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Vérifier les secrets
+        env:
+          BACKUP_DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          if [ -z "$BACKUP_DATABASE_URL" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::error::Les secrets BACKUP_DATABASE_URL et BACKUP_PASSPHRASE doivent être définis sur le dépôt."
+            exit 1
+          fi
+
+      # pg_dump doit être au moins de la version du serveur (PostgreSQL 17 chez
+      # Supabase) ; celui d'Ubuntu est plus ancien, d'où le dépôt officiel.
+      - name: Installer le client PostgreSQL 17
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y -qq postgresql-client-17
+
+      - name: Copier et chiffrer la base
+        env:
+          BACKUP_DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          /usr/lib/postgresql/17/bin/pg_dump "$BACKUP_DATABASE_URL" \
+            --format=custom --no-owner --no-privileges --file=backup.dump
+          echo "Taille de la copie : $(du -h backup.dump | cut -f1)"
+          gpg --batch --yes --pinentry-mode loopback --symmetric --cipher-algo AES256 \
+            --passphrase "$BACKUP_PASSPHRASE" --output backup.dump.gpg backup.dump
+          rm backup.dump
+
+      - name: Ranger la copie (30 jours)
+        uses: actions/upload-artifact@v4
+        with:
+          name: base-${{ github.run_id }}
+          path: backup.dump.gpg
+          retention-days: 30
+          if-no-files-found: error
