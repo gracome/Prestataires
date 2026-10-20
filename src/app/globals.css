@@ -198,7 +198,9 @@ textarea:focus-visible,
 
 .btn-primary {
   background: var(--brand-primary-strong, var(--brand-primary));
-  color: #fff;
+  /* Computed from the background by the theme, so a pale accent gets dark
+     text instead of white it cannot carry. */
+  color: var(--brand-primary-fg, #fff);
 }
 
 .btn-primary:hover:not(:disabled) {
@@ -394,6 +396,13 @@ textarea:focus-visible,
   --brand-muted: var(--admin-muted);
   --brand-border: var(--admin-border);
   --brand-primary: var(--admin-accent);
+  /* Buttons and links read the strong shade and the rose tints, not
+     --brand-primary. Left unset here they fell back to the platform rose
+     whatever palette she had chosen for her workspace. */
+  --brand-primary-strong: var(--admin-accent);
+  --brand-rose: var(--admin-accent);
+  --brand-rose-light: color-mix(in srgb, var(--admin-accent) 16%, var(--admin-surface));
+  --brand-rose-pale: color-mix(in srgb, var(--admin-accent) 7%, var(--admin-surface));
   --brand-radius: var(--admin-radius);
   --font-heading: var(--admin-font);
   --font-body: var(--admin-font);
