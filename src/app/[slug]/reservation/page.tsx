@@ -45,10 +45,10 @@ export default async function BookingPage({
   if (!bookingOpen || bookable.length === 0) {
     return (
       <div className="container-narrow" style={{ paddingBlock: "3rem" }}>
-        <h1 className="font-display" style={{ fontSize: "1.6rem" }}>
+        <h1 className="font-display" style={{ fontSize: "1.6rem", margin: "0 0 .75rem" }}>
           Réservation en ligne indisponible
         </h1>
-        <p style={{ color: "var(--brand-muted)", lineHeight: 1.7 }}>
+        <p style={{ color: "var(--brand-muted)", lineHeight: 1.7, margin: "0 0 1.5rem" }}>
           La prise de rendez-vous en ligne est momentanément fermée. Contactez
           directement {site.businessName} pour convenir d&apos;un créneau.
         </p>

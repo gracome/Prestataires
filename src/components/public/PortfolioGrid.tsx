@@ -128,7 +128,8 @@ export function PortfolioGrid({
           padding: 0,
           display: "grid",
           gap: ".7rem",
-          gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 220px), 1fr))",
+          // Two across on a phone: one photo per row made a wall to scroll.
+          gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 150px), 1fr))",
         }}
       >
         {visible.map((item, index) => (
