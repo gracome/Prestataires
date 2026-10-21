@@ -464,7 +464,8 @@ function PortfolioTeaser({ site }: { site: PublicSite }) {
             padding: 0,
             display: "grid",
             gap: ".7rem",
-            gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 190px), 1fr))",
+            // Two across on a phone: eight full-width squares ran 3000px.
+            gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 150px), 1fr))",
           }}
         >
           {preview.map((image) => (
@@ -890,7 +891,7 @@ function Contact({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean
             à tout moment, même en dehors des heures d&apos;ouverture.
           </p>
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: ".7rem", marginTop: "1.5rem" }}>
+          <div className="contact-actions">
             {bookingOpen ? (
               <Link href={`/${site.slug}/reservation`} className="btn btn-primary">
                 Prendre rendez-vous
