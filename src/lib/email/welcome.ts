@@ -113,3 +113,41 @@ export function providerPasswordReset(
     ...rendered,
   };
 }
+
+/**
+ * Her sign-in address was changed by the platform.
+ *
+ * Sent to the new address, so the first thing that reaches it is the news that
+ * it is now her identifier. Her password is untouched and not repeated here:
+ * this letter proves the address works, it does not hand out access.
+ */
+export function providerEmailChanged(input: {
+  businessName: string;
+  ownerName: string;
+  email: string;
+  loginUrl: string;
+  primaryColor?: string;
+}): RenderedEmail {
+  const firstName = input.ownerName.trim().split(/\s+/)[0] || input.ownerName;
+
+  const rendered = renderEmail({
+    title: "Votre adresse de connexion a changé",
+    preheader: `Vous vous connectez désormais avec ${input.email}`,
+    businessName: input.businessName,
+    primaryColor: input.primaryColor,
+    blocks: [
+      {
+        kind: "paragraph",
+        text: `Bonjour ${firstName}, l'adresse e-mail de votre espace vient d'être modifiée. C'est désormais celle-ci qui vous sert d'identifiant, et où vous recevez vos notifications de réservation.`,
+      },
+      { kind: "facts", rows: [["Identifiant", input.email]] },
+      {
+        kind: "callout",
+        text: "Votre mot de passe ne change pas. Si vous n'êtes pas à l'origine de cette modification, prévenez-nous immédiatement.",
+      },
+      { kind: "button", label: "Me connecter", url: input.loginUrl },
+    ],
+  });
+
+  return { subject: `Votre adresse de connexion a changé · ${input.businessName}`, ...rendered };
+}

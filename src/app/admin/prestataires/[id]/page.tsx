@@ -152,6 +152,7 @@ export default async function ProviderDetail({
               id: provider.id,
               businessName: provider.businessName,
               ownerName: provider.ownerName,
+              email: provider.email,
               tagline: provider.tagline,
               description: provider.description,
               phone: provider.phone,

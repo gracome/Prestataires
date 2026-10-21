@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { providerPasswordReset, providerWelcome } from "@/lib/email/welcome";
+import { providerEmailChanged, providerPasswordReset, providerWelcome } from "@/lib/email/welcome";
 
 /**
  * The letter that carries a provider's password.
@@ -97,5 +97,24 @@ describe("providerPasswordReset", () => {
 
   it("does not leak the old password, having never seen it", () => {
     expect(providerPasswordReset(RESET).text).not.toContain(INPUT.password);
+  });
+});
+
+describe("providerEmailChanged", () => {
+  const letter = providerEmailChanged({
+    businessName: "Fanny Beauty & Hair",
+    ownerName: "Fanny Ahouandjinou",
+    email: "fanny@example.com",
+    loginUrl: "https://exemple.test/login",
+  });
+
+  it("names the new identifier and the way back in", () => {
+    expect(letter.text).toContain("fanny@example.com");
+    expect(letter.html).toContain("https://exemple.test/login");
+    expect(letter.subject).toContain("Fanny Beauty & Hair");
+  });
+
+  it("never carries a password", () => {
+    expect(letter.text.toLowerCase()).not.toContain("nouveau mot de passe");
   });
 });

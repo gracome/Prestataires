@@ -22,6 +22,7 @@ const LABELS: Record<string, string> = {
   "platform.provider.updated": "Fiche modifiée",
   "platform.provider.status": "Statut modifié",
   "platform.provider.password_reset": "Mot de passe réinitialisé",
+  "platform.provider.email_changed": "Adresse e-mail modifiée",
   "platform.impersonation.started": "Session de support ouverte",
   "platform.impersonation.ended": "Session de support fermée",
   "appointment.payment.confirmed": "Acompte confirmé",

@@ -15,6 +15,7 @@ import {
 } from "@/lib/auth/session";
 import {
   PlatformError,
+  changeProviderEmail,
   createProvider,
   resetProviderPassword,
   setProviderStatus,
@@ -303,6 +304,8 @@ const updateSchema = z.object({
   providerId: z.string().min(1),
   businessName: z.string().min(2, "Le nom de l'activité est requis."),
   ownerName: z.string().min(2, "Le nom de la responsable est requis."),
+  email: z.string().trim().toLowerCase().email("Adresse e-mail invalide."),
+  sendCredentials: z.literal("on").optional(),
   tagline: z.string().optional(),
   description: z.string().optional(),
   phone: z.string().optional(),
@@ -345,9 +348,22 @@ export async function updateProviderAction(
   const data = parsed.data;
   const provider = await prisma.provider.findUnique({
     where: { id: data.providerId },
-    select: { id: true, businessName: true },
+    select: { id: true, businessName: true, email: true },
   });
   if (!provider) return { status: "error", message: "Activité introuvable." };
+
+  // A new address is checked before anything is written, so a taken address
+  // does not leave the rest of the form half saved.
+  const emailChanged = data.email !== provider.email.toLowerCase();
+  if (emailChanged) {
+    const taken = await prisma.user.findFirst({
+      where: { email: data.email, NOT: { providerId: provider.id } },
+      select: { id: true },
+    });
+    if (taken) {
+      return { status: "error", message: "Un autre compte utilise déjà cette adresse e-mail.", field: "email" };
+    }
+  }
 
   const text = (value: string | undefined) => value?.trim() || null;
 
@@ -390,6 +406,29 @@ export async function updateProviderAction(
 
   revalidatePath(`/admin/prestataires/${provider.id}`);
   revalidatePath("/admin/prestataires");
+
+  // The address is both where she is notified and how she signs in; changing
+  // it here changes both, and the new address is told straight away.
+  if (emailChanged || data.sendCredentials) {
+    try {
+      const change = await changeProviderEmail(provider.id, data.email, {
+        sendCredentials: Boolean(data.sendCredentials),
+      });
+      await record(admin.id, "platform.provider.email_changed", provider.id, { email: change.email });
+
+      const what = change.password ? "ses nouveaux identifiants" : "un e-mail de confirmation";
+      return {
+        status: "success",
+        message: change.delivery.sent
+          ? `Fiche enregistrée. ${what[0].toUpperCase()}${what.slice(1)} envoyé${change.password ? "s" : ""} à ${change.email}.`
+          : `Fiche enregistrée, mais l'e-mail n'est pas parti : ${change.delivery.reason}`,
+        secret: change.password ? { email: change.email, password: change.password } : undefined,
+      };
+    } catch (error) {
+      if (error instanceof PlatformError) return { status: "error", message: error.message, field: error.field };
+      throw error;
+    }
+  }
 
   return { status: "success", message: "Fiche enregistrée." };
 }

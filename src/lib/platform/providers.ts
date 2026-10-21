@@ -5,7 +5,11 @@ import { prisma } from "@/lib/db";
 import { toMinorUnits } from "@/lib/money";
 import { appUrl } from "@/lib/env";
 import { sendMail } from "@/lib/email/mailer";
-import { providerPasswordReset, providerWelcome } from "@/lib/email/welcome";
+import {
+  providerEmailChanged,
+  providerPasswordReset,
+  providerWelcome,
+} from "@/lib/email/welcome";
 import { getActivity, type ActivityId, type Palette } from "./activities";
 
 /**
@@ -396,4 +400,64 @@ export async function resetProviderPassword(
   }
 
   return { email: user.email, password, delivery };
+}
+
+/**
+ * Move a provider to a new e-mail address: where she is notified, and the
+ * identifier she signs in with. The two used to drift apart, which left her
+ * receiving bookings at one address and unable to sign in with it.
+ *
+ * The new address is told, either with a short notice or, when asked, with a
+ * fresh password (the reset does the sending and closes her open sessions).
+ */
+export async function changeProviderEmail(
+  providerId: string,
+  newEmail: string,
+  options: { sendCredentials?: boolean } = {},
+): Promise<{ email: string; delivery: Delivery; password?: string }> {
+  const email = newEmail.trim().toLowerCase();
+  if (!email.includes("@")) throw new PlatformError("Adresse e-mail invalide.", "email");
+
+  const provider = await prisma.provider.findUnique({
+    where: { id: providerId },
+    include: {
+      users: { where: { role: "PROVIDER" }, orderBy: { createdAt: "asc" }, take: 1 },
+      theme: { select: { primaryColor: true } },
+    },
+  });
+  if (!provider) throw new PlatformError("Activité introuvable.");
+
+  const owner = provider.users[0];
+  const taken = await prisma.user.findUnique({ where: { email }, select: { id: true } });
+  if (taken && taken.id !== owner?.id) {
+    throw new PlatformError("Un autre compte utilise déjà cette adresse e-mail.", "email");
+  }
+
+  await prisma.$transaction([
+    prisma.provider.update({ where: { id: provider.id }, data: { email } }),
+    ...(owner ? [prisma.user.update({ where: { id: owner.id }, data: { email } })] : []),
+  ]);
+
+  if (options.sendCredentials) {
+    const reset = await resetProviderPassword(provider.id);
+    return { email, delivery: reset.delivery, password: reset.password };
+  }
+
+  let delivery: Delivery;
+  try {
+    const letter = providerEmailChanged({
+      businessName: provider.businessName,
+      ownerName: provider.ownerName,
+      email,
+      loginUrl: appUrl("/login"),
+      primaryColor: provider.theme?.primaryColor,
+    });
+    const result = await sendMail({ to: email, subject: letter.subject, html: letter.html, text: letter.text });
+    delivery = result.ok
+      ? { sent: true }
+      : { sent: false, reason: result.error ?? "Envoi refusé par le serveur de mail." };
+  } catch (error) {
+    delivery = { sent: false, reason: error instanceof Error ? error.message : String(error) };
+  }
+  return { email, delivery };
 }
