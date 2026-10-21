@@ -17,6 +17,7 @@ export type EditableProvider = {
   id: string;
   businessName: string;
   ownerName: string;
+  email: string;
   tagline: string | null;
   description: string | null;
   phone: string | null;
@@ -44,6 +45,17 @@ export function EditProviderForm({ provider }: { provider: EditableProvider }) {
           <div className="ep-pair">
             <Text name="businessName" label="Nom de l'activité" value={provider.businessName} required />
             <Text name="ownerName" label="Responsable" value={provider.ownerName} required />
+          </div>
+
+          <div style={{ display: "grid", gap: ".45rem" }}>
+            <Text name="email" label="E-mail (identifiant et notifications)" value={provider.email} required type="email" />
+            <label style={{ display: "flex", gap: ".5rem", alignItems: "center", fontSize: ".82rem" }}>
+              <input type="checkbox" name="sendCredentials" />
+              Lui envoyer de nouveaux identifiants à cette adresse (un nouveau mot de passe est généré)
+            </label>
+            <span style={{ fontSize: ".75rem", color: "var(--admin-muted)" }}>
+              Si l&apos;adresse change, un e-mail l&apos;en informe automatiquement. Son mot de passe ne change que si la case est cochée.
+            </span>
           </div>
 
           <Text name="tagline" label="Phrase d'accroche" value={provider.tagline ?? ""} />
@@ -116,6 +128,24 @@ export function EditProviderForm({ provider }: { provider: EditableProvider }) {
             </span>
           ) : null}
         </div>
+
+        {state.status === "success" && state.secret ? (
+          <pre
+            style={{
+              margin: ".8rem 0 0",
+              padding: ".7rem .8rem",
+              borderRadius: 9,
+              border: "1px dashed var(--admin-border)",
+              background: "var(--admin-surface)",
+              fontSize: ".85rem",
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
+            }}
+          >
+            {`Identifiant : ${state.secret.email}
+Mot de passe : ${state.secret.password}`}
+          </pre>
+        ) : null}
       </div>
 
       <style>{`
@@ -150,16 +180,18 @@ function Text({
   label,
   value,
   required,
+  type = "text",
 }: {
   name: string;
   label: string;
   value: string;
   required?: boolean;
+  type?: string;
 }) {
   return (
     <label style={{ display: "grid", gap: ".3rem" }}>
       <span style={{ fontSize: ".78rem", fontWeight: 700 }}>{label}</span>
-      <input name={name} defaultValue={value} required={required} style={inputStyle} />
+      <input name={name} type={type} defaultValue={value} required={required} style={inputStyle} />
     </label>
   );
 }
