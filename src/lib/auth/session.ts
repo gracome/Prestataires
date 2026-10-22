@@ -89,6 +89,15 @@ export async function getCurrentUser(): Promise<SessionUser | null> {
   return (await getSessionContext())?.user ?? null;
 }
 
+/**
+ * How stale the activity stamp may get before it is written again.
+ *
+ * Five minutes: the idle window is measured in hours, so this costs nothing
+ * in accuracy and saves a database write on all but the first request of each
+ * five-minute stretch.
+ */
+const TOUCH_AFTER_MS = 5 * 60_000;
+
 export async function getSessionContext(): Promise<SessionContext | null> {
   const store = await cookies();
   const token = store.get(env().SESSION_COOKIE_NAME)?.value;
@@ -99,10 +108,29 @@ export async function getSessionContext(): Promise<SessionContext | null> {
     include: { user: { include: { provider: true } }, impersonator: true },
   });
 
+  const now = new Date();
+
   if (!session) return null;
   if (session.revokedAt) return null;
-  if (session.expiresAt <= new Date()) return null;
+  if (session.expiresAt <= now) return null;
   if (!session.user.active) return null;
+
+  // Idle timeout. The absolute expiry above says how long a session may live;
+  // this says how long it may be left alone. In a salon — a shared tablet, a
+  // borrowed phone, the cybercafé on the corner — a window nobody came back to
+  // is the likelier way a session leaks than any attack on the cookie.
+  const idleMs = env().SESSION_IDLE_HOURS * 3_600_000;
+  if (now.getTime() - session.lastSeenAt.getTime() > idleMs) return null;
+
+  // Refresh the stamp as she works, but not on every request: this runs on
+  // every page of the dashboard, and a write per navigation would be a lot of
+  // writes to buy a precision nobody needs. A twelve-hour window does not care
+  // about five minutes.
+  if (now.getTime() - session.lastSeenAt.getTime() > TOUCH_AFTER_MS) {
+    await prisma.session
+      .update({ where: { id: session.id }, data: { lastSeenAt: now } })
+      .catch(() => undefined);
+  }
 
   // An administrator who has been disabled loses their borrowed sessions too,
   // otherwise revoking their access would leave a door open behind them.
@@ -113,7 +141,23 @@ export async function getSessionContext(): Promise<SessionContext | null> {
 
 /** Delete sessions that are long past their expiry. Called by the cron job. */
 export async function purgeExpiredSessions(): Promise<number> {
-  const cutoff = new Date(Date.now() - 30 * 24 * 3_600_000);
+  const now = Date.now();
+
+  // Sessions the idle window has already killed are refused on every read, but
+  // they still sit in the table as rows with no revokedAt — which makes them
+  // look open to anyone reading the data rather than running the check. Mark
+  // them, so the table says what is true.
+  await prisma.session
+    .updateMany({
+      where: {
+        revokedAt: null,
+        lastSeenAt: { lt: new Date(now - env().SESSION_IDLE_HOURS * 3_600_000) },
+      },
+      data: { revokedAt: new Date() },
+    })
+    .catch(() => undefined);
+
+  const cutoff = new Date(now - 30 * 24 * 3_600_000);
   const result = await prisma.session.deleteMany({
     where: { expiresAt: { lt: cutoff } },
   });

@@ -24,7 +24,17 @@ const schema = z.object({
   CRON_SECRET: z.string().min(16).optional(),
 
   SESSION_COOKIE_NAME: z.string().default("prestataire_session"),
+  /** How long a session may live at most, however much it is used. */
   SESSION_TTL_HOURS: z.coerce.number().int().positive().default(24 * 7),
+  /**
+   * How long a session may sit unused before it stops working.
+   *
+   * Twelve hours: long enough that a provider who closes the dashboard after
+   * her last client still finds it open the next morning, short enough that a
+   * window left on a borrowed phone is dead by then. The absolute TTL above
+   * still applies on top — this only ends sessions earlier, never later.
+   */
+  SESSION_IDLE_HOURS: z.coerce.number().int().positive().default(12),
 
   // --- File storage -------------------------------------------------------
   STORAGE_DRIVER: z.enum(["local", "s3"]).default("local"),

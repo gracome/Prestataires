@@ -1,8 +1,9 @@
+import { cookies } from "next/headers";
 import { requireSection } from "@/lib/auth/guard";
 import { prisma } from "@/lib/db";
 import { isGoogleConfigured } from "@/lib/google/oauth";
 import { formatLocalTime, formatLongDateFr } from "@/lib/time";
-import { appUrl } from "@/lib/env";
+import { appUrl, env } from "@/lib/env";
 import { Callout, EmptyState, PageHeader, Section } from "@/components/dashboard/ui";
 import { supportVisits } from "@/lib/platform/overview";
 import { TeamPanel } from "@/components/dashboard/TeamPanel";
@@ -17,6 +18,8 @@ import { PaymentGatewayForm } from "@/components/dashboard/PaymentGatewayForm";
 import { CustomDomainForm } from "@/components/dashboard/CustomDomainForm";
 import { PushToggle } from "@/components/dashboard/PushToggle";
 import { publicVapidKey } from "@/lib/notifications/push";
+import { sha256 } from "@/lib/crypto";
+import { SessionsPanel } from "@/components/dashboard/SessionsPanel";
 import { featuresOf } from "@/lib/auth/features";
 
 export const dynamic = "force-dynamic";
@@ -158,6 +161,13 @@ export default async function ParametresPage({
       </Section>
 
       <Section
+        title="Vos appareils connectés"
+        description="Une session se ferme toute seule après 12 heures sans activité, et au plus tard au bout de 7 jours. Si vous avez laissé votre compte ouvert quelque part, fermez-le ici sans attendre."
+      >
+        <Devices userId={user.id} timezone={provider.timezone} />
+      </Section>
+
+      <Section
         title="Qui a accès à cet espace"
         description={`Vous pouvez donner un compte à ${MAX_ACCOUNTS_PER_PROVIDER - 1} personnes qui travaillent avec vous. Elles gèrent les rendez-vous, le calendrier, les prestations, les horaires, la galerie et les devis, sans voir vos chiffres ni vos coordonnées bancaires.`}
       >
@@ -239,4 +249,94 @@ async function SupportVisits({
       ))}
     </ul>
   );
+}
+
+/**
+ * Her open sessions, newest first.
+ *
+ * The current one is marked rather than hidden: a list she cannot find herself
+ * in is a list she has no reason to trust.
+ *
+ * The user agent is reduced to something a person can recognise — "Chrome sur
+ * Android" — because the raw string is a paragraph of version numbers and she
+ * is being asked to spot an intruder in it.
+ */
+async function Devices({
+  userId,
+  timezone,
+}: {
+  userId: string;
+  timezone: string;
+}) {
+  const store = await cookies();
+  const token = store.get(env().SESSION_COOKIE_NAME)?.value;
+  const currentHash = token ? sha256(token) : null;
+
+  const now = new Date();
+  const sessions = await prisma.session.findMany({
+    where: { userId, revokedAt: null, expiresAt: { gt: now } },
+    orderBy: { lastSeenAt: "desc" },
+    take: 20,
+    select: {
+      id: true,
+      tokenHash: true,
+      userAgent: true,
+      ipAddress: true,
+      createdAt: true,
+      lastSeenAt: true,
+    },
+  });
+
+  const idleMs = env().SESSION_IDLE_HOURS * 3_600_000;
+  const live = sessions.filter(
+    (session) => now.getTime() - session.lastSeenAt.getTime() <= idleMs,
+  );
+
+  if (live.length === 0) {
+    return (
+      <EmptyState
+        title="Aucune session ouverte"
+        description="Rien à fermer pour le moment."
+      />
+    );
+  }
+
+  const when = (date: Date) =>
+    `${formatLongDateFr(date, timezone)} à ${formatLocalTime(date, timezone)}`;
+
+  return (
+    <SessionsPanel
+      sessions={live.map((session) => ({
+        id: session.id,
+        current: currentHash !== null && session.tokenHash === currentHash,
+        device: describeDevice(session.userAgent),
+        ipAddress: session.ipAddress,
+        signedIn: when(session.createdAt),
+        lastSeen: when(session.lastSeenAt),
+      }))}
+    />
+  );
+}
+
+/** "Chrome sur Android", from a paragraph of version numbers. */
+function describeDevice(userAgent: string | null): string {
+  if (!userAgent) return "Appareil inconnu";
+
+  const browser =
+    /Edg\//.test(userAgent) ? "Edge"
+    : /OPR\/|Opera/.test(userAgent) ? "Opera"
+    : /Chrome\//.test(userAgent) ? "Chrome"
+    : /Firefox\//.test(userAgent) ? "Firefox"
+    : /Safari\//.test(userAgent) ? "Safari"
+    : "Navigateur";
+
+  const system =
+    /Android/.test(userAgent) ? "Android"
+    : /iPhone|iPad|iPod/.test(userAgent) ? "iPhone ou iPad"
+    : /Windows/.test(userAgent) ? "Windows"
+    : /Mac OS X/.test(userAgent) ? "Mac"
+    : /Linux/.test(userAgent) ? "Linux"
+    : null;
+
+  return system ? `${browser} sur ${system}` : browser;
 }
