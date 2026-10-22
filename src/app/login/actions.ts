@@ -76,7 +76,13 @@ export async function login(
     };
   }
 
-  const valid = await verifyPassword(parsed.data.password, user.passwordHash);
+  // A password copied from an e-mail on a phone often comes with a space
+  // before or after it. The exact value is tried first, so a password that
+  // really ends in a space still works; the trimmed one is the fallback.
+  const typed = parsed.data.password;
+  const valid =
+    (await verifyPassword(typed, user.passwordHash)) ||
+    (typed.trim() !== typed && (await verifyPassword(typed.trim(), user.passwordHash)));
 
   if (!valid) {
     const failures = user.failedLoginCount + 1;
