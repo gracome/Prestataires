@@ -316,11 +316,15 @@ model Session {
   userAgent      String?
   ipAddress      String?
   expiresAt      DateTime  @db.Timestamptz(3)
+  /// Last time this session was used. Drives the idle timeout: a window left
+  /// open in a cybercafé should stop working long before the absolute expiry.
+  lastSeenAt     DateTime  @default(now()) @db.Timestamptz(3)
   revokedAt      DateTime? @db.Timestamptz(3)
   createdAt      DateTime  @default(now()) @db.Timestamptz(3)
 
   @@index([userId])
   @@index([expiresAt])
+  @@index([lastSeenAt])
   @@index([impersonatorId])
   @@map("sessions")
 }
