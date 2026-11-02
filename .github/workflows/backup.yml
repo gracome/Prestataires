@@ -2,21 +2,41 @@
 #
 # L'offre gratuite de Supabase ne propose aucune sauvegarde téléchargeable :
 # si le projet disparaît, tout disparaît avec lui. Ce workflow fait une copie
-# complète de la base (pg_dump) et la range dans les artefacts du dépôt, chez
+# du schéma applicatif (pg_dump) et la range dans les artefacts du dépôt, chez
 # GitHub, donc ailleurs que chez l'hébergeur de la base.
 #
 # La copie contient les noms, téléphones et e-mails des clientes. Elle est donc
-# CHIFFRÉE avant d'être envoyée : sur un dépôt public, n'importe quel compte
-# GitHub peut télécharger les artefacts. Sans la phrase secrète, le fichier est
-# illisible.
+# CHIFFRÉE avant d'être envoyée : n'importe quel compte ayant accès au dépôt
+# peut télécharger un artefact. Sans la phrase secrète, le fichier est illisible.
 #
-# Deux secrets à créer dans Settings > Secrets and variables > Actions :
+# --- Pourquoi seulement le schéma « public » ---------------------------------
+#
+# Une base Supabase ne contient pas que vos tables : il y a aussi « auth »,
+# « storage », « realtime » et « vault », qui appartiennent à la plateforme. Le
+# rôle fourni n'a pas le droit de tout lire là-dedans — « vault » garde des
+# secrets chiffrés — et un pg_dump complet s'arrête donc sur une erreur de
+# permission, toujours la même, toutes les nuits.
+#
+# Vos 33 tables sont dans « public ». C'est ce qu'on sauvegarde, et c'est tout
+# ce qu'il faut : le reste est reconstruit par Supabase à la création d'un
+# projet.
+#
+# --- Deux secrets à créer dans Settings > Secrets and variables > Actions -----
+#
 #   BACKUP_DATABASE_URL  la valeur de DIRECT_URL (port 5432, Session pooler)
 #   BACKUP_PASSPHRASE    une longue phrase secrète, gardée hors du dépôt
 #
-# Restaurer une copie :
-#   gpg --decrypt backup.dump.gpg > backup.dump
-#   pg_restore --clean --if-exists --no-owner --dbname "<DIRECT_URL>" backup.dump
+# --- Restaurer une copie -----------------------------------------------------
+#
+#   gpg --decrypt base.dump.gpg > base.dump
+#
+#   # btree_gist porte la contrainte qui interdit deux rendez-vous sur le même
+#   # créneau. Un dump limité à « public » ne la recrée pas : il faut l'ajouter
+#   # avant de restaurer, sinon les index échouent.
+#   psql "<DIRECT_URL>" -c 'CREATE EXTENSION IF NOT EXISTS btree_gist;'
+#
+#   pg_restore --clean --if-exists --no-owner --no-privileges \
+#              --schema=public --dbname "<DIRECT_URL>" base.dump
 
 name: Sauvegarde de la base
 
@@ -40,8 +60,12 @@ jobs:
           BACKUP_DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL }}
           BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
         run: |
-          if [ -z "$BACKUP_DATABASE_URL" ] || [ -z "$BACKUP_PASSPHRASE" ]; then
-            echo "::error::Les secrets BACKUP_DATABASE_URL et BACKUP_PASSPHRASE doivent être définis sur le dépôt."
+          if [ -z "$BACKUP_DATABASE_URL" ]; then
+            echo "::error::Le secret BACKUP_DATABASE_URL est absent. Mettez-y la valeur de DIRECT_URL (port 5432)."
+            exit 1
+          fi
+          if [ -z "$BACKUP_PASSPHRASE" ]; then
+            echo "::error::Le secret BACKUP_PASSPHRASE est absent. Sans lui la copie partirait en clair."
             exit 1
           fi
 
@@ -54,23 +78,58 @@ jobs:
           sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
           sudo apt-get install -y -qq postgresql-client-17
 
+      # Se connecter d'abord, et le dire. Quand pg_dump echoue en une ligne, on
+      # ne sait pas si la base est injoignable, si l'identifiant est faux ou si
+      # c'est le dump qui refuse : trois pannes, trois corrections différentes.
+      - name: Joindre la base
+        env:
+          BACKUP_DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL }}
+        run: |
+          set -uo pipefail
+          export PATH="/usr/lib/postgresql/17/bin:$PATH"
+          if ! out=$(psql "$BACKUP_DATABASE_URL" -tAc \
+              "select current_setting('server_version') || ' | tables public: ' || (select count(*) from pg_tables where schemaname='public')" 2>&1); then
+            echo "::error::Connexion impossible. Vérifiez BACKUP_DATABASE_URL (hôte, port 5432, mot de passe)."
+            echo "$out"
+            exit 1
+          fi
+          echo "Serveur : $out"
+
       - name: Copier et chiffrer la base
         env:
           BACKUP_DATABASE_URL: ${{ secrets.BACKUP_DATABASE_URL }}
           BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
         run: |
           set -euo pipefail
-          /usr/lib/postgresql/17/bin/pg_dump "$BACKUP_DATABASE_URL" \
-            --format=custom --no-owner --no-privileges --file=backup.dump
-          echo "Taille de la copie : $(du -h backup.dump | cut -f1)"
+          export PATH="/usr/lib/postgresql/17/bin:$PATH"
+
+          pg_dump "$BACKUP_DATABASE_URL" \
+            --schema=public \
+            --format=custom \
+            --no-owner \
+            --no-privileges \
+            --file=base.dump
+
+          # Une copie vide se téléverse aussi bien qu'une bonne, et ne se
+          # remarque que le jour où on en a besoin. On compte donc ce qu'il y a
+          # dedans avant de la garder.
+          tables=$(pg_restore --list base.dump | grep -c ' TABLE DATA ' || true)
+          taille=$(stat -c%s base.dump)
+          echo "Copie : $(du -h base.dump | cut -f1), $tables tables avec des données"
+
+          if [ "$tables" -lt 10 ] || [ "$taille" -lt 20000 ]; then
+            echo "::error::La copie est anormalement petite ($tables tables, $taille octets). Elle n'est pas conservée."
+            exit 1
+          fi
+
           gpg --batch --yes --pinentry-mode loopback --symmetric --cipher-algo AES256 \
-            --passphrase "$BACKUP_PASSPHRASE" --output backup.dump.gpg backup.dump
-          rm backup.dump
+            --passphrase "$BACKUP_PASSPHRASE" --output base.dump.gpg base.dump
+          rm base.dump
 
       - name: Ranger la copie (30 jours)
         uses: actions/upload-artifact@v4
         with:
           name: base-${{ github.run_id }}
-          path: backup.dump.gpg
+          path: base.dump.gpg
           retention-days: 30
           if-no-files-found: error
