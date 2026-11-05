@@ -47,7 +47,7 @@ const schema = z.object({
 
   // --- Email --------------------------------------------------------------
   MAIL_DRIVER: z.enum(["console", "smtp", "resend"]).default("console"),
-  MAIL_FROM: z.string().default("Prestataire <no-reply@example.com>"),
+  MAIL_FROM: z.string().default("BeautyPrest <no-reply@example.com>"),
   SMTP_HOST: z.string().optional(),
   SMTP_PORT: z.coerce.number().int().optional(),
   SMTP_SECURE: z

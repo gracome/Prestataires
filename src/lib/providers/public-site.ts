@@ -59,6 +59,14 @@ export const RESERVED_SLUGS = new Set([
   "reservation",
   "reservations",
   "admin",
+  // The marketing routes. A provider who took "beautyprest" or "demo" as her
+  // slug would shadow the page that sells the platform, and the old product
+  // address is held too because it still redirects.
+  "beautyprest",
+  "prestataire",
+  "demo",
+  "modules",
+  "services",
   "static",
   "_next",
   "favicon.ico",

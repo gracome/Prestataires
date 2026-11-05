@@ -45,7 +45,7 @@ export async function generateMetadata({
   if (!feature) return { title: "Module introuvable" };
 
   return {
-    title: `${FEATURES[feature].label} — Prestataires`,
+    title: `${FEATURES[feature].label} — BeautyPrest`,
     description: FEATURES[feature].intro,
   };
 }
@@ -87,10 +87,10 @@ export default async function ModulePage({
     <div className="mk">
       <header className="mk-topbar">
         <div className="container">
-          <Link href="/prestataire" className="mk-back">
-            ← Prestataire
+          <Link href="/beautyprest" className="mk-back">
+            ← BeautyPrest
           </Link>
-          <Link href="/prestataire#tarifs" className="mk-topbar-cta">
+          <Link href="/beautyprest#tarifs" className="mk-topbar-cta">
             Voir les tarifs
           </Link>
         </div>
@@ -164,7 +164,7 @@ export default async function ModulePage({
                   inclut ce module et tout ce qui l&apos;accompagne. C&apos;est
                   souvent le meilleur calcul.
                 </p>
-                <Link href="/prestataire#tarifs" className="mk-btn">
+                <Link href="/beautyprest#tarifs" className="mk-btn">
                   Comparer les formules →
                 </Link>
               </div>

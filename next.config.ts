@@ -10,6 +10,15 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [{ protocol: "https", hostname: "**" }],
   },
+  // The product was called Prestataire and lived at /prestataire. The page
+  // moved with the name; the address stays answerable, because it is in
+  // Google's index, in the sitemap we published and in whatever messages have
+  // already been sent carrying it.
+  async redirects() {
+    return [
+      { source: "/prestataire", destination: "/beautyprest", permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

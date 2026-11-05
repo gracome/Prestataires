@@ -19,7 +19,7 @@ import { enterDemoDashboard } from "./actions";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Voir la démonstration — Prestataires",
+  title: "Voir la démonstration — BeautyPrest",
   description:
     "Parcourez un site de prestataire et son tableau de bord, remplis de données fictives. Rien à installer, aucun compte à créer.",
   // A demonstration account competing with real providers in search results
@@ -41,10 +41,10 @@ export default async function DemoPage({
     <div className="mk">
       <header className="mk-topbar">
         <div className="container">
-          <Link href="/prestataire" className="mk-back">
-            ← Prestataire
+          <Link href="/beautyprest" className="mk-back">
+            ← BeautyPrest
           </Link>
-          <Link href="/prestataire#tarifs" className="mk-topbar-cta">
+          <Link href="/beautyprest#tarifs" className="mk-topbar-cta">
             Voir les tarifs
           </Link>
         </div>
@@ -122,7 +122,7 @@ export default async function DemoPage({
             adresse. Il n&apos;y a rien à installer.
           </p>
           <div className="dm-foot-actions">
-            <Link href="/prestataire#tarifs" className="mk-btn">
+            <Link href="/beautyprest#tarifs" className="mk-btn">
               Voir les tarifs
             </Link>
             <Link href="/#nous" className="mk-btn mk-btn-ghost">

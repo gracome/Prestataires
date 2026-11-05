@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { PublicSite } from "@/lib/providers/public-site";
 import { telLink, whatsappLink } from "@/lib/providers/public-site";
+import { PRODUCT } from "@/lib/marketing/company";
 
 /**
  * The foot of a provider's site, as a dark block that curves up over the page.
@@ -97,7 +98,7 @@ export function SiteFooter({ site }: { site: PublicSite }) {
             © {year} {site.businessName}
           </span>
           <span className="site-foot-by">
-            Propulsé par <Link href="/">Prestataires</Link>
+            Propulsé par <Link href={PRODUCT.path}>{PRODUCT.name}</Link>
           </span>
         </div>
       </div>

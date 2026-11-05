@@ -3,7 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/db";
 import { CompanyHeader } from "@/components/marketing/CompanyHeader";
 import { CompanyFooter } from "@/components/marketing/CompanyFooter";
-import { COMPANY, OFFERS } from "@/lib/marketing/company";
+import { COMPANY, OFFERS, PRODUCT } from "@/lib/marketing/company";
 import { env } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
@@ -36,7 +36,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: `${COMPANY.name} — studio digital à Porto-Novo`,
   description:
-    "Sites web sur mesure, formations au digital et Prestataire, notre plateforme de réservation. À Porto-Novo et Cotonou.",
+    "Sites web sur mesure, formations au digital et BeautyPrest, notre plateforme de réservation. À Porto-Novo et Cotonou.",
 };
 
 export default async function HomePage() {
@@ -103,7 +103,7 @@ export default async function HomePage() {
               </div>
               <div>
                 <dt>Produit en production</dt>
-                <dd>Prestataire</dd>
+                <dd>{PRODUCT.name}</dd>
               </div>
               <div>
                 <dt>Commission sur votre activité</dt>
@@ -169,7 +169,7 @@ export default async function HomePage() {
                   Jugez-nous sur quelque chose qui tourne.
                 </h2>
                 <p className="mk-case-text">
-                  Prestataire est notre plateforme de réservation pour les
+                  {PRODUCT.name} est notre plateforme de réservation pour les
                   métiers de la beauté. Elle est en production, et nous la
                   laissons ouverte : un compte complet avec ses prestations,
                   ses photos et plusieurs mois de rendez-vous, où tous les
@@ -185,7 +185,7 @@ export default async function HomePage() {
                   <Link href="/demo" className="mk-btn">
                     Ouvrir la démonstration →
                   </Link>
-                  <Link href="/prestataire" className="mk-offer-link">
+                  <Link href="/beautyprest" className="mk-offer-link">
                     Comment c&apos;est vendu →
                   </Link>
                 </div>

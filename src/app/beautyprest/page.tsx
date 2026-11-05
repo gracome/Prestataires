@@ -14,7 +14,7 @@ import {
 import type { Plan, PlanFeature } from "@prisma/client";
 import { CompanyHeader } from "@/components/marketing/CompanyHeader";
 import { CompanyFooter } from "@/components/marketing/CompanyFooter";
-import { COMPANY } from "@/lib/marketing/company";
+import { COMPANY, PRODUCT } from "@/lib/marketing/company";
 import { DemoStudio } from "@/components/marketing/DemoStudio";
 import { TradeRotator } from "@/components/marketing/TradeRotator";
 import { TRADES } from "@/lib/marketing/trades";
@@ -22,7 +22,7 @@ import { TRADES } from "@/lib/marketing/trades";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: `Prestataire — la plateforme de réservation | ${COMPANY.name}`,
+  title: `${PRODUCT.name} — la plateforme de réservation | ${COMPANY.name}`,
   description:
     "Un site de réservation à votre nom, un agenda qui ne se trompe pas, des acomptes encaissés et vos chiffres au même endroit. Sans commission sur vos rendez-vous.",
 };
@@ -65,7 +65,7 @@ function fcfa(amount: number): string {
   return amount.toLocaleString("fr-FR").replace(/[  \s]/g, " ");
 }
 
-export default async function PrestatairePage() {
+export default async function BeautyPrestPage() {
   // Used only to show whether the installation has been set up yet.
   const providerCount = await prisma.provider
     .count({ where: { status: "ACTIVE" } })
@@ -73,7 +73,7 @@ export default async function PrestatairePage() {
 
   return (
     <div className="mk">
-      <CompanyHeader product="Prestataire" />
+      <CompanyHeader product={PRODUCT.name} />
 
       <main>
         {/* ---------------------------------------------------------- Hero */}
@@ -86,6 +86,8 @@ export default async function PrestatairePage() {
               <br />
               <span className="mk-hero-rest">Votre nom dessus.</span>
             </h1>
+
+            <p className="mk-hero-baseline">{PRODUCT.tagline}</p>
 
             <p className="mk-hero-sub">
               Site de réservation, agenda, acomptes, caisse et chiffres — pour
@@ -168,7 +170,7 @@ export default async function PrestatairePage() {
               </article>
 
               <article className="mk-versus-us">
-                <h3>Avec Prestataire</h3>
+                <h3>Avec {PRODUCT.name}</h3>
                 <ul>
                   <li>
                     Votre nom, vos couleurs, vos photos. Le nôtre

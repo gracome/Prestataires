@@ -9,7 +9,7 @@ import { senderFor } from "@/lib/email/mailer";
  * to come out as one valid, quoted header value whatever it contains.
  */
 describe("senderFor", () => {
-  const from = "Prestataire <notifications@example.com>";
+  const from = "BeautyPrest <notifications@example.com>";
 
   it("keeps MAIL_FROM as it is when no name is given", () => {
     expect(senderFor(from)).toBe(from);

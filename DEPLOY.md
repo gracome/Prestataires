@@ -120,7 +120,7 @@ S3_ACCESS_KEY_ID      nak_live_...
 S3_SECRET_ACCESS_KEY  nsk_live_...
 
 MAIL_DRIVER           resend
-MAIL_FROM             Prestataire <onboarding@resend.dev>
+MAIL_FROM             BeautyPrest <onboarding@resend.dev>
 RESEND_API_KEY        <clé Resend>
 ```
 

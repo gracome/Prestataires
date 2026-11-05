@@ -33,7 +33,7 @@ async function main(): Promise<void> {
 
   const result = await sendMail({
     to,
-    subject: "Test d'envoi — Prestataire",
+    subject: "Test d'envoi — BeautyPrest",
     text:
       "Si vous lisez ce message, la configuration e-mail fonctionne.\n\n" +
       "Les confirmations de réservation et les rappels emprunteront ce chemin.",

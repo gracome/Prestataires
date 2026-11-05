@@ -1,11 +1,11 @@
 /**
  * The company behind the products.
  *
- * The site used to be the Prestataire site. It is the company's site, and
- * Prestataire is its first product — which is a different page with a
+ * The site used to be the product's site. It is the company's site, and
+ * BeautyPrest is its first product — which is a different page with a
  * different job: a visitor arriving here may want a booking platform, or a
  * site built for her, or to learn something. The home page has to let all
- * three through, and send the first of them to /prestataire rather than trying
+ * three through, and send the first of them to /beautyprest rather than trying
  * to sell the platform on the doorstep.
  *
  * Everything the company is called lives here, so renaming it is one edit
@@ -22,6 +22,27 @@ export const COMPANY = {
   whatsapp: "https://wa.me/22969668879",
   /** Shown as text next to the WhatsApp link, so it can be dialled. */
   phone: "+229 69 66 88 79",
+} as const;
+
+/**
+ * The booking platform, named in one place.
+ *
+ * It was called "Prestataire" until it was called BeautyPrest, and a product
+ * renamed once can be renamed again. Everything that says the name out loud —
+ * page titles, the header badge, the "propulsé par" line at the foot of every
+ * provider's site, the From of every email — reads it from here, so the next
+ * rename is this file and nothing else.
+ */
+export const PRODUCT = {
+  name: "BeautyPrest",
+  /**
+   * The baseline. "Domaine" carries both meanings on purpose: the trade she
+   * works in, and the domain name her site answers on — the platform sells
+   * her both.
+   */
+  tagline: "Parce que, comme votre domaine, votre business mérite d'être beau.",
+  /** The product page. Also the slug of its offer card. */
+  path: "/beautyprest",
 } as const;
 
 export type Offer = {
@@ -81,8 +102,8 @@ export const OFFERS: readonly Offer[] = [
     kind: "Prestation",
   },
   {
-    slug: "prestataire",
-    name: "Prestataire",
+    slug: "beautyprest",
+    name: PRODUCT.name,
     summary:
       "Notre plateforme de réservation pour les métiers de la beauté : un site à son image, un agenda qui ne se trompe pas, des acomptes encaissés et les chiffres du mois au même endroit.",
     covers: [
@@ -90,7 +111,7 @@ export const OFFERS: readonly Offer[] = [
       "Agenda, acomptes, caisse et clientes",
       "Abonnement mensuel, sans commission",
     ],
-    href: "/prestataire",
+    href: PRODUCT.path,
     cta: "En savoir plus",
     kind: "Produit",
   },

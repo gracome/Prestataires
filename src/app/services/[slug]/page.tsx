@@ -8,7 +8,7 @@ import { COMPANY, OFFERS } from "@/lib/marketing/company";
 /**
  * A service page.
  *
- * Unlike Prestataire, these are engagements rather than products: there is no
+ * Unlike BeautyPrest, these are engagements rather than products: there is no
  * price list, because what a site or a course costs depends on what it has to
  * do. So the page does the next most useful thing — it says plainly what the
  * work covers, how it runs, and what we need from the client — and ends on a
@@ -20,7 +20,7 @@ import { COMPANY, OFFERS } from "@/lib/marketing/company";
 
 export const dynamic = "force-static";
 
-/** The two engagements. Prestataire has its own page and is excluded. */
+/** The two engagements. BeautyPrest has its own page and is excluded. */
 const DETAILS: Record<
   string,
   {
@@ -87,7 +87,7 @@ const DETAILS: Record<
           "Réseaux sociaux : publier, répondre, vendre sans y passer ses journées.",
           "Vendre en ligne : présenter, encaisser, livrer, gérer les retours.",
           "Bureautique : écrire un devis, une facture, un tableau qui calcule seul.",
-          "Prestataire, pour les professionnelles qui viennent d'ouvrir leur compte.",
+          "BeautyPrest, pour les professionnelles qui viennent d'ouvrir leur compte.",
         ],
       },
       {

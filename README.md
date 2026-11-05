@@ -1,4 +1,4 @@
-# Prestataire
+# BeautyPrest
 
 Site professionnel et réservation en ligne pour les prestataires qui travaillent
 sur rendez-vous : coiffeuses, prothésistes ongulaires, nail artists, lash

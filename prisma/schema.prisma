@@ -1,4 +1,4 @@
-// Prestataire App - multi-tenant booking platform for appointment-based businesses.
+// BeautyPrest - multi-tenant booking platform for appointment-based businesses.
 //
 // Money is stored in MINOR UNITS of the provider currency (see src/lib/money.ts).
 // XOF / FCFA has 0 decimals, so 8000 FCFA is stored as 8000.

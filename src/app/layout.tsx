@@ -34,7 +34,7 @@ const inter = localFont({
 
 export const metadata: Metadata = {
   title: {
-    default: "Prestataires — votre activité, votre univers",
+    default: "BeautyPrest — votre activité, votre univers",
     template: "%s",
   },
   description:

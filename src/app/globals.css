@@ -2632,6 +2632,19 @@ table.data tr:last-child td {
   color: var(--brand-primary-strong);
 }
 
+/* The baseline, directly under the title.
+   Set in the heading face and held to the title's width so it reads as the
+   second half of one statement rather than as the first paragraph. */
+.mk-hero-baseline {
+  font-family: var(--font-heading);
+  font-size: clamp(1.05rem, 2.6vw, 1.3rem);
+  font-style: italic;
+  line-height: 1.5;
+  margin: 1.1rem 0 0;
+  max-width: 34ch;
+  color: var(--brand-primary-strong);
+}
+
 .mk-hero-sub {
   margin: 1.5rem 0 0;
   max-width: 52ch;
@@ -3447,7 +3460,7 @@ table.data tr:last-child td {
 /* ===========================================================================
  * The studio skin
  * ---------------------------------------------------------------------------
- * Build with Gracias is not Prestataire. The rose, the cream and the warm
+ * Build with Gracias is not BeautyPrest. The rose, the cream and the warm
  * beige belong to a beauty product; wearing them on the studio's own pages
  * said the company was that product, which is exactly the confusion the split
  * into /prestataire was meant to end.
