@@ -229,7 +229,6 @@ async function deliverWelcome(params: {
       password: params.password,
       loginUrl: appUrl("/login"),
       siteUrl: appUrl(`/${params.slug}`),
-      primaryColor: params.primaryColor,
     });
 
     const result = await sendMail({
@@ -379,7 +378,6 @@ export async function resetProviderPassword(
       email: user.email,
       password,
       loginUrl: appUrl("/login"),
-      primaryColor: user.provider?.theme?.primaryColor,
     });
 
     const result = await sendMail({
@@ -450,7 +448,6 @@ export async function changeProviderEmail(
       ownerName: provider.ownerName,
       email,
       loginUrl: appUrl("/login"),
-      primaryColor: provider.theme?.primaryColor,
     });
     const result = await sendMail({ to: email, subject: letter.subject, html: letter.html, text: letter.text });
     delivery = result.ok

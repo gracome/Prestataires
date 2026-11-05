@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { providerEmailChanged, providerPasswordReset, providerWelcome } from "@/lib/email/welcome";
+import { renderEmail } from "@/lib/email/layout";
+import { COMPANY, PRODUCT } from "@/lib/marketing/company";
 
 /**
  * The letter that carries a provider's password.
@@ -116,5 +118,55 @@ describe("providerEmailChanged", () => {
 
   it("never carries a password", () => {
     expect(letter.text.toLowerCase()).not.toContain("nouveau mot de passe");
+  });
+});
+
+/**
+ * Who signs what.
+ *
+ * The product's whole argument against a directory is that the professional
+ * keeps her name: her customers deal with her, not with us. That promise is
+ * kept or broken in the sign-off of an email, so it is asserted here rather
+ * than left to whoever edits a template next.
+ */
+describe("la signature", () => {
+  it("signe les lettres de compte au nom de la plateforme", () => {
+    for (const letter of [
+      providerWelcome(INPUT),
+      providerPasswordReset(INPUT),
+      providerEmailChanged({
+        businessName: INPUT.businessName,
+        ownerName: INPUT.ownerName,
+        email: INPUT.email,
+        loginUrl: INPUT.loginUrl,
+      }),
+    ]) {
+      expect(letter.html).toContain(PRODUCT.name);
+      expect(letter.text).toContain(PRODUCT.tagline);
+      expect(letter.text).toContain(COMPANY.phone);
+      // Signed, so not also credited in the small print.
+      expect(letter.text).not.toContain("Propulsé par");
+    }
+  });
+
+  it("garde le nom de la prestataire comme objet et comme sujet", () => {
+    const letter = providerWelcome(INPUT);
+    expect(letter.subject).toContain(INPUT.businessName);
+    expect(letter.text).toContain(INPUT.businessName);
+  });
+
+  it("ne signe pas à sa place les messages adressés à ses clientes", () => {
+    const { html, text } = renderEmail({
+      title: "Votre rendez-vous est confirmé",
+      businessName: "Studio Lina",
+      blocks: [{ kind: "paragraph", text: "À samedi." }],
+    });
+
+    for (const body of [html, text]) {
+      expect(body).toContain("Studio Lina");
+      // A discreet credit, never a sign-off in our name.
+      expect(body).toContain(`Propulsé par ${PRODUCT.name}`);
+      expect(body).not.toContain(PRODUCT.tagline);
+    }
   });
 });

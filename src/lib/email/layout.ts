@@ -6,6 +6,8 @@
  * plain and readable when styling is dropped entirely.
  */
 
+import { PRODUCT } from "@/lib/marketing/company";
+
 export type LayoutInput = {
   title: string;
   preheader?: string;
@@ -13,6 +15,25 @@ export type LayoutInput = {
   primaryColor?: string;
   blocks: Block[];
   footerNote?: string;
+  /**
+   * Who signs the letter, when it is not the business named at the top.
+   *
+   * Only the account letters use it: those come from the platform, and a
+   * message handing someone their password has to say plainly who sent it.
+   * Everything else is a message from a provider to her own customer and is
+   * signed by her — putting our name there would be taking credit for her
+   * appointment, which is the whole thing this product refuses to do.
+   */
+  signature?: Signature;
+};
+
+/** The sender of an account letter. */
+export type Signature = {
+  name: string;
+  /** One line under the name. The baseline, or what the message is about. */
+  line?: string;
+  /** Where to reach a person, as text that can be dialled or tapped. */
+  contact?: string;
 };
 
 export type Block =
@@ -52,13 +73,40 @@ ${
     <p style="margin:0 0 18px;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:${primary};font-weight:600;">${escapeHtml(input.businessName)}</p>
     <h1 style="margin:0 0 18px;font-size:22px;line-height:1.3;font-weight:700;color:#2b2422;">${escapeHtml(input.title)}</h1>
 ${body}
+${input.signature ? renderSignatureHtml(input.signature, primary) : ""}
   </div>
   <p style="margin:18px 4px 0;font-size:12px;line-height:1.6;color:#8a7f7a;">
     ${escapeHtml(input.footerNote ?? `Message envoyé automatiquement par ${input.businessName}.`)}
   </p>
+${
+    input.signature
+      ? ""
+      : `  <p style="margin:8px 4px 0;font-size:11px;line-height:1.6;color:#a79b96;">Propulsé par ${escapeHtml(PRODUCT.name)}</p>`
+  }
 </div>
 </body>
 </html>`;
+}
+
+/**
+ * The sign-off, inside the card rather than in the grey margin below it.
+ *
+ * A signature that sits in the small print reads as boilerplate; this one is
+ * part of the letter, because in an account letter it is the answer to "who
+ * sent me my password, and how do I reach them if this is wrong".
+ */
+function renderSignatureHtml(signature: Signature, primary: string): string {
+  const line = signature.line
+    ? `    <p style="margin:4px 0 0;font-size:13px;line-height:1.6;font-style:italic;color:#8a7f7a;">${escapeHtml(signature.line)}</p>`
+    : "";
+  const contact = signature.contact
+    ? `    <p style="margin:6px 0 0;font-size:13px;line-height:1.6;color:#4a4140;">${escapeHtml(signature.contact)}</p>`
+    : "";
+
+  return `    <hr style="border:none;border-top:1px solid #ece6e3;margin:26px 0 16px;">
+    <p style="margin:0;font-size:15px;font-weight:700;color:${primary};">${escapeHtml(signature.name)}</p>
+${line}
+${contact}`;
 }
 
 function renderBlockHtml(block: Block, primary: string): string {
@@ -115,9 +163,19 @@ function renderText(input: LayoutInput): string {
     }
   }
 
+  if (input.signature) {
+    lines.push("--", input.signature.name);
+    if (input.signature.line) lines.push(input.signature.line);
+    if (input.signature.contact) lines.push(input.signature.contact);
+    lines.push("");
+  }
+
   lines.push(
     input.footerNote ?? `Message envoyé automatiquement par ${input.businessName}.`,
   );
+
+  if (!input.signature) lines.push(`Propulsé par ${PRODUCT.name}`);
+
   return lines.join("\n");
 }
 

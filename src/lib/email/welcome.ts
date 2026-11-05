@@ -1,5 +1,21 @@
-import { renderEmail, type Block } from "./layout";
+import { renderEmail, type Block, type Signature } from "./layout";
 import type { RenderedEmail } from "./templates";
+import { COMPANY, PRODUCT } from "@/lib/marketing/company";
+
+/**
+ * These three letters come from us, not from her salon.
+ *
+ * So they wear the platform's name at the top and the platform's colour, and
+ * they end on a telephone number. Everything else the product sends is a
+ * message from a provider to her own customer and is signed by the provider;
+ * mixing the two would mean a customer receiving her appointment confirmation
+ * under our name.
+ */
+const SIGNATURE: Signature = {
+  name: PRODUCT.name,
+  line: PRODUCT.tagline,
+  contact: `Une question ? ${COMPANY.phone} — ${COMPANY.city}, ${COMPANY.country}`,
+};
 
 /**
  * The letter a provider gets the day her account is created.
@@ -24,7 +40,6 @@ export type WelcomeInput = {
   loginUrl: string;
   /** Absolute address of her public site, still a draft at this point. */
   siteUrl: string;
-  primaryColor?: string;
 };
 
 export function providerWelcome(input: WelcomeInput): RenderedEmail {
@@ -62,8 +77,8 @@ export function providerWelcome(input: WelcomeInput): RenderedEmail {
   const rendered = renderEmail({
     title: "Votre espace est prêt",
     preheader: `Vos identifiants pour ${input.businessName}`,
-    businessName: input.businessName,
-    primaryColor: input.primaryColor,
+    businessName: PRODUCT.name,
+    signature: SIGNATURE,
     blocks,
     footerNote:
       "Vous recevez ce message parce qu'un espace professionnel vient d'être créé à votre nom. Si vous n'attendiez rien de tel, ignorez-le et prévenez-nous.",
@@ -86,8 +101,8 @@ export function providerPasswordReset(
   const rendered = renderEmail({
     title: "Votre mot de passe a été réinitialisé",
     preheader: `Nouveau mot de passe pour ${input.businessName}`,
-    businessName: input.businessName,
-    primaryColor: input.primaryColor,
+    businessName: PRODUCT.name,
+    signature: SIGNATURE,
     blocks: [
       {
         kind: "paragraph",
@@ -126,15 +141,14 @@ export function providerEmailChanged(input: {
   ownerName: string;
   email: string;
   loginUrl: string;
-  primaryColor?: string;
 }): RenderedEmail {
   const firstName = input.ownerName.trim().split(/\s+/)[0] || input.ownerName;
 
   const rendered = renderEmail({
     title: "Votre adresse de connexion a changé",
     preheader: `Vous vous connectez désormais avec ${input.email}`,
-    businessName: input.businessName,
-    primaryColor: input.primaryColor,
+    businessName: PRODUCT.name,
+    signature: SIGNATURE,
     blocks: [
       {
         kind: "paragraph",
