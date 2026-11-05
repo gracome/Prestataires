@@ -6,7 +6,7 @@
  * plain and readable when styling is dropped entirely.
  */
 
-import { PRODUCT } from "@/lib/marketing/company";
+import { PRODUCT } from "@/lib/marketing/product";
 
 export type LayoutInput = {
   title: string;

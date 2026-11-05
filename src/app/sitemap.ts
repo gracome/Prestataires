@@ -2,17 +2,15 @@ import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/db";
 import { appUrl, env } from "@/lib/env";
 import { FEATURES, sellableFeatures } from "@/lib/plans/catalogue";
-import { OFFERS } from "@/lib/marketing/company";
 
 export const revalidate = 3600;
 
 /**
  * What search engines should know about (cahier des charges section 25).
  *
- * It listed the home page and the provider sites, which was right when the
- * home page was the whole company site. It is not any more: the product page,
- * the two service pages and one page per module were invisible — the pages
- * that answer the searches we actually want to win.
+ * It listed the home page and the provider sites only, so the page per module
+ * was invisible — and those are the pages that answer the searches we want to
+ * win.
  *
  * Priorities say what we would rather rank: a provider's own site above our
  * marketing, because hers is the one with a customer at the other end.
@@ -33,13 +31,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // we invented. It is excluded here and noindexed on its own pages.
   const demoSlug = env().DEMO_SLUG;
 
-  const company: MetadataRoute.Sitemap = [
+  const marketing: MetadataRoute.Sitemap = [
     { url: appUrl("/"), changeFrequency: "monthly" as const, priority: 1 },
-    ...OFFERS.map((offer) => ({
-      url: appUrl(offer.href),
-      changeFrequency: "monthly" as const,
-      priority: 0.9,
-    })),
     ...sellableFeatures().map((feature) => ({
       url: appUrl(`/modules/${FEATURES[feature].slug}`),
       changeFrequency: "monthly" as const,
@@ -48,7 +41,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ].map((entry) => ({ ...entry, lastModified: now }));
 
   return [
-    ...company,
+    ...marketing,
     ...providers
       .filter((provider) => provider.slug !== demoSlug)
       .map((provider) => ({

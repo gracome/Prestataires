@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { providerEmailChanged, providerPasswordReset, providerWelcome } from "@/lib/email/welcome";
 import { renderEmail } from "@/lib/email/layout";
-import { COMPANY, PRODUCT } from "@/lib/marketing/company";
+import { CONTACT, PRODUCT } from "@/lib/marketing/product";
 
 /**
  * The letter that carries a provider's password.
@@ -143,7 +143,7 @@ describe("la signature", () => {
     ]) {
       expect(letter.html).toContain(PRODUCT.name);
       expect(letter.text).toContain(PRODUCT.tagline);
-      expect(letter.text).toContain(COMPANY.phone);
+      expect(letter.text).toContain(CONTACT.phone);
       // Signed, so not also credited in the small print.
       expect(letter.text).not.toContain("Propulsé par");
     }

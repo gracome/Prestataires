@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { PublicSite } from "@/lib/providers/public-site";
 import { telLink, whatsappLink } from "@/lib/providers/public-site";
-import { PRODUCT } from "@/lib/marketing/company";
+import { PRODUCT } from "@/lib/marketing/product";
 
 /**
  * The foot of a provider's site, as a dark block that curves up over the page.

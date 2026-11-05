@@ -1,6 +1,6 @@
 import { renderEmail, type Block, type Signature } from "./layout";
 import type { RenderedEmail } from "./templates";
-import { COMPANY, PRODUCT } from "@/lib/marketing/company";
+import { CONTACT, PRODUCT } from "@/lib/marketing/product";
 
 /**
  * These three letters come from us, not from her salon.
@@ -14,7 +14,7 @@ import { COMPANY, PRODUCT } from "@/lib/marketing/company";
 const SIGNATURE: Signature = {
   name: PRODUCT.name,
   line: PRODUCT.tagline,
-  contact: `Une question ? ${COMPANY.phone} — ${COMPANY.city}, ${COMPANY.country}`,
+  contact: `Une question ? ${CONTACT.phone} — ${CONTACT.city}, ${CONTACT.country}`,
 };
 
 /**
