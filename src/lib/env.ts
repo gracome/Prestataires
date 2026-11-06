@@ -23,6 +23,15 @@ const schema = z.object({
   /** Shared secret required by the scheduled-job endpoints. */
   CRON_SECRET: z.string().min(16).optional(),
 
+  /**
+   * Protects the nightly database copy. Without it no backup is taken: a copy
+   * of every customer's contact details is not something to write in the
+   * clear because a variable was missing.
+   */
+  BACKUP_PASSPHRASE: z.string().min(16).optional(),
+  /** Where the encrypted copy is sent. Off the platform, on purpose. */
+  BACKUP_EMAIL: z.string().email().optional(),
+
   SESSION_COOKIE_NAME: z.string().default("prestataire_session"),
   /** How long a session may live at most, however much it is used. */
   SESSION_TTL_HOURS: z.coerce.number().int().positive().default(24 * 7),

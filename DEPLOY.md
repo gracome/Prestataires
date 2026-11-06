@@ -121,6 +121,8 @@ S3_SECRET_ACCESS_KEY  nsk_live_...
 
 MAIL_DRIVER           resend
 MAIL_FROM             BeautyPrest <onboarding@resend.dev>
+BACKUP_PASSPHRASE     <phrase longue>   chiffre la sauvegarde nocturne
+BACKUP_EMAIL          <adresse>         reçoit la sauvegarde nocturne
 RESEND_API_KEY        <clé Resend>
 ```
 
@@ -172,6 +174,72 @@ prend une trentaine de secondes.
 Variables requises : `DEMO_SLUG` et `DEMO_EMAIL`. Sans elles la réponse est
 `{"ran": false}` — cette installation n'a pas de démonstration, ce n'est pas
 une erreur.
+
+### Sauvegarde de la base
+
+Une copie chiffrée de toutes les lignes, envoyée chaque nuit en pièce jointe,
+hors de l'hébergeur de la base.
+
+Créer une troisième tâche sur cron-job.org :
+
+- URL : `https://<projet>.vercel.app/api/backup/run`
+- Méthode : POST, **une fois par jour** (vers 02 h)
+- En-tête : `Authorization: Bearer <CRON_SECRET>` — le même secret
+
+Variables requises :
+
+```
+BACKUP_PASSPHRASE     une phrase longue, gardée hors du projet
+BACKUP_EMAIL          la boîte qui reçoit les copies
+```
+
+Sans elles, l'endpoint répond 500 en disant laquelle manque. C'est voulu : une
+copie des coordonnées de toutes les clientes ne part pas en clair parce qu'une
+variable était absente.
+
+**Ce que la copie contient.** Toutes les lignes de tous les modèles, découverts
+dans le datamodel Prisma — un modèle ajouté demain est sauvegardé sans que
+personne y pense. Pas le schéma (il est dans `prisma/migrations`), pas les
+photos (elles sont dans le stockage objet).
+
+**Pourquoi pas `pg_dump`.** Le workflow GitHub qui en fait un existe toujours
+(`.github/workflows/backup.yml`) et reste la meilleure copie le jour où il
+tournera. Il n'a jamais tourné : vingt exécutions, vingt échecs, pas une seule
+étape exécutée, parce que les Actions sont bloquées au niveau du compte. Une
+sauvegarde qui dépend de la facturation de quelqu'un d'autre n'est pas une
+sauvegarde, d'où celle-ci, qui tourne là où l'application tourne.
+
+**Relire une copie :**
+
+```bash
+npm run backup:restore -- --inspecter copie.bpbk
+```
+
+Affiche la date, la migration, le compte par table, et vérifie que les colonnes
+correspondent encore au schéma actuel — sans rien écrire et sans base.
+
+**Restaurer :**
+
+```bash
+npm run backup:restore -- --restaurer copie.bpbk --confirmer
+```
+
+Efface toutes les lignes de la base visée (`DIRECT_URL`, sinon `DATABASE_URL`)
+puis réécrit, parents avant enfants. Sans `--confirmer`, le script refuse et
+affiche l'hôte qu'il allait écraser.
+
+**Prendre une copie à la main**, avant une migration par exemple :
+
+```bash
+npm run backup:now                          # envoyée par e-mail
+npm run backup:now -- --fichier copie.bpbk  # écrite sur le disque
+```
+
+**Limites assumées.** Une boîte aux lettres n'est pas une archive : au-delà de
+7 Mo la copie ne passe plus en pièce jointe et le job échoue bruyamment plutôt
+que de se taire. Ce jour-là, il faudra l'envoyer vers un stockage objet chez un
+*autre* hébergeur que celui de la base — le stockage S3 actuel est dans le même
+projet Supabase et disparaîtrait avec elle.
 
 ## 7. Vérification
 

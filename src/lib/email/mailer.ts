@@ -21,6 +21,18 @@ export type MailMessage = {
    * mailbox. Replies reach her through `replyTo`.
    */
   fromName?: string;
+  /**
+   * Files to attach. Used by the nightly backup, which is the one message the
+   * platform sends that carries something other than words — and the reason
+   * the drivers had to learn about attachments at all.
+   */
+  attachments?: MailAttachment[];
+};
+
+export type MailAttachment = {
+  filename: string;
+  content: Buffer;
+  contentType: string;
 };
 
 export type MailResult = {
@@ -107,6 +119,11 @@ async function sendViaSmtp(message: MailMessage): Promise<void> {
     text: message.text,
     html: message.html,
     replyTo: message.replyTo,
+    attachments: message.attachments?.map((file) => ({
+      filename: file.filename,
+      content: file.content,
+      contentType: file.contentType,
+    })),
   });
 }
 
@@ -129,6 +146,11 @@ async function sendViaResend(message: MailMessage): Promise<void> {
       html: message.html,
       text: message.text,
       reply_to: message.replyTo,
+      attachments: message.attachments?.map((file) => ({
+        filename: file.filename,
+        content: file.content.toString("base64"),
+        content_type: file.contentType,
+      })),
     }),
   });
 

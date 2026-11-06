@@ -20,6 +20,8 @@
     "admin:create": "tsx --env-file-if-exists=.env scripts/create-admin.ts",
     "storage:check": "tsx --env-file-if-exists=.env scripts/check-storage.ts",
     "mail:check": "tsx --env-file-if-exists=.env scripts/check-mail.ts",
+    "backup:now": "tsx --env-file-if-exists=.env scripts/backup-now.ts",
+    "backup:restore": "tsx --env-file-if-exists=.env scripts/backup-restore.ts",
     "push:keys": "tsx scripts/generate-vapid.ts",
     "icons": "tsx scripts/generate-icons.ts"
   },
