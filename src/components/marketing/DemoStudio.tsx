@@ -149,7 +149,7 @@ export function DemoStudio({ plans }: { plans: readonly PlanOption[] }) {
           Calcul : {perWeek} rendez-vous par semaine au panier moyen d&apos;une{" "}
           {trade.practitioner}, sur 4,3 semaines. Les acomptes comptent un
           rendez-vous annulé sur cinq, récupéré à 30 %. Rien n&apos;est
-          enregistré — tout est calculé dans votre navigateur.
+          enregistré, tout est calculé dans votre navigateur.
         </p>
       </div>
     </div>

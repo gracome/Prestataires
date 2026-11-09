@@ -119,7 +119,7 @@ export function Carousel({
               key={slide.key}
               role="group"
               aria-roledescription="diapositive"
-              aria-label={`${i + 1} sur ${count} — ${slide.label}`}
+              aria-label={`${i + 1} sur ${count}, ${slide.label}`}
               aria-hidden={!current}
               // Hidden slides keep their space but leave the tab order, so
               // nothing focusable is reachable behind the visible one.

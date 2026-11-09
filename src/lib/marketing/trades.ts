@@ -30,6 +30,17 @@ export type Trade = {
   label: string;
   /** What a practitioner of it is called, for sentences about her. */
   practitioner: string;
+  /**
+   * The same word in the plural, for sentences that address the trade as a
+   * group: "pour les coiffeuses".
+   *
+   * Written out rather than derived. The label cannot stand in for it, since
+   * the labels are the names of crafts and not of people: the headline read
+   * "pour les Maquillage", which nobody says. And the plural cannot be built
+   * by adding an s either, because "technicienne cils" pluralises on the
+   * first word only.
+   */
+  plural: string;
   /** Most of these trades serve women; barbering mostly does not. */
   clients: "clientes" | "clients";
   /** A plausible business name, pre-filled so the preview is never empty. */
@@ -46,9 +57,10 @@ export const TRADES: readonly Trade[] = [
     id: "ongles",
     label: "Onglerie",
     practitioner: "prothésiste ongulaire",
+    plural: "prothésistes ongulaires",
     clients: "clientes",
     sampleName: "Studio Amara",
-    tagline: "Ongles, mains et pieds — sur rendez-vous",
+    tagline: "Ongles, mains et pieds, sur rendez-vous",
     accent: "#e0568a",
     services: [
       { name: "Pose gel complète", price: 15000, minutes: 120 },
@@ -61,6 +73,7 @@ export const TRADES: readonly Trade[] = [
     id: "coiffure",
     label: "Coiffure & tresses",
     practitioner: "coiffeuse",
+    plural: "coiffeuses",
     clients: "clientes",
     sampleName: "Maison Lokossa",
     tagline: "Tresses, tissages et soins capillaires",
@@ -76,6 +89,7 @@ export const TRADES: readonly Trade[] = [
     id: "cils",
     label: "Cils & sourcils",
     practitioner: "technicienne cils",
+    plural: "techniciennes cils",
     clients: "clientes",
     sampleName: "Regard Atelier",
     tagline: "Extensions de cils et restructuration des sourcils",
@@ -91,6 +105,7 @@ export const TRADES: readonly Trade[] = [
     id: "maquillage",
     label: "Maquillage",
     practitioner: "maquilleuse",
+    plural: "maquilleuses",
     clients: "clientes",
     sampleName: "Éclat Studio",
     tagline: "Maquillage mariée, soirée et séance photo",
@@ -106,6 +121,7 @@ export const TRADES: readonly Trade[] = [
     id: "esthetique",
     label: "Soins & esthétique",
     practitioner: "esthéticienne",
+    plural: "esthéticiennes",
     clients: "clientes",
     sampleName: "Institut Zinsou",
     tagline: "Soins du visage, du corps et épilation",
@@ -121,6 +137,7 @@ export const TRADES: readonly Trade[] = [
     id: "barbier",
     label: "Barbier",
     practitioner: "barbier",
+    plural: "barbiers",
     clients: "clients",
     sampleName: "Le Comptoir Barbier",
     tagline: "Coupe, barbe et rasage traditionnel",

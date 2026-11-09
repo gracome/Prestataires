@@ -86,7 +86,7 @@ export function MarketingFooter({ note }: { note?: string }) {
 
         <div className="mk-foot-bottom">
           <span>
-            © {new Date().getFullYear()} {PRODUCT.name} — {CONTACT.city},{" "}
+            © {new Date().getFullYear()} {PRODUCT.name}, {CONTACT.city},{" "}
             {CONTACT.country}
           </span>
           {note ? <span>{note}</span> : null}

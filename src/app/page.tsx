@@ -16,13 +16,15 @@ import { MarketingHeader } from "@/components/marketing/MarketingHeader";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { CONTACT, PRODUCT } from "@/lib/marketing/product";
 import { DemoStudio } from "@/components/marketing/DemoStudio";
+import { ProductTour } from "@/components/marketing/ProductTour";
+import { TemplateGallery } from "@/components/marketing/TemplateGallery";
 import { TradeRotator } from "@/components/marketing/TradeRotator";
 import { TRADES } from "@/lib/marketing/trades";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: `${PRODUCT.name} — passez du cahier à l'entreprise`,
+  title: `${PRODUCT.name}, passez du cahier à l'entreprise`,
   description:
     "Un site de réservation à votre nom, un agenda qui ne se trompe pas, des acomptes encaissés et vos chiffres au même endroit. Sans commission sur vos rendez-vous.",
 };
@@ -30,43 +32,53 @@ export const metadata: Metadata = {
 /**
  * Platform landing page.
  *
- * Three rules govern what follows, and all three were learned the hard way.
+ * Four rules govern what follows, and all four were learned the hard way.
  *
  * First: it wears the .mk skin, never the site-* one. A provider's site is
- * photographic, curved and hers; this page is typographic and ours. When the
- * two looked alike, the product looked like a template rather than something
- * she owns.
+ * photographic, curved and hers; this page is ours. When the two looked alike,
+ * the product looked like a template rather than something she owns.
  *
  * Second: it names no single trade. It used to be photographed entirely in a
  * nail salon, which told every hairdresser and barber that the product was not
  * for them. There is no neutral photograph of a beauty business, so there are
- * no photographs here at all: the page lets the visitor pick her trade, and the
- * demo answers in her own vocabulary.
+ * no photographs here at all: the drawings are drawn, and the visitor picks her
+ * own trade.
  *
- * Third, and the reason this page was rewritten: it makes one argument, not
- * seven. It used to open by arguing against the directories, then tour the
- * features, then list the modules, then introduce the team — four separate
- * pitches that each weakened the others, on a flat cream page that gave the eye
- * nothing to hold. What a provider is actually being offered is a step up: she
+ * Third: it makes one argument, not seven. It used to open by arguing against
+ * the directories, then tour the features, then list the modules, then
+ * introduce the team. What a provider is actually offered is a step up: she
  * arrives with a notebook and a phone, and leaves with a business that has an
- * address, an agenda, a till and figures. Everything here serves that one
- * sentence, and anything that did not is gone.
+ * address, an agenda, a till and figures. Everything serves that sentence.
+ *
+ * Fourth, and the reason for this layout: every section used to have the same
+ * shape. An eyebrow, a heading, a lead paragraph, a grid of cards, six times
+ * over, all in the same column at the same width. Changing the colours did not
+ * fix it, because the sameness was in the structure. So the page now alternates
+ * deliberately: a split hero, a sticky column beside a vertical path, a
+ * full-width gallery, an interactive panel, a card grid, a closing band. No two
+ * consecutive sections are built the same way, and the eye has somewhere to go.
+ *
+ * And the page now shows the product. It sold websites without ever displaying
+ * one, which is the single largest reason it read as a brochure.
  *
  * It deliberately does not list the providers on the platform: their client
  * lists are not a directory.
  */
 
-/** Where "sur mesure" enquiries go. Empty, the button disappears. */
+/** Where "sur mesure" enquiries go. Empty, the invitation disappears. */
 const CONTACT_URL = CONTACT.whatsapp;
 
 /**
- * The step up, in four lines: the notebook on the left, the business on the
- * right.
+ * The step up, in four moves: the notebook, then the business.
  *
- * This replaced both the feature tour and the argument against the directories.
- * A feature list says what the software has; this says what changes on Monday,
- * which is the only thing being bought. Each "avant" is a sentence a provider
- * has actually said out loud — that is the test, not whether it reads well.
+ * Drawn as a path rather than as four cards. Cards say "here are four
+ * features"; a line down the page says "this is the order it happens in",
+ * which is the claim being made.
+ *
+ * Each "avant" is a sentence a provider has actually said out loud. That is the
+ * test, not whether it reads well. And none of them is struck through or marked
+ * with a cross: a provider who works from a notebook today should recognise
+ * herself, not be told she was doing it wrong.
  */
 const SHIFTS = [
   {
@@ -95,10 +107,10 @@ const SHIFTS = [
  * What the product promises.
  *
  * Three, not four: each one is a thing a provider can hold us to and a thing a
- * directory would hesitate to write down — which is the test a promise has to
+ * directory would hesitate to write down, which is the test a promise has to
  * pass before it earns space here. Anything true of any booking app in the
- * world ("simple", "rapide") is not here, and the fourth promise — that we
- * answer — was cut because the button underneath is the promise.
+ * world ("simple", "rapide") is not here, and the fourth promise, that we
+ * answer, was cut because the button underneath is the promise.
  */
 const PROMISES = [
   {
@@ -134,46 +146,64 @@ export default async function BeautyPrestPage() {
     .catch(() => 0);
 
   return (
-    // data-hero="dark" tells the sticky header to go light-on-dark until the
-    // visitor scrolls past the hero, so the nav never floats cream on plum.
-    <div className="mk" data-hero="dark">
+    <div className="mk">
       <MarketingHeader />
 
       <main>
         {/* ---------------------------------------------------------- Hero */}
-        {/* Dark, because the page used to open cream on cream and gave the eye
-            nothing to hold: a prospect met a wall of warm beige and a
-            paragraph. The plum is the brand's own, the rose glow is the only
-            ornament, and the cream that follows now reads as a relief rather
-            than as the whole page. */}
-        <section className="mk-hero mk-hero-dark">
+        {/* Two columns, not one. The page used to open on a paragraph and a
+            pair of buttons, with the product itself nowhere on screen: a
+            landing page for a website builder that never showed a website.
+            The tour on the right is drawn in markup rather than screenshotted,
+            so it stays sharp, stays readable by a screen reader, and cannot go
+            stale the first time a screen changes.
+
+            The hero stays on cream. A dark band here looked well and could not
+            keep the tour: the mockups draw real product surfaces by reading the
+            --brand-* tokens, and a dark band has to redefine those tokens, so
+            every white card in the drawing came out translucent plum. The
+            carousel writes its own dots and label with inline styles, which no
+            stylesheet can take back without !important. The page keeps one dark
+            band, at the close, where nothing reads the tokens. */}
+        <section className="mk-hero">
           <div className="container">
-            <p className="mk-eyebrow">Logiciel de gestion — Bénin</p>
+            <div className="mk-hero-grid">
+              <div className="mk-hero-copy">
+                <p className="mk-eyebrow">Logiciel de gestion, Bénin</p>
 
-            <h1 className="mk-hero-title">
-              Passez du cahier
-              <br />
-              <span className="mk-hero-rest">à l&apos;entreprise.</span>
-            </h1>
+                <h1 className="mk-hero-title">
+                  Passez du cahier
+                  <br />
+                  <span className="mk-hero-rest">à l&apos;entreprise.</span>
+                </h1>
 
-            <p className="mk-hero-baseline">{PRODUCT.tagline}</p>
+                <p className="mk-hero-baseline">{PRODUCT.tagline}</p>
 
-            <p className="mk-hero-sub">
-              Un site de réservation à votre nom, un agenda, des acomptes et vos
-              chiffres — pour les{" "}
-              <TradeRotator words={TRADES.map((trade) => trade.label)} /> et tous
-              les métiers de la beauté.
-            </p>
+                <p className="mk-hero-sub">
+                  Un site de réservation à votre nom, un agenda, des acomptes et
+                  vos chiffres. Pour les{" "}
+                  <TradeRotator words={TRADES.map((trade) => trade.plural)} /> et
+                  tous les métiers de la beauté.
+                </p>
 
-            <div className="mk-hero-actions">
-              <a href="#demo" className="mk-btn">
-                Simuler mon activité
-              </a>
-              <a href="#tarifs" className="mk-btn mk-btn-ghost">
-                Voir les tarifs
-              </a>
+                <div className="mk-hero-actions">
+                  <a href="#demo" className="mk-btn">
+                    Simuler mon activité
+                  </a>
+                  <a href="#tarifs" className="mk-btn mk-btn-ghost">
+                    Voir les tarifs
+                  </a>
+                </div>
+              </div>
+
+              <div className="mk-hero-visual">
+                <ProductTour />
+              </div>
             </div>
 
+            {/* The three figures become a band under both columns rather than
+                a list under the text, so they read as the terms of the offer
+                and not as a fourth paragraph. */}
             <dl className="mk-hero-facts">
               <div>
                 <dt>Commission sur vos rendez-vous</dt>
@@ -191,37 +221,62 @@ export default async function BeautyPrestPage() {
           </div>
         </section>
 
-        {/* -------------------------------------------------- Avant / après */}
-        <section className="mk-section mk-shifts-section">
+        {/* ----------------------------------------------- Du cahier au métier */}
+        {/* A sticky heading on the left, the path scrolling past it on the
+            right. The heading stays in view for the whole argument, which is
+            what a reader needs when the four steps are meant to be read as one
+            movement rather than as four independent claims. */}
+        <section className="mk-section mk-path-section">
           <div className="container">
-            <div className="mk-head">
-              <p className="mk-eyebrow">Ce qui change</p>
+            <div className="mk-split">
+              <aside className="mk-split-aside">
+                <p className="mk-eyebrow">Ce qui change</p>
+                <h2 className="mk-h2">
+                  Le métier ne change pas. La maison autour, si.
+                </h2>
+                <p className="mk-lead">
+                  Quatre choses se passent dans cet ordre, et chacune règle un
+                  problème que vous connaissez déjà.
+                </p>
+              </aside>
+
+              <ol className="mk-path">
+                {SHIFTS.map((shift, index) => (
+                  <li key={shift.after} className="mk-step">
+                    <span aria-hidden="true" className="mk-step-num">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+
+                    <p className="mk-step-before">{shift.before}</p>
+                    <h3 className="mk-step-after">{shift.after}</h3>
+                    <p className="mk-step-body">{shift.body}</p>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </div>
+        </section>
+
+        {/* ------------------------------------------------------- Templates */}
+        {/* The one section that is allowed to be loud. Every other band on this
+            page is cream, plum or rose; this one shows five palettes that are
+            not ours, which is the argument it exists to make. Showing five rose
+            variations would say the opposite of what the words say. */}
+        <section className="mk-section mk-section-quiet mk-gallery-section">
+          <div className="container">
+            <div className="mk-head mk-head-center">
+              <p className="mk-eyebrow">Votre univers</p>
               <h2 className="mk-h2">
-                Le métier ne change pas. La maison autour, si.
+                Cinq départs possibles. Aucun n&apos;est à nos couleurs.
               </h2>
             </div>
 
-            <ol className="mk-shifts">
-              {SHIFTS.map((shift, index) => (
-                <li key={shift.after} className="mk-shift">
-                  <span aria-hidden="true" className="mk-shift-index">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-
-                  <p className="mk-shift-before">{shift.before}</p>
-
-                  <div className="mk-shift-after">
-                    <h3>{shift.after}</h3>
-                    <p>{shift.body}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
+            <TemplateGallery />
           </div>
         </section>
 
         {/* ---------------------------------------------------------- Démo */}
-        <section id="demo" className="mk-section mk-section-quiet">
+        <section id="demo" className="mk-section">
           <div className="container">
             <div className="mk-head">
               <p className="mk-eyebrow">Voir la démo</p>
@@ -242,10 +297,11 @@ export default async function BeautyPrestPage() {
         </section>
 
         {/* --------------------------------------------------------- Tarifs */}
-        {/* The modules used to have a section of their own, with its own
-            heading, lead and call to action. They are an addendum to the
-            offer, not a second offer, so they sit inside it now. */}
-        <section id="tarifs" className="mk-section">
+        {/* The modules used to have a section of their own, with a heading, a
+            lead and a call to action, which presented them as a second offer a
+            visitor had to choose between. They are an extra on top of a plan,
+            so they sit inside the offer now. */}
+        <section id="tarifs" className="mk-section mk-section-quiet">
           <div className="container">
             <div className="mk-head">
               <p className="mk-eyebrow">Nos formules</p>
@@ -310,15 +366,15 @@ export default async function BeautyPrestPage() {
         </section>
 
         {/* -------------------------------------------------- Qui sommes-nous */}
-        {/* Dark again, to close the page the way it opened, and because what
-            is said here is the part a provider is asked to take on trust. */}
+        {/* Dark again, to close the page the way it opened, and because what is
+            said here is the part a provider is asked to take on trust. */}
         <section id="nous" className="mk-about mk-about-dark">
           <div className="container">
             <div className="mk-about-head">
               <p className="mk-eyebrow">Qui sommes-nous</p>
               <h2 className="mk-statement">
-                Un logiciel écrit à {CONTACT.city}, pour des salons d&apos;ici
-                — <span>pas traduit d&apos;ailleurs.</span>
+                Un logiciel écrit à {CONTACT.city}, pour des salons d&apos;ici.{" "}
+                <span>Pas traduit d&apos;ailleurs.</span>
               </h2>
               <p className="mk-about-lead">
                 Une petite équipe béninoise. Nous avons construit cet outil avec
@@ -340,10 +396,9 @@ export default async function BeautyPrestPage() {
               ))}
             </ul>
 
-            {/* No button here. The footer's invitation sits a screen below
-                and says the same thing in the same words, and two WhatsApp
-                buttons in a row read as a page that is not sure it was
-                heard. */}
+            {/* No button here. The footer's invitation sits a screen below and
+                says the same thing in the same words, and two WhatsApp buttons
+                in a row read as a page that is not sure it was heard. */}
             <div className="mk-about-foot">
               <p>
                 Il nous arrive de dire à quelqu&apos;un que ce n&apos;est pas
@@ -390,7 +445,7 @@ function PlanCard({ plan }: { plan: Plan }) {
           ou <strong>{fcfa(yearlyPrice(monthly))} F</strong> par an
         </p>
         <p className="mk-plan-save">
-          2 mois offerts — vous économisez{" "}
+          2 mois offerts, vous économisez{" "}
           {fcfa(monthly * 12 - yearlyPrice(monthly))} F
         </p>
       </div>
