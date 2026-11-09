@@ -2995,41 +2995,6 @@ table.data tr:last-child td {
   color: var(--brand-muted);
 }
 
-/* ------------------------------------------------------------ Capabilities */
-
-.mk-caps {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-}
-
-.mk-cap {
-  padding: 1.5rem 1.4rem;
-  border-radius: 18px;
-  background: var(--brand-surface);
-  border: 1px solid var(--brand-border);
-}
-
-.mk-cap-index {
-  font-family: var(--font-heading);
-  font-size: 0.95rem;
-  color: var(--brand-primary-strong);
-}
-
-.mk-cap h3 {
-  margin: 0.5rem 0 0.6rem;
-  font-family: var(--font-heading);
-  font-size: 1.2rem;
-  line-height: 1.25;
-}
-
-.mk-cap p {
-  margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.7;
-  color: var(--brand-muted);
-}
-
 /* ------------------------------------------------------------------ Plans */
 
 .mk-plans {
@@ -3578,94 +3543,324 @@ table.data tr:last-child td {
   padding-block: clamp(3.5rem, 8vw, 5.5rem);
 }
 
+
 /* ---------------------------------------------------------------------------
- * Directory or your own site
+ * Dark surfaces
  * ---------------------------------------------------------------------------
- * Two columns that have to be read as opposed, without one of them being drawn
- * as a loser: a provider who is on a directory today should recognise her
- * situation, not feel mocked for it. So the left column is quiet and grey
- * rather than struck through, and only the right one carries the accent.
+ * The page used to be cream from the first pixel to the last. Every section
+ * was a warm beige band with a heading on it, and the eye had nothing to stop
+ * on: a prospect read the first paragraph and scrolled to the price.
+ *
+ * So the page now opens and closes on plum. Two dark bands, the cream work
+ * between them, and the rose only ever appearing as light rather than as fill.
+ * The brand keeps its proportions — mostly cream, chocolate for structure,
+ * rose as the accent — but it is arranged with contrast instead of evenly.
+ *
+ * Both bands re-declare the --brand-* tokens they sit on rather than
+ * overriding every child rule, so .mk-statement, .mk-principles and the rest
+ * come out right without knowing they are on a dark ground.
  * ------------------------------------------------------------------------ */
 
-.mk-versus {
-  padding-block: clamp(3rem, 8vw, 4.5rem);
-  background: var(--brand-surface);
-  border-block: 1px solid var(--brand-border);
-}
+.mk-hero-dark,
+.mk-about-dark {
+  --brand-text: #fff9f3;
+  --brand-chocolate: #fff9f3;
+  --brand-muted: #c8aeb9;
+  --brand-border: rgb(255 249 243 / 16%);
+  --brand-surface: rgb(255 249 243 / 6%);
+  /* The deep rose loses too much against plum; the soft one carries it. */
+  --brand-primary-strong: #f9a8bf;
 
-.mk-versus-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
-  align-items: start;
-}
-
-.mk-versus-grid article {
-  padding: 1.6rem 1.5rem;
-  border-radius: 20px;
-}
-
-.mk-versus-them {
-  background: var(--brand-background);
-  border: 1px solid var(--brand-border);
-}
-
-.mk-versus-us {
-  background: var(--brand-rose-pale);
-  border: 1px solid color-mix(in srgb, var(--brand-primary) 30%, transparent);
-}
-
-.mk-versus-grid h3 {
-  margin: 0 0 1.1rem;
-  font-family: var(--font-heading);
-  font-size: 1.25rem;
   color: var(--brand-text);
+  background: #241620;
 }
 
-.mk-versus-us h3 {
-  color: var(--brand-primary-strong);
+/* The glow. Two offset radials rather than one, so the light has a direction
+   and the slab does not read as a rectangle with a blur in the middle. */
+.mk-hero-dark {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(
+      60ch 42ch at 12% -12%,
+      rgb(242 122 154 / 34%),
+      transparent 68%
+    ),
+    radial-gradient(
+      50ch 34ch at 94% 8%,
+      rgb(234 216 204 / 14%),
+      transparent 64%
+    ),
+    #241620;
+  padding-block: clamp(5rem, 12vw, 8.5rem) clamp(3.5rem, 8vw, 5.5rem);
 }
 
-.mk-versus-grid ul {
+/* A hairline of rose where the dark meets the cream, so the join reads as a
+   seam rather than as an edge. */
+.mk-hero-dark::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(242 122 154 / 55%),
+    transparent
+  );
+}
+
+/* The primary button inherits --brand-primary-strong as its fill and keeps
+   white text. On plum that fill is the soft rose, and white on soft rose is
+   1.9:1 — the label vanishes. On a dark ground the button takes the plum back
+   as its text colour, which reaches 9:1 and reads as the brightest thing on
+   the band, where the only action is. */
+.mk-hero-dark .mk-btn:not(.mk-btn-ghost),
+.mk-about-dark .mk-btn:not(.mk-btn-ghost) {
+  background: #f9a8bf;
+  color: #241620;
+}
+
+.mk-hero-dark .mk-btn:not(.mk-btn-ghost):hover,
+.mk-about-dark .mk-btn:not(.mk-btn-ghost):hover {
+  background: #fcc3d3;
+}
+
+/* On the dark hero the baseline is the brightest thing after the title: it is
+   the sentence the whole product is named for. */
+.mk-hero-dark .mk-hero-baseline {
+  color: #f6c9d6;
+}
+
+.mk-hero-dark .mk-hero-facts dd {
+  color: #fff9f3;
+}
+
+/* The ghost button disappears on plum behind a 16% border. It takes the rose. */
+.mk-hero-dark .mk-btn-ghost {
+  color: #fff9f3;
+  border-color: rgb(249 168 191 / 45%);
+}
+
+.mk-hero-dark .mk-btn-ghost:hover {
+  border-color: #f9a8bf;
+  background: rgb(249 168 191 / 10%);
+}
+
+.mk-about-dark {
+  position: relative;
+  border-top: none;
+  background:
+    radial-gradient(
+      56ch 38ch at 88% 110%,
+      rgb(242 122 154 / 26%),
+      transparent 66%
+    ),
+    #241620;
+}
+
+/* The same rose seam as the hero, so the dark band closes into the cream foot
+   the way it opened out of it. */
+.mk-about-dark::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgb(242 122 154 / 55%),
+    transparent
+  );
+}
+
+/* The sticky header, while it is still over the dark hero. Once the visitor
+   has scrolled 24px it takes its cream treatment back, which is the moment the
+   hero has left the top of the screen anyway. */
+.mk[data-hero="dark"] .mk-nav:not([data-scrolled="true"]) {
+  background: transparent;
+  backdrop-filter: none;
+}
+
+.mk[data-hero="dark"] .mk-nav:not([data-scrolled="true"]) .mk-logo,
+.mk[data-hero="dark"] .mk-nav:not([data-scrolled="true"]) .mk-nav-login {
+  color: #fff9f3;
+}
+
+.mk[data-hero="dark"] .mk-nav:not([data-scrolled="true"]) .mk-nav-links a {
+  color: rgb(255 249 243 / 72%);
+}
+
+.mk[data-hero="dark"]
+  .mk-nav:not([data-scrolled="true"])
+  .mk-nav-links
+  a:hover {
+  color: #fff9f3;
+}
+
+.mk[data-hero="dark"] .mk-nav:not([data-scrolled="true"]) .mk-logo-mark {
+  background: #f9a8bf;
+}
+
+/* ---------------------------------------------------------------------------
+ * The step up: the notebook, then the business
+ * ---------------------------------------------------------------------------
+ * This replaced two sections — a four-card feature tour and a two-column
+ * argument against the directories. Both said true things and neither said
+ * what changes on Monday.
+ *
+ * Each row is read left to right as one sentence: the thing she says today,
+ * then the thing that replaces it. The "avant" is set quiet and italic rather
+ * than struck through or marked with a cross — a provider who works from a
+ * notebook today should recognise herself, not be told she was doing it wrong.
+ * The arrow is drawn in CSS so it turns with the layout: pointing right on a
+ * wide screen, down on a phone.
+ * ------------------------------------------------------------------------ */
+
+.mk-shifts {
   margin: 0;
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 0.85rem;
+  gap: 1rem;
 }
 
-.mk-versus-grid li {
+.mk-shift {
   position: relative;
-  padding-left: 1.5rem;
-  font-size: 0.93rem;
-  line-height: 1.65;
-  color: var(--brand-muted);
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem 1.4rem;
+  border-radius: 20px;
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-border);
+  /* Barely there on its own; what it does is lift the card off the cream, so
+     the section is a stack of objects rather than ruled paragraphs. */
+  box-shadow:
+    0 1px 2px rgb(51 32 44 / 4%),
+    0 12px 28px -16px rgb(51 32 44 / 18%);
+  transition: box-shadow 0.25s ease, border-color 0.25s ease;
 }
 
-/* A dash on the left and a tick on the right. Not a cross: the point is that
-   one column is a different arrangement, not that it is a failure. */
-.mk-versus-them li::before {
-  content: "–";
-  position: absolute;
-  left: 0.2rem;
-  color: var(--brand-muted);
-  font-weight: 700;
+.mk-shift:hover {
+  border-color: color-mix(in srgb, var(--brand-primary) 38%, transparent);
+  box-shadow:
+    0 1px 2px rgb(51 32 44 / 5%),
+    0 18px 40px -18px rgb(214 51 108 / 28%);
 }
 
-.mk-versus-us li::before {
-  content: "✓";
-  position: absolute;
-  left: 0;
+.mk-shift-index {
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
   color: var(--brand-primary-strong);
-  font-weight: 700;
 }
 
-.mk-versus-note {
-  margin: 1.75rem 0 0;
-  max-width: 70ch;
-  font-size: 0.95rem;
-  line-height: 1.75;
-  color: var(--brand-text);
+.mk-shift-before {
+  margin: 0;
+  font-family: var(--font-heading);
+  font-style: italic;
+  font-size: clamp(1rem, 2.4vw, 1.15rem);
+  line-height: 1.6;
+  color: var(--brand-muted);
+}
+
+.mk-shift-after h3 {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-heading);
+  font-size: clamp(1.25rem, 3vw, 1.5rem);
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--brand-chocolate);
+}
+
+.mk-shift-after p {
+  margin: 0;
+  font-size: 0.93rem;
+  line-height: 1.7;
+  color: var(--brand-muted);
+}
+
+/* The arrow. Below the breakpoint the card stacks and it points down, which is
+   also the direction the reader is going. */
+.mk-shift::before {
+  content: "\2193";
+  position: absolute;
+  top: 1.35rem;
+  right: 1.4rem;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: color-mix(in srgb, var(--brand-primary) 55%, transparent);
+}
+
+@media (min-width: 860px) {
+  .mk-shift {
+    grid-template-columns: 2.5rem minmax(0, 1fr) 2.5rem minmax(0, 1.15fr);
+    align-items: start;
+    gap: 1.5rem;
+    padding: 1.9rem 2rem;
+  }
+
+  .mk-shift-index {
+    padding-top: 0.35rem;
+  }
+
+  /* Back into the flow as the third column, between the two halves. */
+  .mk-shift::before {
+    content: "\2192";
+    position: static;
+    grid-column: 3;
+    justify-self: center;
+    padding-top: 0.25rem;
+    font-size: 1.3rem;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+ * Modules, as an addendum to the offer
+ * ---------------------------------------------------------------------------
+ * They used to be a section of their own, with a heading, a lead and a call to
+ * action, which presented them as a second offer a visitor had to choose
+ * between. They are an extra on top of a plan, so they now sit inside the
+ * pricing section, after the plans and visibly subordinate to them.
+ * ------------------------------------------------------------------------ */
+
+.mk-extras {
+  margin-top: clamp(2.5rem, 6vw, 3.5rem);
+  padding-top: 2rem;
+  border-top: 1px solid var(--brand-border);
+}
+
+.mk-extras-head {
+  max-width: 56ch;
+  margin-bottom: 1.5rem;
+}
+
+.mk-extras-head h3 {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  line-height: 1.25;
+}
+
+.mk-extras-head p {
+  margin: 0;
+  font-size: 0.93rem;
+  line-height: 1.7;
+  color: var(--brand-muted);
+}
+
+.mk-extras-foot {
+  margin: 1.5rem 0 0;
+  font-size: 0.93rem;
+  line-height: 1.7;
+  color: var(--brand-muted);
+}
+
+.mk-extras-foot a {
+  color: var(--brand-primary-strong);
+  font-weight: 600;
 }
 
 /* --- About: a magazine page, picture on one side, her words on the other -- */

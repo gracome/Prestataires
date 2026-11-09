@@ -22,7 +22,7 @@ import { TRADES } from "@/lib/marketing/trades";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: `${PRODUCT.name} — la plateforme de réservation des métiers de la beauté`,
+  title: `${PRODUCT.name} — passez du cahier à l'entreprise`,
   description:
     "Un site de réservation à votre nom, un agenda qui ne se trompe pas, des acomptes encaissés et vos chiffres au même endroit. Sans commission sur vos rendez-vous.",
 };
@@ -30,12 +30,12 @@ export const metadata: Metadata = {
 /**
  * Platform landing page.
  *
- * Two rules govern what follows, and both were learned the hard way.
+ * Three rules govern what follows, and all three were learned the hard way.
  *
  * First: it wears the .mk skin, never the site-* one. A provider's site is
- * photographic, curved and hers; this page is flat, typographic and ours. When
- * the two looked alike, the product looked like a template rather than
- * something she owns.
+ * photographic, curved and hers; this page is typographic and ours. When the
+ * two looked alike, the product looked like a template rather than something
+ * she owns.
  *
  * Second: it names no single trade. It used to be photographed entirely in a
  * nail salon, which told every hairdresser and barber that the product was not
@@ -43,28 +43,67 @@ export const metadata: Metadata = {
  * no photographs here at all: the page lets the visitor pick her trade, and the
  * demo answers in her own vocabulary.
  *
+ * Third, and the reason this page was rewritten: it makes one argument, not
+ * seven. It used to open by arguing against the directories, then tour the
+ * features, then list the modules, then introduce the team — four separate
+ * pitches that each weakened the others, on a flat cream page that gave the eye
+ * nothing to hold. What a provider is actually being offered is a step up: she
+ * arrives with a notebook and a phone, and leaves with a business that has an
+ * address, an agenda, a till and figures. Everything here serves that one
+ * sentence, and anything that did not is gone.
+ *
  * It deliberately does not list the providers on the platform: their client
  * lists are not a directory.
  */
 
-/**
- * Where "sur mesure" enquiries go. Left empty the button disappears rather
- * than pointing nowhere.
- */
+/** Where "sur mesure" enquiries go. Empty, the button disappears. */
 const CONTACT_URL = CONTACT.whatsapp;
 
 /**
- * What the product promises, in four lines.
+ * The step up, in four lines: the notebook on the left, the business on the
+ * right.
  *
- * Each one is a thing a provider can hold us to and a thing a directory would
- * hesitate to write down — which is the test a promise has to pass before it
- * earns space on the landing page. Anything that would be true of any booking
- * app in the world ("simple", "rapide") is not here.
+ * This replaced both the feature tour and the argument against the directories.
+ * A feature list says what the software has; this says what changes on Monday,
+ * which is the only thing being bought. Each "avant" is a sentence a provider
+ * has actually said out loud — that is the test, not whether it reads well.
+ */
+const SHIFTS = [
+  {
+    before: "« Donne-moi ton numéro, je te rappelle pour l'heure. »",
+    after: "Une adresse à vous",
+    body: "Vos prestations, vos tarifs, vos photos. Un lien à envoyer en story, que votre cliente ouvre à minuit et réserve seule.",
+  },
+  {
+    before: "Deux clientes notées sur le même créneau, découvert le matin même.",
+    after: "Un agenda qui refuse",
+    body: "Elle ne voit que vos vraies disponibilités. Deux personnes ne peuvent pas prendre le même créneau : ce n'est pas une vérification, c'est impossible.",
+  },
+  {
+    before: "« Elle n'est pas venue. » Et la matinée est perdue.",
+    after: "Un acompte déjà versé",
+    body: "Elle règle une partie en réservant, sur votre compte. Celles qui ne viennent pas deviennent rares, et la journée commence avec de la caisse.",
+  },
+  {
+    before: "Le chiffre du mois, on le devine à la fin.",
+    after: "Vos chiffres, écrits",
+    body: "Ce que vous avez encaissé, les prestations qui marchent, les clientes qui reviennent. Lisible en trente secondes le lundi matin.",
+  },
+] as const;
+
+/**
+ * What the product promises.
+ *
+ * Three, not four: each one is a thing a provider can hold us to and a thing a
+ * directory would hesitate to write down — which is the test a promise has to
+ * pass before it earns space here. Anything true of any booking app in the
+ * world ("simple", "rapide") is not here, and the fourth promise — that we
+ * answer — was cut because the button underneath is the promise.
  */
 const PROMISES = [
   {
     title: "Un abonnement, pas une commission",
-    body: "Vous payez un montant connu chaque mois. Nous ne prenons rien au passage sur vos rendez-vous, quel que soit le nombre que vous en faites.",
+    body: "Un montant connu chaque mois. Nous ne prenons rien au passage sur vos rendez-vous, quel que soit le nombre que vous en faites.",
   },
   {
     title: "Votre nom, pas le nôtre",
@@ -72,11 +111,7 @@ const PROMISES = [
   },
   {
     title: "Vos clientes sont à vous",
-    body: "Votre fichier n'est pas un annuaire où l'on va proposer le salon d'à côté. Personne d'autre que vous ne leur écrit.",
-  },
-  {
-    title: "On répond",
-    body: "En français, sur WhatsApp, par les gens qui ont fait l'outil — pas par un formulaire.",
+    body: "Votre fichier n'est pas un annuaire où l'on va proposer le salon d'à côté. Personne d'autre que vous ne leur écrit, et vous pouvez partir avec.",
   },
 ] as const;
 
@@ -99,28 +134,35 @@ export default async function BeautyPrestPage() {
     .catch(() => 0);
 
   return (
-    <div className="mk">
+    // data-hero="dark" tells the sticky header to go light-on-dark until the
+    // visitor scrolls past the hero, so the nav never floats cream on plum.
+    <div className="mk" data-hero="dark">
       <MarketingHeader />
 
       <main>
         {/* ---------------------------------------------------------- Hero */}
-        <section className="mk-hero">
+        {/* Dark, because the page used to open cream on cream and gave the eye
+            nothing to hold: a prospect met a wall of warm beige and a
+            paragraph. The plum is the brand's own, the rose glow is the only
+            ornament, and the cream that follows now reads as a relief rather
+            than as the whole page. */}
+        <section className="mk-hero mk-hero-dark">
           <div className="container">
             <p className="mk-eyebrow">Logiciel de gestion — Bénin</p>
 
             <h1 className="mk-hero-title">
-              Votre site.
+              Passez du cahier
               <br />
-              <span className="mk-hero-rest">Votre nom dessus.</span>
+              <span className="mk-hero-rest">à l&apos;entreprise.</span>
             </h1>
 
             <p className="mk-hero-baseline">{PRODUCT.tagline}</p>
 
             <p className="mk-hero-sub">
-              Site de réservation, agenda, acomptes, caisse et chiffres — pour
-              les <TradeRotator words={TRADES.map((trade) => trade.label)} />{" "}
-              et tous les métiers de la beauté. Vos clientes retiennent votre
-              nom, pas le nôtre.
+              Un site de réservation à votre nom, un agenda, des acomptes et vos
+              chiffres — pour les{" "}
+              <TradeRotator words={TRADES.map((trade) => trade.label)} /> et tous
+              les métiers de la beauté.
             </p>
 
             <div className="mk-hero-actions">
@@ -149,81 +191,32 @@ export default async function BeautyPrestPage() {
           </div>
         </section>
 
-        {/* -------------------------------------------------- Annuaire ou site */}
-        {/* The argument that decides against the directories, made without
-            naming one. Naming a competitor advertises it, dates the page, and
-            starts a fight on ground we do not control; describing the pattern
-            lands the same blow and still reads true in two years.
-
-            It leads the page because it is the one difference a provider
-            cannot undo later: everything else is a feature she could be sold
-            elsewhere, but the name her clients remember is decided the day she
-            chooses where her page lives. */}
-        <section className="mk-versus">
+        {/* -------------------------------------------------- Avant / après */}
+        <section className="mk-section mk-shifts-section">
           <div className="container">
             <div className="mk-head">
-              <p className="mk-eyebrow">La différence qui compte</p>
+              <p className="mk-eyebrow">Ce qui change</p>
               <h2 className="mk-h2">
-                Une fiche dans un annuaire, ou un site à vous.
+                Le métier ne change pas. La maison autour, si.
               </h2>
-              <p className="mk-lead">
-                Beaucoup de plateformes vous donnent une page à leur nom, dans
-                leur catalogue, à côté de vos concurrentes. Vos clientes
-                repartent en ayant retenu la marque de la plateforme — pas la
-                vôtre.
-              </p>
             </div>
 
-            <div className="mk-versus-grid">
-              <article className="mk-versus-them">
-                <h3>Sur un annuaire</h3>
-                <ul>
-                  <li>
-                    Votre nom en petit, sous le leur. Une cliente peut repartir
-                    sans l&apos;avoir retenu.
-                  </li>
-                  <li>
-                    Vous êtes affichée à côté de vos concurrentes, et la
-                    visibilité se paie.
-                  </li>
-                  <li>
-                    La même page que toutes les autres, aux mêmes couleurs.
-                  </li>
-                  <li>
-                    Le jour où vous partez, vos clientes ne savent pas où vous
-                    retrouver.
-                  </li>
-                </ul>
-              </article>
+            <ol className="mk-shifts">
+              {SHIFTS.map((shift, index) => (
+                <li key={shift.after} className="mk-shift">
+                  <span aria-hidden="true" className="mk-shift-index">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
 
-              <article className="mk-versus-us">
-                <h3>Avec {PRODUCT.name}</h3>
-                <ul>
-                  <li>
-                    Votre nom, vos couleurs, vos photos. Le nôtre
-                    n&apos;apparaît pas.
-                  </li>
-                  <li>
-                    Votre propre adresse à envoyer en story. Personne
-                    d&apos;autre dessus.
-                  </li>
-                  <li>
-                    Aucune concurrente sur votre page. Il n&apos;y a pas de
-                    catalogue.
-                  </li>
-                  <li>
-                    Votre fichier clientes est à vous. Vous pouvez partir avec.
-                  </li>
-                </ul>
-              </article>
-            </div>
+                  <p className="mk-shift-before">{shift.before}</p>
 
-            <p className="mk-versus-note">
-              C&apos;est la seule différence sur laquelle vous ne pourrez pas
-              revenir plus tard : tout le reste se rattrape, mais le nom que
-              vos clientes retiennent se décide le jour où vous choisissez où
-              votre page est hébergée.
-            </p>
+                  <div className="mk-shift-after">
+                    <h3>{shift.after}</h3>
+                    <p>{shift.body}</p>
+                  </div>
+                </li>
+              ))}
+            </ol>
           </div>
         </section>
 
@@ -234,8 +227,8 @@ export default async function BeautyPrestPage() {
               <p className="mk-eyebrow">Voir la démo</p>
               <h2 className="mk-h2">Composez votre activité, maintenant.</h2>
               <p className="mk-lead">
-                Votre métier, votre rythme, vos tarifs. Vous verrez à quoi
-                votre mois ressemble, et ce que la plateforme coûte en face.
+                Votre métier, votre rythme, vos tarifs. Vous verrez à quoi votre
+                mois ressemble, et ce que la plateforme coûte en face.
               </p>
             </div>
 
@@ -248,33 +241,11 @@ export default async function BeautyPrestPage() {
           </div>
         </section>
 
-        {/* -------------------------------------------------- Capabilities */}
-        {/* The product tour used to sit here. Once the demo above let a
-            visitor compose her own site and read her own figures, a mock of
-            somebody else's was both weaker and second: it showed a screen she
-            had already seen a truer version of. */}
-        <section className="mk-section">
-          <div className="container">
-            <h2 className="mk-h2 mk-h2-wide">
-              Tout ce qu&apos;il faut pour faire tourner votre activité.
-            </h2>
-
-            <div className="mk-caps">
-              {CAPABILITIES.map((capability, index) => (
-                <article key={capability.title} className="mk-cap">
-                  <span aria-hidden="true" className="mk-cap-index">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <h3>{capability.title}</h3>
-                  <p>{capability.body}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* --------------------------------------------------------- Tarifs */}
-        <section id="tarifs" className="mk-section mk-section-quiet">
+        {/* The modules used to have a section of their own, with its own
+            heading, lead and call to action. They are an addendum to the
+            offer, not a second offer, so they sit inside it now. */}
+        <section id="tarifs" className="mk-section">
           <div className="container">
             <div className="mk-head">
               <p className="mk-eyebrow">Nos formules</p>
@@ -282,9 +253,9 @@ export default async function BeautyPrestPage() {
                 Un abonnement simple, sans commission sur vos rendez-vous.
               </h2>
               <p className="mk-lead">
-                Vos clientes vous paient directement, sur votre propre compte :
-                nous ne prenons rien au passage. Payez au mois, ou réglez
-                l&apos;année et profitez de <strong>deux mois offerts</strong>.
+                Vos clientes vous paient directement, sur votre propre compte.
+                Payez au mois, ou réglez l&apos;année et profitez de{" "}
+                <strong>deux mois offerts</strong>.
               </p>
             </div>
 
@@ -293,64 +264,55 @@ export default async function BeautyPrestPage() {
                 <PlanCard key={plan} plan={plan} />
               ))}
             </div>
-          </div>
-        </section>
 
-        {/* -------------------------------------------------------- Modules */}
-        <section id="modules" className="mk-section">
-          <div className="container">
-            <div className="mk-head">
-              <p className="mk-eyebrow">Modules à la carte</p>
-              <h2 className="mk-h2">
-                Vous n&apos;avez besoin que de certaines fonctionnalités ?
-              </h2>
-              <p className="mk-lead">
-                Ajoutez un module à n&apos;importe quelle formule. Chacun a sa
-                page : ce qu&apos;il change pour vous, ce qu&apos;il change pour
-                vos clientes, et ce qu&apos;il vous faut pour l&apos;utiliser.
-              </p>
-            </div>
+            <div id="modules" className="mk-extras">
+              <div className="mk-extras-head">
+                <h3>Modules à la carte</h3>
+                <p>
+                  À ajouter à n&apos;importe quelle formule. Chacun a sa page :
+                  ce qu&apos;il change pour vous, ce qu&apos;il change pour vos
+                  clientes.
+                </p>
+              </div>
 
-            <ul className="mk-modules">
-              {sellableFeatures().map((feature) => (
-                <li key={feature}>
-                  <Link href={`/modules/${FEATURES[feature].slug}`}>
-                    <span className="mk-modules-name">
-                      {FEATURES[feature].label}
-                      {requirementLabels(feature).length > 0 ? (
+              <ul className="mk-modules">
+                {sellableFeatures().map((feature) => (
+                  <li key={feature}>
+                    <Link href={`/modules/${FEATURES[feature].slug}`}>
+                      <span className="mk-modules-name">
+                        {FEATURES[feature].label}
+                        {requirementLabels(feature).length > 0 ? (
+                          <small>
+                            avec {requirementLabels(feature).join(" et ")}
+                          </small>
+                        ) : null}
+                      </span>
+                      <span className="mk-modules-price">
+                        <b>{fcfa(moduleMonthly(feature))} F</b>
                         <small>
-                          avec {requirementLabels(feature).join(" et ")}
+                          {fcfa(yearlyPrice(moduleMonthly(feature)))} F / an
                         </small>
-                      ) : null}
-                    </span>
-                    <span className="mk-modules-price">
-                      <b>{fcfa(moduleMonthly(feature))} F</b>
-                      <small>
-                        {fcfa(yearlyPrice(moduleMonthly(feature)))} F / an
-                      </small>
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
 
-            <div className="mk-callout">
-              <h3>Besoin d&apos;une configuration particulière ?</h3>
-              <p>
-                Nous composons votre solution sur mesure à partir de vos besoins
-                réels.
-              </p>
               {CONTACT_URL ? (
-                <a href={CONTACT_URL} className="mk-btn">
-                  Nous contacter
-                </a>
+                <p className="mk-extras-foot">
+                  Besoin d&apos;une configuration particulière ?{" "}
+                  <a href={CONTACT_URL}>Écrivez-nous</a>, nous composons à
+                  partir de vos besoins réels.
+                </p>
               ) : null}
             </div>
           </div>
         </section>
 
         {/* -------------------------------------------------- Qui sommes-nous */}
-        <section id="nous" className="mk-about">
+        {/* Dark again, to close the page the way it opened, and because what
+            is said here is the part a provider is asked to take on trust. */}
+        <section id="nous" className="mk-about mk-about-dark">
           <div className="container">
             <div className="mk-about-head">
               <p className="mk-eyebrow">Qui sommes-nous</p>
@@ -359,11 +321,10 @@ export default async function BeautyPrestPage() {
                 — <span>pas traduit d&apos;ailleurs.</span>
               </h2>
               <p className="mk-about-lead">
-                Nous sommes une petite équipe béninoise. Nous avons construit
-                cet outil avec des professionnelles de la beauté, en regardant
-                comment elles travaillent vraiment : un téléphone, une
-                connexion qui coupe, des acomptes par Mobile Money et un cahier
-                qui ne suffit plus.
+                Une petite équipe béninoise. Nous avons construit cet outil avec
+                des professionnelles de la beauté, en regardant comment elles
+                travaillent vraiment : un téléphone, une connexion qui coupe,
+                des acomptes par Mobile Money et un cahier qui ne suffit plus.
               </p>
             </div>
 
@@ -379,15 +340,16 @@ export default async function BeautyPrestPage() {
               ))}
             </ul>
 
+            {/* No button here. The footer's invitation sits a screen below
+                and says the same thing in the same words, and two WhatsApp
+                buttons in a row read as a page that is not sure it was
+                heard. */}
             <div className="mk-about-foot">
               <p>
                 Il nous arrive de dire à quelqu&apos;un que ce n&apos;est pas
                 pour elle. Un carnet qui tourne bien vaut mieux qu&apos;un
                 abonnement dont on ne se sert pas.
               </p>
-              <a href={CONTACT.whatsapp} className="mk-btn">
-                Parler à quelqu&apos;un →
-              </a>
             </div>
           </div>
         </section>
@@ -463,29 +425,3 @@ function moduleMonthly(feature: PlanFeature): number {
     0,
   );
 }
-
-/**
- * The four things the product does, said without a photograph.
- *
- * Every picture we could put here would be of one trade, and would exclude the
- * other five. Numbered text excludes nobody.
- */
-const CAPABILITIES = [
-  {
-    title: "Votre propre site",
-    body: "Un site à votre image, avec vos photos, vos prestations et vos tarifs. Une adresse à vous, à envoyer en story plutôt qu'un numéro de téléphone.",
-  },
-  {
-    title: "Un agenda qui ne se trompe pas",
-    body: "Vos clientes voient vos vraies disponibilités, celles que vous avez définies. Deux personnes ne peuvent pas réserver le même créneau : la base de données le refuse.",
-  },
-  {
-    title: "Des acomptes encaissés",
-    body: "Elle verse son acompte au moment de réserver, sur votre compte. Moins d'annulations la veille, et une caisse qui commence la journée pleine.",
-  },
-  {
-    title: "Vos chiffres, sans cahier",
-    body: "Ce que vous avez encaissé, vos prestations qui marchent, vos clientes qui reviennent. Lisible en trente secondes le lundi matin.",
-  },
-] as const;
-
