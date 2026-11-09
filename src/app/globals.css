@@ -1951,18 +1951,81 @@ table.data tr:last-child td {
   color: #fff;
 }
 
-/* On a phone the button stays, smaller, beside the menu: booking is what
-   most visitors came for. The name gives way and ends in an ellipsis. */
+/* ---------------------------------------------------------------------------
+ * Phone tab bar. On a phone, booking lives in the bar at the bottom, under
+ * the thumb, so the pill at the top keeps only the name and the menu.
+ * ------------------------------------------------------------------------- */
+
+.site-tabbar {
+  display: none;
+}
+
 @media (max-width: 899px) {
-  .site-bar {
-    gap: 0.6rem;
-    padding-left: 1.1rem;
+  .site-shell {
+    --tabbar-h: calc(64px + env(safe-area-inset-bottom, 0px));
+    /* The footer's last line must not end up under the bar. */
+    padding-bottom: var(--tabbar-h);
   }
-  .site-cta {
-    display: inline-flex;
-    padding: 0.55rem 0.95rem;
-    font-size: 0.82rem;
+
+  .site-tabbar {
+    position: fixed;
+    inset: auto 0 0;
+    z-index: 45;
+    display: flex;
+    justify-content: space-around;
+    align-items: stretch;
+    height: var(--tabbar-h);
+    padding: 0 0.25rem env(safe-area-inset-bottom, 0px);
+    background: var(--brand-surface);
+    border-top: 1px solid var(--brand-border);
+    box-shadow: 0 -10px 30px -20px rgb(0 0 0 / 35%);
   }
+}
+
+.site-tab {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  text-decoration: none;
+  color: var(--brand-muted);
+  font-size: 0.68rem;
+  font-weight: 500;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.site-tab-label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.site-tab[aria-current="page"] {
+  color: var(--brand-primary-strong, var(--brand-primary));
+  font-weight: 600;
+}
+
+/* Booking: a round button lifted out of the bar, the one thing to press. */
+.site-tab[data-primary] .site-tab-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin-top: -22px;
+  border-radius: 50%;
+  background: var(--brand-primary-strong, var(--brand-primary));
+  color: #fff;
+  border: 4px solid var(--brand-surface);
+  box-shadow: 0 8px 18px -8px rgb(0 0 0 / 45%);
+}
+
+.site-tab[data-primary] {
+  color: var(--brand-text);
+  font-weight: 600;
 }
 
 .site-burger {

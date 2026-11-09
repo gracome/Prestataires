@@ -189,7 +189,8 @@ export function QuoteEstimator({
           aria-live="polite"
           style={{
             position: "sticky",
-            bottom: "1rem",
+            // Above the phone's tab bar, which is 0 everywhere else.
+            bottom: "calc(1rem + var(--tabbar-h, 0px))",
             zIndex: 10,
             marginBottom: "2rem",
             padding: "1.15rem 1.25rem",
