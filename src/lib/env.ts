@@ -24,7 +24,7 @@ const schema = z.object({
   CRON_SECRET: z.string().min(16).optional(),
 
   /**
-   * Protects the nightly database copy. Without it no backup is taken: a copy
+   * Protects the scheduled database copy. Without it no backup is taken: a copy
    * of every customer's contact details is not something to write in the
    * clear because a variable was missing.
    */

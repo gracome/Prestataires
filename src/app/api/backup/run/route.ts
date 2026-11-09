@@ -7,7 +7,8 @@ import { runBackup } from "@/lib/backup/run";
  * POST (or GET) /api/backup/run
  *
  * Takes one encrypted copy of the database and mails it off the platform.
- * Call it once a night from a scheduler with the shared secret:
+ * Call it from a scheduler on whatever cadence the risk deserves (every three
+ * days at the time of writing) with the shared secret:
  *
  *   curl -X POST https://example.com/api/backup/run \
  *        -H "authorization: Bearer $CRON_SECRET"

@@ -22,7 +22,7 @@ export type MailMessage = {
    */
   fromName?: string;
   /**
-   * Files to attach. Used by the nightly backup, which is the one message the
+   * Files to attach. Used by the database backup, which is the one message the
    * platform sends that carries something other than words — and the reason
    * the drivers had to learn about attachments at all.
    */

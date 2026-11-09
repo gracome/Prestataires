@@ -121,8 +121,8 @@ S3_SECRET_ACCESS_KEY  nsk_live_...
 
 MAIL_DRIVER           resend
 MAIL_FROM             BeautyPrest <onboarding@resend.dev>
-BACKUP_PASSPHRASE     <phrase longue>   chiffre la sauvegarde nocturne
-BACKUP_EMAIL          <adresse>         reçoit la sauvegarde nocturne
+BACKUP_PASSPHRASE     <phrase longue>   chiffre la sauvegarde de la base
+BACKUP_EMAIL          <adresse>         reçoit la sauvegarde de la base
 RESEND_API_KEY        <clé Resend>
 ```
 
@@ -177,14 +177,25 @@ une erreur.
 
 ### Sauvegarde de la base
 
-Une copie chiffrée de toutes les lignes, envoyée chaque nuit en pièce jointe,
-hors de l'hébergeur de la base.
+Une copie chiffrée de toutes les lignes, envoyée en pièce jointe hors de
+l'hébergeur de la base.
 
 Créer une troisième tâche sur cron-job.org :
 
 - URL : `https://<projet>.vercel.app/api/backup/run`
-- Méthode : POST, **une fois par jour** (vers 02 h)
+- Méthode : POST, **tous les trois jours** vers 02 h — `0 2 */3 * *`
 - En-tête : `Authorization: Bearer <CRON_SECRET>` — le même secret
+
+Rien dans le code ne dépend de la fréquence : elle dit seulement combien de
+travail on accepte de reperdre. Trois jours est le bon réglage tant que la
+plateforme compte quelques rendez-vous réels par semaine ; le jour où plusieurs
+salons travaillent vraiment dessus, un trou de trois jours devient des clientes
+qui se présentent à un rendez-vous dont personne n'a trace, et il faut repasser
+à une copie par nuit.
+
+(`*/3` porte sur le quantième du mois, pas sur un vrai cycle de trois jours :
+l'écart retombe à un ou deux jours au passage d'un mois à l'autre. Toujours
+plus court que prévu, donc sans conséquence.)
 
 Variables requises :
 
