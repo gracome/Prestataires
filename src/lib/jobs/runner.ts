@@ -28,11 +28,49 @@ export type JobReport = {
   reviewRequests: number;
   calendarsSynced: number;
   sessionsPurged: number;
+  jobRunsPurged: number;
   subscriptionsSuspended: number;
   renewalNotices: number;
   durationMs: number;
   errors: string[];
 };
+
+/**
+ * How long a job run is worth keeping.
+ *
+ * This table writes a row every five minutes, for ever, and nothing was
+ * reading the old ones: it had grown to 4 406 rows out of 4 935 in the whole
+ * database — nine tenths of every backup was the log of the thing that takes
+ * the backup.
+ *
+ * A week, because of the arithmetic: 288 runs a day means a month of
+ * successes is 8 600 rows, which is larger than the rest of the database put
+ * together and is still just a list of mornings when nothing happened. A week
+ * covers "it broke last Monday and I am looking now", which is the longest
+ * anybody has ever waited to look.
+ *
+ * Failures are kept for three months. They are rare, they are the only rows
+ * anybody ever comes back to, and keeping them costs nothing next to the
+ * successes they sat among.
+ */
+const KEEP_SUCCESS_DAYS = 7;
+const KEEP_FAILURE_DAYS = 90;
+
+async function purgeOldJobRuns(now: Date): Promise<number> {
+  const before = (days: number) =>
+    new Date(now.getTime() - days * 24 * 3_600_000);
+
+  const result = await prisma.jobRun.deleteMany({
+    where: {
+      OR: [
+        { succeeded: true, startedAt: { lt: before(KEEP_SUCCESS_DAYS) } },
+        { succeeded: { not: true }, startedAt: { lt: before(KEEP_FAILURE_DAYS) } },
+      ],
+    },
+  });
+
+  return result.count;
+}
 
 export async function runScheduledJobs(
   options: { now?: Date; syncCalendars?: boolean; sendReminders?: boolean } = {},
@@ -53,6 +91,7 @@ export async function runScheduledJobs(
   let reviewRequests = 0;
   let calendarsSynced = 0;
   let sessionsPurged = 0;
+  let jobRunsPurged = 0;
   let subscriptionsSuspended = 0;
   let renewalNotices = 0;
 
@@ -91,6 +130,7 @@ export async function runScheduledJobs(
 
     // 7. Housekeeping.
     sessionsPurged = await purgeExpiredSessions();
+    jobRunsPurged = await purgeOldJobRuns(now);
   } catch (error) {
     errors.push(error instanceof Error ? error.message : String(error));
   }
@@ -103,6 +143,7 @@ export async function runScheduledJobs(
     reviewRequests,
     calendarsSynced,
     sessionsPurged,
+    jobRunsPurged,
     subscriptionsSuspended,
     renewalNotices,
     durationMs: Date.now() - started,

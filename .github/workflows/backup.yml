@@ -40,10 +40,18 @@
 
 name: Sauvegarde de la base
 
+# Plus de planification ici. Ce workflow n'a jamais pu démarrer : vingt
+# exécutions, vingt échecs, pas une seule étape exécutée, parce que les Actions
+# sont bloquées au niveau du compte. Il échouait donc chaque nuit et envoyait
+# un e-mail d'alerte pour une panne que personne ne pouvait corriger depuis ce
+# dépôt.
+#
+# La sauvegarde en service est celle de l'application : POST /api/backup/run,
+# appelée par un ordonnanceur externe (voir DEPLOY.md). Ce fichier reste parce
+# qu'un pg_dump est une meilleure copie qu'un export logique — il porte le
+# schéma, les séquences et les contraintes. Le jour où les Actions seront
+# débloquées, remettre les deux lignes de planification suffit.
 on:
-  schedule:
-    # 02:00 UTC, 03:00 à Porto-Novo : personne ne réserve à cette heure-là.
-    - cron: "0 2 * * *"
   workflow_dispatch:
 
 concurrency:
