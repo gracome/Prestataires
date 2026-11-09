@@ -2669,122 +2669,6 @@ table.data tr:last-child td {
   font-size: 0.85rem;
 }
 
-/* -------------------------------------------------------------------- Hero */
-
-.mk-hero {
-  padding-block: clamp(3.5rem, 9vw, 6.5rem) clamp(3rem, 7vw, 5rem);
-  background:
-    radial-gradient(
-      70ch 40ch at 15% -10%,
-      var(--brand-rose-light),
-      transparent 70%
-    ),
-    var(--brand-cream);
-}
-
-.mk-hero-title {
-  font-family: var(--font-heading);
-  font-size: clamp(2.5rem, 8vw, 4.75rem);
-  line-height: 1.02;
-  letter-spacing: -0.02em;
-  margin: 0.8rem 0 0;
-  max-width: 16ch;
-}
-
-.mk-hero-rest {
-  color: var(--brand-primary-strong);
-}
-
-/* The baseline, directly under the title.
-   Set in the heading face and held to the title's width so it reads as the
-   second half of one statement rather than as the first paragraph. */
-.mk-hero-baseline {
-  font-family: var(--font-heading);
-  font-size: clamp(1.05rem, 2.6vw, 1.3rem);
-  font-style: italic;
-  line-height: 1.5;
-  margin: 1.1rem 0 0;
-  max-width: 34ch;
-  color: var(--brand-primary-strong);
-}
-
-.mk-hero-sub {
-  margin: 1.5rem 0 0;
-  max-width: 52ch;
-  font-size: clamp(1rem, 2.2vw, 1.15rem);
-  line-height: 1.75;
-  color: var(--brand-muted);
-}
-
-/* The rotating trade word. The ghost copy underneath reserves the width of the
-   longest option, so the sentence around it never reflows as it turns. */
-.mk-rotator {
-  position: relative;
-  display: inline-grid;
-  vertical-align: bottom;
-  text-align: left;
-}
-
-.mk-rotator-ghost,
-.mk-rotator-word {
-  grid-area: 1 / 1;
-  white-space: nowrap;
-}
-
-.mk-rotator-ghost {
-  visibility: hidden;
-}
-
-.mk-rotator-word {
-  font-weight: 700;
-  color: var(--brand-text);
-  animation: mk-rotate-in 0.45s ease both;
-}
-
-@keyframes mk-rotate-in {
-  from {
-    opacity: 0;
-    transform: translateY(0.35em);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .mk-rotator-word {
-    animation: none;
-  }
-}
-
-.mk-hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 2rem;
-}
-
-.mk-hero-facts {
-  display: grid;
-  gap: 1.25rem;
-  margin: 3rem 0 0;
-  padding-top: 1.75rem;
-  border-top: 1px solid var(--brand-border);
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  max-width: 44rem;
-}
-
-.mk-hero-facts dt {
-  margin: 0;
-  font-size: 0.78rem;
-  color: var(--brand-muted);
-  line-height: 1.4;
-}
-
-.mk-hero-facts dd {
-  margin: 0.3rem 0 0;
-  font-family: var(--font-heading);
-  font-size: 1.4rem;
-  line-height: 1.1;
-}
-
 /* ------------------------------------------------------- Section furniture */
 
 .mk-head {
@@ -3150,14 +3034,6 @@ table.data tr:last-child td {
   color: var(--brand-muted);
 }
 
-/* ------------------------------------------------------------------ About */
-
-.mk-about {
-  padding-block: clamp(3rem, 7vw, 5rem);
-  background: var(--brand-rose-pale);
-  border-top: 1px solid var(--brand-border);
-}
-
 /* ----------------------------------------------------------------- Footer */
 
 /* Pale rather than dark. A chocolate slab is the conventional way to end a
@@ -3433,389 +3309,323 @@ table.data tr:last-child td {
 }
 
 /* ---------------------------------------------------------------------------
- * Who we are
+ * The cover
  * ---------------------------------------------------------------------------
- * A statement, then four promises in a row. The section used to be a
- * two-column article — a wall of prose facing a stack of ticked lines, closing
- * on a lone outline button — which is a shape people scroll past.
+ * A photograph filling the top of the screen, the promise set over it, and
+ * nothing else. The page spent three versions opening on type alone, which in
+ * a trade where the work is looked at before it is described is arguing in the
+ * wrong language however good the argument is.
  *
- * The heading now carries the argument on its own, at a size that makes it
- * worth stopping for, and the promises are four short columns a visitor can
- * take in without reading a paragraph.
+ * The veil is three stops rather than one: dark at the very top so the header
+ * can be read against it, nearly clear through the middle so the photograph is
+ * actually seen, dark again at the bottom under the words. A single flat
+ * overlay either hides the picture or loses the text, depending which you tune
+ * it for.
  * ------------------------------------------------------------------------ */
 
-.mk-about-head {
-  max-width: 44ch;
-  margin-bottom: clamp(2.5rem, 6vw, 3.5rem);
+.mk-cover {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: grid;
+  align-items: end;
+  min-height: min(88vh, 780px);
 }
 
-/* The one sentence the section exists to say. Larger than a section heading
-   and tighter than one, because it is read as a claim rather than as a label. */
-.mk-statement {
+.mk-cover-photo {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Off-centre upward: the subject of a portrait is in the top third, and
+     centring it puts her head under the header. */
+  object-position: 50% 32%;
+}
+
+.mk-cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    180deg,
+    rgb(36 22 32 / 52%) 0%,
+    rgb(36 22 32 / 14%) 34%,
+    rgb(36 22 32 / 40%) 62%,
+    rgb(36 22 32 / 82%) 100%
+  );
+}
+
+.mk-cover-inner {
+  padding-block: clamp(3rem, 9vw, 5.5rem);
+  color: #fff9f3;
+}
+
+.mk-cover .mk-eyebrow {
+  color: #f3c3d2;
+}
+
+.mk-cover-title {
   font-family: var(--font-heading);
-  font-size: clamp(1.9rem, 5vw, 3rem);
-  line-height: 1.1;
+  font-size: clamp(2.3rem, 6.4vw, 4.4rem);
+  line-height: 1.05;
   letter-spacing: -0.02em;
-  margin: 0.7rem 0 0;
-  color: var(--brand-chocolate);
-  max-width: 20ch;
+  margin: 0.9rem 0 0;
+  max-width: 19ch;
+  /* The photograph underneath is busy in places whatever the veil does. A
+     shadow this soft is invisible on a plain ground and saves the line where
+     a pale highlight runs behind it. */
+  text-shadow: 0 1px 24px rgb(23 12 18 / 45%);
 }
 
-.mk-statement span {
-  color: var(--brand-primary-strong);
+.mk-cover-sub {
+  margin: 1.2rem 0 0;
+  max-width: 44ch;
+  font-size: clamp(1rem, 2.2vw, 1.15rem);
+  line-height: 1.7;
+  color: rgb(255 249 243 / 86%);
 }
 
-.mk-about-lead {
-  margin: 1.4rem 0 0;
-  max-width: 58ch;
+.mk-cover-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+/* The second action over a photograph. The cream ghost button is drawn with a
+   token border that the cover does not redefine, so it came out as a line
+   nobody could see. */
+.mk-btn-quiet {
+  background: rgb(255 249 243 / 12%);
+  color: #fff9f3;
+  border: 1px solid rgb(255 249 243 / 45%);
+  backdrop-filter: blur(6px);
+}
+
+.mk-btn-quiet:hover {
+  background: rgb(255 249 243 / 20%);
+  border-color: #fff9f3;
+}
+
+/* The header, while it is still over the cover. Once the visitor has scrolled
+   past 24px it takes its cream treatment back, which is also the moment the
+   photograph has left the top of the screen. */
+.mk[data-cover="true"] .mk-nav:not([data-scrolled="true"]) {
+  background: transparent;
+  backdrop-filter: none;
+}
+
+.mk[data-cover="true"] .mk-nav:not([data-scrolled="true"]) .mk-logo,
+.mk[data-cover="true"] .mk-nav:not([data-scrolled="true"]) .mk-nav-login {
+  color: #fff9f3;
+}
+
+.mk[data-cover="true"] .mk-nav:not([data-scrolled="true"]) .mk-nav-links a {
+  color: rgb(255 249 243 / 78%);
+}
+
+.mk[data-cover="true"] .mk-nav:not([data-scrolled="true"]) .mk-nav-links a:hover {
+  color: #fff9f3;
+}
+
+.mk[data-cover="true"] .mk-nav:not([data-scrolled="true"]) .mk-logo-mark {
+  background: #fff9f3;
+}
+
+/* ---------------------------------------------------------------- Terms */
+
+/* The three figures, on one quiet line under the cover. They are the whole
+   commercial argument and they take eleven words, so they get a rule rather
+   than a section. */
+.mk-terms {
+  background: var(--brand-surface);
+  border-bottom: 1px solid var(--brand-border);
+}
+
+.mk-terms dl {
+  display: grid;
+  gap: 1.1rem 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  margin: 0;
+  padding-block: clamp(1.35rem, 3vw, 1.85rem);
+}
+
+.mk-terms dt {
+  margin: 0;
+  font-size: 0.76rem;
+  line-height: 1.4;
+  color: var(--brand-muted);
+}
+
+.mk-terms dd {
+  margin: 0.3rem 0 0;
+  font-family: var(--font-heading);
+  font-size: clamp(1.2rem, 2.6vw, 1.45rem);
+  line-height: 1.1;
+}
+
+/* ---------------------------------------------------------------------------
+ * The moments
+ * ---------------------------------------------------------------------------
+ * A picture and a sentence, three times, the picture changing sides. This is
+ * the whole middle of the page: what used to be four numbered cards, then four
+ * steps down a drawn path, then a tour of mock screens.
+ *
+ * The pictures are tall rather than wide, and larger than the text beside
+ * them. A landscape thumbnail next to a paragraph is an illustration; a
+ * portrait that outweighs the words is the subject, which is the right way
+ * round for a trade whose product is how something looks.
+ * ------------------------------------------------------------------------ */
+
+.mk-moment {
+  width: 100%;
+  max-width: 1120px;
+  margin-inline: auto;
+  padding: clamp(3rem, 7vw, 5.5rem) 1.15rem;
+  display: grid;
+  gap: clamp(1.75rem, 4vw, 2.5rem);
+  align-items: center;
+}
+
+/* Hairlines between, never above the first or below the last: the cover and
+   the claim already close those ends. */
+.mk-moment + .mk-moment {
+  border-top: 1px solid var(--brand-border);
+}
+
+@media (min-width: 900px) {
+  .mk-moment {
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+    gap: clamp(2.5rem, 6vw, 5rem);
+  }
+
+  /* The attribute rather than :nth-child, so the order of MOMENTS can change
+     without the rhythm breaking. */
+  .mk-moment[data-side="right"] .mk-moment-photo {
+    order: 2;
+  }
+}
+
+.mk-moment-photo {
+  min-width: 0;
+}
+
+.mk-moment-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 26px;
+  background: var(--brand-rose-light);
+}
+
+@media (min-width: 900px) {
+  .mk-moment-photo img {
+    aspect-ratio: 4 / 5;
+  }
+}
+
+.mk-moment-copy {
+  min-width: 0;
+}
+
+.mk-moment-copy h2 {
+  font-family: var(--font-heading);
+  font-size: clamp(1.65rem, 3.8vw, 2.5rem);
+  line-height: 1.14;
+  letter-spacing: -0.015em;
+  margin: 0.7rem 0 1rem;
+  max-width: 17ch;
+}
+
+.mk-moment-copy p {
+  margin: 0;
+  max-width: 42ch;
   font-size: 1rem;
   line-height: 1.8;
   color: var(--brand-muted);
 }
 
-/* Four columns, each opening on a hairline. The rule across the top is what
-   turns four paragraphs into a row — without it they read as a list that
-   happens to wrap. */
-.mk-principles {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 1.75rem 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+/* ---------------------------------------------------------------- The claim */
+
+/* One sentence, alone. The page needs somewhere to breathe between the
+   photographs and the prices, and the thing worth saying there is the one a
+   directory cannot say. */
+.mk-claim {
+  padding-block: clamp(4rem, 10vw, 7rem);
+  background: var(--brand-rose-pale);
+  border-block: 1px solid var(--brand-border);
 }
 
-.mk-principles li {
-  padding-top: 1.1rem;
-  border-top: 1px solid var(--brand-border);
-}
-
-.mk-principle-number {
+.mk-claim-text {
+  margin: 0 auto;
+  max-width: 26ch;
+  text-align: center;
   font-family: var(--font-heading);
-  font-size: 0.85rem;
-  color: var(--brand-primary-strong);
-}
-
-.mk-principles h3 {
-  margin: 0.5rem 0 0.55rem;
-  font-family: var(--font-heading);
-  font-size: 1.12rem;
-  line-height: 1.25;
-  color: var(--brand-chocolate);
-}
-
-.mk-principles p {
-  margin: 0;
-  font-size: 0.9rem;
-  line-height: 1.7;
-  color: var(--brand-muted);
-}
-
-/* The aside and the call sit on one line on a wide screen, so the section ends
-   on a sentence worth reading rather than on a button by itself. */
-.mk-about-foot {
-  display: grid;
-  gap: 1.25rem;
-  align-items: center;
-  margin-top: clamp(2.5rem, 6vw, 3.5rem);
-  padding-top: 1.75rem;
-  border-top: 1px solid var(--brand-border);
-}
-
-@media (min-width: 820px) {
-  .mk-about-foot {
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 2.5rem;
-  }
-}
-
-.mk-about-foot p {
-  margin: 0;
-  max-width: 62ch;
-  font-size: 0.95rem;
-  line-height: 1.75;
-  color: var(--brand-muted);
-}
-
-/* --------------------------------------------------------------- Qui nous */
-
-.mk-about {
-  padding-block: clamp(3.5rem, 8vw, 5.5rem);
-}
-
-
-/* ---------------------------------------------------------------------------
- * The closing band
- * ---------------------------------------------------------------------------
- * The page is cream from the hero to the prices and then ends on plum, once,
- * where it says the part a provider is asked to take on trust.
- *
- * It was briefly two bands, the hero as well. The hero could not keep it: the
- * product tour draws real surfaces by reading the --brand-* tokens, a dark
- * band has to redefine those tokens, and every white card in the drawing came
- * out translucent plum. Nothing in this section reads them, so here it holds.
- *
- * It re-declares the tokens it sits on rather than overriding every child rule,
- * so .mk-statement, .mk-principles and the rest come out right without knowing
- * they are on a dark ground.
- * ------------------------------------------------------------------------ */
-
-.mk-about-dark {
-  --brand-text: #fff9f3;
-  --brand-chocolate: #fff9f3;
-  --brand-muted: #c8aeb9;
-  --brand-border: rgb(255 249 243 / 16%);
-  --brand-surface: rgb(255 249 243 / 6%);
-  /* The deep rose loses too much against plum; the soft one carries it. */
-  --brand-primary-strong: #f9a8bf;
-
-  position: relative;
-  color: var(--brand-text);
-  border-top: none;
-  background:
-    radial-gradient(
-      56ch 38ch at 88% 110%,
-      rgb(242 122 154 / 26%),
-      transparent 66%
-    ),
-    #241620;
-}
-
-/* A hairline of rose where the dark meets the cream footer, so the join reads
-   as a seam rather than as an edge. */
-.mk-about-dark::after {
-  content: "";
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgb(242 122 154 / 55%),
-    transparent
-  );
-}
-
-/* The primary button inherits --brand-primary-strong as its fill and keeps
-   white text. On plum that fill is the soft rose, and white on soft rose is
-   1.9:1, so the label vanishes. On the dark band the button takes the plum
-   back as its text colour, which reaches 9:1. */
-.mk-about-dark .mk-btn:not(.mk-btn-ghost) {
-  background: #f9a8bf;
-  color: #241620;
-}
-
-.mk-about-dark .mk-btn:not(.mk-btn-ghost):hover {
-  background: #fcc3d3;
-}
-
-/* ---------------------------------------------------------------------------
- * The split hero
- * ---------------------------------------------------------------------------
- * The page used to open on a paragraph and two buttons, with the product
- * nowhere on screen. One column of words, however well set, is a brochure.
- *
- * The copy keeps the left and holds its measure; the tour takes the right and
- * is allowed to overflow its column slightly on a wide screen, so the hero
- * reads as a layout rather than as two boxes side by side. Below 1000px the
- * tour goes under the copy, where it still does its job: by then it is the
- * first thing under the thumb.
- * ------------------------------------------------------------------------ */
-
-.mk-hero-grid {
-  display: grid;
-  gap: clamp(2.5rem, 6vw, 3.5rem);
-  align-items: center;
-}
-
-.mk-hero-copy {
-  min-width: 0;
-}
-
-.mk-hero-visual {
-  min-width: 0;
-}
-
-/* The three figures used to be a list under the paragraph, held to 44rem
-   because that was the width of the text above them. They are now a band under
-   both columns, so they take the whole measure and read as the terms of the
-   offer rather than as a fourth paragraph. */
-.mk-hero .mk-hero-facts {
-  max-width: none;
-  margin-top: clamp(2.5rem, 6vw, 4rem);
-}
-
-@media (min-width: 1000px) {
-  .mk-hero-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
-    gap: clamp(2.5rem, 5vw, 4.5rem);
-  }
-
-  /* Wider than its column and pulled right, so the frame runs towards the
-     edge of the screen instead of stopping politely inside the container. */
-  .mk-hero-visual {
-    margin-right: clamp(-4rem, -3vw, 0rem);
-  }
-}
-
-/* ---------------------------------------------------------------------------
- * A sticky column beside a scrolling one
- * ---------------------------------------------------------------------------
- * Used once, for the argument that has four parts. The heading stays in view
- * while the four steps pass it, because they are one movement and not four
- * independent claims, and a reader who has lost the heading by the third one
- * reads the third one as a feature.
- * ------------------------------------------------------------------------ */
-
-.mk-split {
-  display: grid;
-  gap: 2.5rem;
-  align-items: start;
-}
-
-@media (min-width: 980px) {
-  .mk-split {
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
-    gap: clamp(3rem, 6vw, 5rem);
-  }
-
-  .mk-split-aside {
-    position: sticky;
-    /* Clears the sticky header, which is 66px, plus air. */
-    top: 6rem;
-  }
-}
-
-.mk-split-aside .mk-h2 {
-  max-width: 14ch;
-}
-
-.mk-split-aside .mk-lead {
-  max-width: 34ch;
-}
-
-/* ---------------------------------------------------------------------------
- * The path: the notebook, then the business
- * ---------------------------------------------------------------------------
- * This replaced four cards in a grid, and before that a feature tour and a
- * two-column argument against the directories.
- *
- * Cards say "here are four features". A line down the page says "this is the
- * order it happens in", which is the claim actually being made. The rule is
- * drawn behind the numbers and stops at the last one, so the sequence ends
- * rather than trailing off.
- *
- * Each step shows what she says today in quiet italic, then what replaces it.
- * Neither struck through nor marked with a cross: a provider who works from a
- * notebook should recognise herself, not be told she was doing it wrong.
- * ------------------------------------------------------------------------ */
-
-.mk-path {
-  position: relative;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: clamp(2rem, 4vw, 2.75rem);
-}
-
-.mk-step {
-  position: relative;
-  padding-left: 3.5rem;
-}
-
-/* The rule. Drawn per step rather than once down the list, so the last step
-   can leave it out and the line finishes with the argument. */
-.mk-step::before {
-  content: "";
-  position: absolute;
-  left: 1.1rem;
-  top: 2.4rem;
-  bottom: calc(-1 * clamp(2rem, 4vw, 2.75rem));
-  width: 1px;
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--brand-primary) 45%, transparent),
-    color-mix(in srgb, var(--brand-primary) 12%, transparent)
-  );
-}
-
-.mk-step:last-child::before {
-  display: none;
-}
-
-/* The number sits on the rule as a bead. The ring is what keeps the cream
-   from showing through the line behind it. */
-.mk-step-num {
-  position: absolute;
-  left: 0;
-  top: 0;
-  display: grid;
-  place-items: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 999px;
-  background: var(--brand-surface);
-  border: 1px solid color-mix(in srgb, var(--brand-primary) 35%, transparent);
-  font-family: var(--font-heading);
-  font-size: 0.82rem;
-  color: var(--brand-primary-strong);
-}
-
-.mk-step-before {
-  margin: 0.3rem 0 0.9rem;
-  font-family: var(--font-heading);
-  font-style: italic;
-  font-size: clamp(1.02rem, 2.3vw, 1.2rem);
-  line-height: 1.55;
-  color: var(--brand-muted);
-}
-
-.mk-step-after {
-  position: relative;
-  margin: 0 0 0.5rem;
-  padding-top: 0.9rem;
-  font-family: var(--font-heading);
-  font-size: clamp(1.3rem, 3vw, 1.6rem);
-  line-height: 1.18;
+  font-size: clamp(1.7rem, 4.4vw, 2.9rem);
+  line-height: 1.22;
   letter-spacing: -0.015em;
   color: var(--brand-chocolate);
 }
 
-/* A short rose rule between what she says and what replaces it: the turn in
-   the sentence, drawn. */
-.mk-step-after::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 2.5rem;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--brand-primary);
+/* ---------------------------------------------------------------------------
+ * The close
+ * ---------------------------------------------------------------------------
+ * Two sentences and a photograph. It was a statement, a lead, three numbered
+ * promises and an aside; the promises are all said earlier by the terms line
+ * and the claim, and saying them twice was the page insisting.
+ * ------------------------------------------------------------------------ */
+
+/* Cream, which is the page's own ground: the demo and the prices above it are
+   both white, and a third white band would make the bottom third of the page
+   one undifferentiated sheet. */
+.mk-closing {
+  padding-block: clamp(3.5rem, 8vw, 5.5rem);
+  border-top: 1px solid var(--brand-border);
 }
 
-.mk-step-body {
-  margin: 0;
-  max-width: 54ch;
-  font-size: 0.95rem;
-  line-height: 1.75;
+.mk-closing-grid {
+  display: grid;
+  gap: clamp(2rem, 5vw, 3rem);
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .mk-closing-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+    gap: clamp(2.5rem, 6vw, 4.5rem);
+  }
+}
+
+.mk-closing-copy h2 {
+  font-family: var(--font-heading);
+  font-size: clamp(1.65rem, 3.8vw, 2.4rem);
+  line-height: 1.16;
+  letter-spacing: -0.015em;
+  margin: 0.7rem 0 1rem;
+  max-width: 18ch;
+}
+
+.mk-closing-copy p {
+  margin: 0 0 1.85rem;
+  max-width: 48ch;
+  font-size: 1rem;
+  line-height: 1.8;
   color: var(--brand-muted);
 }
 
-/* -------------------------------------------------------- Centred headings */
-
-/* Used only by the gallery, which is the one full-width thing on the page and
-   looks lopsided under a heading pinned to the left margin. */
-.mk-head-center {
-  margin-inline: auto;
-  text-align: center;
-  max-width: 48ch;
-}
-
-.mk-head-center .mk-h2 {
-  margin-inline: auto;
+.mk-closing-photo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 5 / 4;
+  object-fit: cover;
+  border-radius: 26px;
+  background: var(--brand-rose-light);
 }
 
 /* ---------------------------------------------------------------------------
