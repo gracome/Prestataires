@@ -2280,7 +2280,7 @@ table.data tr:last-child td {
 }
 
 .mk-section {
-  padding-block: 3.25rem;
+  padding-block: clamp(3rem, 7vw, 5rem);
 }
 
 .mk-section-quiet {
@@ -3309,140 +3309,120 @@ table.data tr:last-child td {
 }
 
 /* ---------------------------------------------------------------------------
- * The cover
+ * The landing page, set in type
  * ---------------------------------------------------------------------------
- * A photograph filling the top of the screen, the promise set over it, and
- * nothing else. The page spent three versions opening on type alone, which in
- * a trade where the work is looked at before it is described is arguing in the
- * wrong language however good the argument is.
+ * No photographs and no drawings. The photographic version was borrowed stock,
+ * seven frames of which showed pale hands, which is not what a salon in
+ * Porto-Novo looks like; the drawn mock screens before it read as a wireframe.
+ * A borrowed picture of somebody else's client is the one thing on a page a
+ * visitor can tell is not real.
  *
- * The veil is three stops rather than one: dark at the very top so the header
- * can be read against it, nearly clear through the middle so the photograph is
- * actually seen, dark again at the bottom under the words. A single flat
- * overlay either hides the picture or loses the text, depending which you tune
- * it for.
+ * What is left has to carry the page on its own, and the earlier typographic
+ * versions prove that type alone is not enough: they were bland because they
+ * were set small and crowded, five bands of eyebrow, heading, paragraph and
+ * card grid, every one at the same size in the same column.
+ *
+ * Three rules, then.
+ *
+ * Scale. The cover and the claim are set near 4.8rem on a wide screen, which
+ * is roughly twice what this page used, and Playfair is kept at 400 there:
+ * a light serif at a large size reads as composed, the same face bolded reads
+ * as loud.
+ *
+ * Air. A band is allowed most of a screen for one sentence. The space is the
+ * design, so the padding is deliberately larger than looks reasonable in the
+ * stylesheet.
+ *
+ * Restraint. Cream, plum and one rose. The rose appears as a kicker, a numeral
+ * and a hairline, never as a fill.
  * ------------------------------------------------------------------------ */
 
+/* The small tracked line above a heading. The old .mk-eyebrow is still worn by
+   the module pages; this one is wider-tracked and quieter, which is what reads
+   as considered beside type this large. */
+.mk-kicker {
+  margin: 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--brand-primary-strong);
+}
+
+/* ------------------------------------------------------------------- Cover */
+
 .mk-cover {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
   display: grid;
-  align-items: end;
-  min-height: min(88vh, 780px);
-}
-
-.mk-cover-photo {
-  position: absolute;
-  inset: 0;
-  z-index: -2;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /* Off-centre upward: the subject of a portrait is in the top third, and
-     centring it puts her head under the header. */
-  object-position: 50% 32%;
-}
-
-.mk-cover::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background: linear-gradient(
-    180deg,
-    rgb(36 22 32 / 52%) 0%,
-    rgb(36 22 32 / 14%) 34%,
-    rgb(36 22 32 / 40%) 62%,
-    rgb(36 22 32 / 82%) 100%
-  );
-}
-
-.mk-cover-inner {
-  padding-block: clamp(3rem, 9vw, 5.5rem);
-  color: #fff9f3;
-}
-
-.mk-cover .mk-eyebrow {
-  color: #f3c3d2;
+  align-items: center;
+  min-height: min(90vh, 840px);
+  padding-block: clamp(3.5rem, 11vw, 7rem);
+  /* The only gradient on the page, and it is nearly invisible: enough to keep
+     the top-left corner from being flat cream, not enough to notice. */
+  background:
+    radial-gradient(
+      72ch 48ch at 16% -12%,
+      var(--brand-rose-light),
+      transparent 72%
+    ),
+    var(--brand-cream);
 }
 
 .mk-cover-title {
   font-family: var(--font-heading);
-  font-size: clamp(2.3rem, 6.4vw, 4.4rem);
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  margin: 0.9rem 0 0;
-  max-width: 19ch;
-  /* The photograph underneath is busy in places whatever the veil does. A
-     shadow this soft is invisible on a plain ground and saves the line where
-     a pale highlight runs behind it. */
-  text-shadow: 0 1px 24px rgb(23 12 18 / 45%);
+  /* Light on purpose. Playfair at 700 and this size shouts. */
+  font-weight: 400;
+  font-size: clamp(2.35rem, 6.6vw, 4.8rem);
+  line-height: 1.04;
+  letter-spacing: -0.025em;
+  margin: clamp(1.1rem, 2.6vw, 1.75rem) 0 0;
+  max-width: 17ch;
 }
 
+/* The hairline is the whole ornament: a rule the width of the paragraph,
+   under a title four times its size, is what makes the pair read as composed
+   rather than as two stacked blocks. */
 .mk-cover-sub {
-  margin: 1.2rem 0 0;
-  max-width: 44ch;
-  font-size: clamp(1rem, 2.2vw, 1.15rem);
-  line-height: 1.7;
-  color: rgb(255 249 243 / 86%);
+  margin: clamp(1.75rem, 3.5vw, 2.5rem) 0 0;
+  padding-top: clamp(1.5rem, 3vw, 2rem);
+  border-top: 1px solid var(--brand-border);
+  max-width: 42ch;
+  font-size: clamp(1rem, 2vw, 1.12rem);
+  line-height: 1.75;
+  color: var(--brand-muted);
 }
 
 .mk-cover-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  margin-top: 2rem;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: clamp(2rem, 4vw, 2.75rem);
 }
 
-/* The second action over a photograph. The cream ghost button is drawn with a
-   token border that the cover does not redefine, so it came out as a line
-   nobody could see. */
-.mk-btn-quiet {
-  background: rgb(255 249 243 / 12%);
-  color: #fff9f3;
-  border: 1px solid rgb(255 249 243 / 45%);
-  backdrop-filter: blur(6px);
+/* The second action is a link, not a second button. Two buttons side by side
+   ask the visitor to choose; a button and a link tell her which one matters. */
+.mk-link {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--brand-text);
+  text-decoration: none;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--brand-text) 32%, transparent);
+  transition: border-color 0.2s ease;
 }
 
-.mk-btn-quiet:hover {
-  background: rgb(255 249 243 / 20%);
-  border-color: #fff9f3;
+.mk-link:hover {
+  border-bottom-color: var(--brand-text);
 }
 
-/* The header, while it is still over the cover. Once the visitor has scrolled
-   past 24px it takes its cream treatment back, which is also the moment the
-   photograph has left the top of the screen. */
-.mk[data-cover="true"] .mk-nav:not([data-scrolled="true"]) {
-  background: transparent;
-  backdrop-filter: none;
-}
+/* ------------------------------------------------------------------- Terms */
 
-.mk[data-cover="true"] .mk-nav:not([data-scrolled="true"]) .mk-logo,
-.mk[data-cover="true"] .mk-nav:not([data-scrolled="true"]) .mk-nav-login {
-  color: #fff9f3;
-}
-
-.mk[data-cover="true"] .mk-nav:not([data-scrolled="true"]) .mk-nav-links a {
-  color: rgb(255 249 243 / 78%);
-}
-
-.mk[data-cover="true"] .mk-nav:not([data-scrolled="true"]) .mk-nav-links a:hover {
-  color: #fff9f3;
-}
-
-.mk[data-cover="true"] .mk-nav:not([data-scrolled="true"]) .mk-logo-mark {
-  background: #fff9f3;
-}
-
-/* ---------------------------------------------------------------- Terms */
-
-/* The three figures, on one quiet line under the cover. They are the whole
-   commercial argument and they take eleven words, so they get a rule rather
-   than a section. */
+/* Three figures on one quiet line. They are the whole commercial argument and
+   they take eleven words, so they get a rule rather than a section. */
 .mk-terms {
   background: var(--brand-surface);
-  border-bottom: 1px solid var(--brand-border);
+  border-block: 1px solid var(--brand-border);
 }
 
 .mk-terms dl {
@@ -3450,7 +3430,7 @@ table.data tr:last-child td {
   gap: 1.1rem 2rem;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   margin: 0;
-  padding-block: clamp(1.35rem, 3vw, 1.85rem);
+  padding-block: clamp(1.5rem, 3.5vw, 2.25rem);
 }
 
 .mk-terms dt {
@@ -3461,171 +3441,113 @@ table.data tr:last-child td {
 }
 
 .mk-terms dd {
-  margin: 0.3rem 0 0;
+  margin: 0.35rem 0 0;
   font-family: var(--font-heading);
-  font-size: clamp(1.2rem, 2.6vw, 1.45rem);
+  font-weight: 400;
+  font-size: clamp(1.25rem, 2.8vw, 1.6rem);
   line-height: 1.1;
 }
 
-/* ---------------------------------------------------------------------------
- * The moments
- * ---------------------------------------------------------------------------
- * A picture and a sentence, three times, the picture changing sides. This is
- * the whole middle of the page: what used to be four numbered cards, then four
- * steps down a drawn path, then a tour of mock screens.
- *
- * The pictures are tall rather than wide, and larger than the text beside
- * them. A landscape thumbnail next to a paragraph is an illustration; a
- * portrait that outweighs the words is the subject, which is the right way
- * round for a trade whose product is how something looks.
- * ------------------------------------------------------------------------ */
+/* ----------------------------------------------------------------- Moments */
 
+/* One statement to a band, three bands, a great deal of room around each. */
 .mk-moment {
-  width: 100%;
-  max-width: 1120px;
-  margin-inline: auto;
-  padding: clamp(3rem, 7vw, 5.5rem) 1.15rem;
-  display: grid;
-  gap: clamp(1.75rem, 4vw, 2.5rem);
-  align-items: center;
+  padding-block: clamp(3.5rem, 10vw, 7rem);
 }
 
-/* Hairlines between, never above the first or below the last: the cover and
-   the claim already close those ends. */
 .mk-moment + .mk-moment {
   border-top: 1px solid var(--brand-border);
 }
 
+/* The second one steps in from the margin. Three identical left-aligned bands
+   is the sameness that made every earlier version of this page feel flat, and
+   an indent breaks it without adding a thing to look at. */
 @media (min-width: 900px) {
-  .mk-moment {
-    grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
-    gap: clamp(2.5rem, 6vw, 5rem);
-  }
-
-  /* The attribute rather than :nth-child, so the order of MOMENTS can change
-     without the rhythm breaking. */
-  .mk-moment[data-side="right"] .mk-moment-photo {
-    order: 2;
+  .mk-moment:nth-child(2) > .container {
+    padding-left: calc(1.15rem + 30%);
   }
 }
 
-.mk-moment-photo {
-  min-width: 0;
-}
-
-.mk-moment-photo img {
+/* Roman, because a decorative numeral is the only ornament this page allows
+   itself, and a roman one reads as a chapter rather than as step 2 of 3. */
+.mk-moment-numeral {
   display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  border-radius: 26px;
-  background: var(--brand-rose-light);
-}
-
-@media (min-width: 900px) {
-  .mk-moment-photo img {
-    aspect-ratio: 4 / 5;
-  }
-}
-
-.mk-moment-copy {
-  min-width: 0;
-}
-
-.mk-moment-copy h2 {
   font-family: var(--font-heading);
-  font-size: clamp(1.65rem, 3.8vw, 2.5rem);
-  line-height: 1.14;
-  letter-spacing: -0.015em;
-  margin: 0.7rem 0 1rem;
-  max-width: 17ch;
+  font-weight: 400;
+  font-size: clamp(2.25rem, 6vw, 3.75rem);
+  line-height: 1;
+  letter-spacing: 0.02em;
+  margin-bottom: clamp(1.25rem, 3vw, 2rem);
+  color: color-mix(in srgb, var(--brand-primary) 42%, transparent);
 }
 
-.mk-moment-copy p {
+.mk-moment-title {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: clamp(1.8rem, 4.8vw, 3.2rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  margin: 0.85rem 0 1.35rem;
+  max-width: 20ch;
+}
+
+.mk-moment-body {
   margin: 0;
-  max-width: 42ch;
-  font-size: 1rem;
+  max-width: 44ch;
+  font-size: clamp(1rem, 2vw, 1.08rem);
   line-height: 1.8;
   color: var(--brand-muted);
 }
 
-/* ---------------------------------------------------------------- The claim */
+/* ------------------------------------------------------------------- Claim */
 
-/* One sentence, alone. The page needs somewhere to breathe between the
-   photographs and the prices, and the thing worth saying there is the one a
+/* One sentence, alone, as large as the cover. The page needs a place to
+   breathe before the prices, and the thing worth saying there is the one a
    directory cannot say. */
 .mk-claim {
-  padding-block: clamp(4rem, 10vw, 7rem);
+  padding-block: clamp(4.5rem, 12vw, 8rem);
   background: var(--brand-rose-pale);
   border-block: 1px solid var(--brand-border);
 }
 
 .mk-claim-text {
   margin: 0 auto;
-  max-width: 26ch;
+  max-width: 24ch;
   text-align: center;
   font-family: var(--font-heading);
-  font-size: clamp(1.7rem, 4.4vw, 2.9rem);
-  line-height: 1.22;
-  letter-spacing: -0.015em;
+  font-weight: 400;
+  font-size: clamp(1.8rem, 5vw, 3.4rem);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
   color: var(--brand-chocolate);
 }
 
-/* ---------------------------------------------------------------------------
- * The close
- * ---------------------------------------------------------------------------
- * Two sentences and a photograph. It was a statement, a lead, three numbered
- * promises and an aside; the promises are all said earlier by the terms line
- * and the claim, and saying them twice was the page insisting.
- * ------------------------------------------------------------------------ */
+/* ----------------------------------------------------------------- Closing */
 
 /* Cream, which is the page's own ground: the demo and the prices above it are
    both white, and a third white band would make the bottom third of the page
    one undifferentiated sheet. */
 .mk-closing {
-  padding-block: clamp(3.5rem, 8vw, 5.5rem);
+  padding-block: clamp(4rem, 10vw, 7rem);
   border-top: 1px solid var(--brand-border);
 }
 
-.mk-closing-grid {
-  display: grid;
-  gap: clamp(2rem, 5vw, 3rem);
-  align-items: center;
-}
-
-@media (min-width: 900px) {
-  .mk-closing-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
-    gap: clamp(2.5rem, 6vw, 4.5rem);
-  }
-}
-
-.mk-closing-copy h2 {
+.mk-closing-title {
   font-family: var(--font-heading);
-  font-size: clamp(1.65rem, 3.8vw, 2.4rem);
-  line-height: 1.16;
-  letter-spacing: -0.015em;
-  margin: 0.7rem 0 1rem;
+  font-weight: 400;
+  font-size: clamp(1.8rem, 4.6vw, 3rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  margin: 0.85rem 0 1.35rem;
   max-width: 18ch;
 }
 
-.mk-closing-copy p {
-  margin: 0 0 1.85rem;
-  max-width: 48ch;
-  font-size: 1rem;
+.mk-closing-body {
+  margin: 0 0 2.25rem;
+  max-width: 50ch;
+  font-size: clamp(1rem, 2vw, 1.08rem);
   line-height: 1.8;
   color: var(--brand-muted);
-}
-
-.mk-closing-photo img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 5 / 4;
-  object-fit: cover;
-  border-radius: 26px;
-  background: var(--brand-rose-light);
 }
 
 /* ---------------------------------------------------------------------------

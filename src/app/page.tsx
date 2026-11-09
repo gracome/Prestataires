@@ -16,7 +16,6 @@ import { MarketingHeader } from "@/components/marketing/MarketingHeader";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
 import { CONTACT, PRODUCT } from "@/lib/marketing/product";
 import { DemoStudio } from "@/components/marketing/DemoStudio";
-import { photo } from "@/lib/marketing/imagery";
 
 export const dynamic = "force-dynamic";
 
@@ -29,75 +28,67 @@ export const metadata: Metadata = {
 /**
  * Platform landing page.
  *
- * This is the fourth arrangement, and the first one built to a brief rather
- * than to a theory. The three before it were, in order: a tour of the features;
- * an argument against the directories; and a structural rebuild with a split
- * hero, a sticky column and two carousels of drawn mock screens. Each was
- * tighter than the last and all three were wrong in the same way, which took
- * being told plainly to see.
+ * Fifth arrangement. The four before it: a tour of the features; an argument
+ * against the directories; a structural rebuild with a split hero, a sticky
+ * column and two carousels of drawn mock screens; and a photographic one.
  *
- * They were pages about software. This is a trade where the work is looked at
- * before it is described, and a page that sells it with numbered paragraphs and
- * wireframes is arguing in the wrong language however good the argument is.
+ * What survived each round is worth writing down, because it is the brief.
  *
- * So: photographs, large, and few words beside them. One statement to a
- * section. The drawn product mock-ups are gone, and so is the gallery of five
- * template palettes, which put five colour schemes on a page already carrying
- * its own and made the whole thing shout.
+ * Not a page about software. This is a trade where the work is looked at
+ * before it is described, so numbered paragraphs and wireframes argue in the
+ * wrong language however good the argument is. The drawn mock-ups and the
+ * gallery of five template palettes are gone for good: the gallery put five
+ * colour schemes on a page already carrying its own, and made the whole thing
+ * shout.
  *
- * Two constraints the pictures have to respect.
+ * And no photographs either. The library is eight Unsplash stand-ins, seven of
+ * which show pale hands and pale skin, which is not what a salon in Porto-Novo
+ * looks like. A borrowed photograph of somebody else's client is worse than no
+ * photograph: it is the one thing on the page a visitor can tell is not real.
  *
- * They must not photograph one trade. The very first version of this page was
- * shot entirely in a nail salon, which quietly told every hairdresser and
- * barber that the product was not for them. So the five pictures here are hair,
- * make-up, a treatment room, a manicurist's hands and a finished manicure:
- * four trades, none of them presented as the trade, and no photograph used
- * twice.
- *
- * And they are the wrong photographs, which is worth stating rather than
- * hiding. Seven of the eight in the library show pale hands and pale skin. The
- * two used here that include a person were chosen partly for not doing that,
- * but a page for salons in Porto-Novo should be photographed in Porto-Novo.
+ * Which leaves type, and the discipline that goes with it. A typographic page
+ * is bland when it is set small and crowded, which is what the earlier ones
+ * were: five sections of eyebrow, heading, paragraph, card grid, all at the
+ * same size in the same column. The remedy is not ornament. It is scale and
+ * air: one statement to a screen, set large enough to be worth stopping for,
+ * with enough space around it that nothing competes. Three colours, cream,
+ * plum and one rose, and nothing else borrowed.
  *
  * It deliberately does not list the providers on the platform: their client
  * lists are not a directory.
  */
 
 /**
- * The three moments, each one a picture and a sentence.
+ * The three moments, each one a sentence.
  *
- * Four before, and the fourth, the figures at the end of the month, was the
- * weakest thing to look at: a dashboard is the one part of this product that
- * cannot be photographed. It is still sold, in the plans below, where a reader
- * is already reading rather than looking.
+ * Four before, and the fourth, the figures at the end of the month, was cut:
+ * it is the one part of this product a visitor cannot picture, and it is
+ * already sold by the plans below, where she is reading rather than looking.
  *
- * The text is deliberately shorter than it wants to be. Every one of these was
- * a paragraph in the previous version.
+ * The body text is deliberately shorter than it wants to be. Every one of
+ * these was a full paragraph two versions ago.
  */
 const MOMENTS = [
   {
     key: "adresse",
+    index: "I",
     eyebrow: "Votre adresse",
     title: "Un lien à envoyer, pas un numéro à donner.",
     body: "Vos prestations, vos tarifs, vos photos. Votre cliente ouvre le lien à minuit et réserve seule.",
-    image: photo("portrait", 1100),
-    alt: "Palettes de fards, pinceaux et flacons posés sur un plan clair",
   },
   {
     key: "agenda",
+    index: "II",
     eyebrow: "Votre agenda",
     title: "Deux clientes ne peuvent pas prendre la même heure.",
     body: "Elle ne voit que vos vraies disponibilités. Le double rendez-vous n'est pas vérifié, il est impossible.",
-    image: photo("care", 1100),
-    alt: "Une esthéticienne applique un masque à une cliente allongée",
   },
   {
     key: "acompte",
+    index: "III",
     eyebrow: "Vos acomptes",
     title: "La journée commence avec de la caisse.",
     body: "Elle règle une partie en réservant, sur votre compte. Celles qui ne viennent pas deviennent rares.",
-    image: photo("detail", 1100),
-    alt: "Les mains d'une prothésiste ongulaire au travail",
   },
 ] as const;
 
@@ -120,41 +111,33 @@ export default async function BeautyPrestPage() {
     .catch(() => 0);
 
   return (
-    // data-cover tells the sticky header to go light and transparent until the
-    // visitor has scrolled past the photograph, so it is never cream on top of
-    // an image.
-    <div className="mk" data-cover="true">
+    <div className="mk">
       <MarketingHeader />
 
       <main>
         {/* --------------------------------------------------------- Cover */}
-        {/* The baseline is the headline. Every previous version opened on
-            "Logiciel de gestion" or "Passez du cahier à l'entreprise", which
-            is what the product is; this opens on what it is for. The category
-            is still said, once, in small type above it, because a visitor who
-            does not know what she is looking at should not have to guess. */}
+        {/* Nearly a whole screen for one sentence. The baseline is the
+            headline: every earlier version opened on "Logiciel de gestion" or
+            "Passez du cahier à l'entreprise", which is what the product is.
+            This opens on what it is for, and says the category once, small,
+            above it, so a visitor who does not know what she is looking at
+            does not have to guess. */}
         <section className="mk-cover">
-          <img
-            className="mk-cover-photo"
-            src={photo("salon", 1800)}
-            alt=""
-            // The one image on the page worth blocking the first paint for.
-            fetchPriority="high"
-            decoding="async"
-          />
+          <div className="container">
+            <p className="mk-kicker">Réservation en ligne, {CONTACT.city}</p>
 
-          <div className="mk-cover-inner container">
-            <p className="mk-eyebrow">Réservation en ligne, {CONTACT.city}</p>
             <h1 className="mk-cover-title">{PRODUCT.tagline}</h1>
+
             <p className="mk-cover-sub">
-              Un site de réservation à votre nom. Le nôtre n&apos;apparaît nulle
-              part dessus.
+              Un site de réservation à votre nom. Le nôtre n&apos;apparaît
+              nulle part dessus.
             </p>
+
             <div className="mk-cover-actions">
               <Link href="/demo" className="mk-btn">
                 Voir une démonstration
               </Link>
-              <a href="#tarifs" className="mk-btn mk-btn-quiet">
+              <a href="#tarifs" className="mk-link">
                 Les tarifs
               </a>
             </div>
@@ -162,8 +145,9 @@ export default async function BeautyPrestPage() {
         </section>
 
         {/* --------------------------------------------------------- Terms */}
-        {/* Three figures on one quiet line, directly under the cover. They are
-            the whole commercial argument and they take eleven words. */}
+        {/* Three figures on one quiet line. They are the whole commercial
+            argument and they take eleven words, so they get a rule rather
+            than a section of their own. */}
         <section className="mk-terms">
           <div className="container">
             <dl>
@@ -184,37 +168,29 @@ export default async function BeautyPrestPage() {
         </section>
 
         {/* ------------------------------------------------------- Moments */}
-        {/* Picture and sentence, alternating sides. Nothing else. The reasoning
-            that used to sit in four numbered paragraphs is in the comments on
-            MOMENTS, where it belongs: a prospect does not need to be walked
-            through an argument she can see. */}
+        {/* One statement to a screen, three times, each with a great deal of
+            room around it. The numeral is set in roman because a decorative
+            number is the only ornament this page allows itself, and roman
+            numerals read as a chapter rather than as a step in a tutorial. */}
         <section className="mk-moments">
-          {MOMENTS.map((moment, index) => (
-            <article
-              key={moment.key}
-              className="mk-moment"
-              // Even rows put the picture on the right. Done with an attribute
-              // rather than :nth-child so the order can change without the
-              // rhythm breaking.
-              data-side={index % 2 === 0 ? "left" : "right"}
-            >
-              <div className="mk-moment-photo">
-                <img src={moment.image} alt={moment.alt} loading="lazy" decoding="async" />
-              </div>
-
-              <div className="mk-moment-copy">
-                <p className="mk-eyebrow">{moment.eyebrow}</p>
-                <h2>{moment.title}</h2>
-                <p>{moment.body}</p>
+          {MOMENTS.map((moment) => (
+            <article key={moment.key} className="mk-moment">
+              <div className="container">
+                <span aria-hidden="true" className="mk-moment-numeral">
+                  {moment.index}
+                </span>
+                <p className="mk-kicker">{moment.eyebrow}</p>
+                <h2 className="mk-moment-title">{moment.title}</h2>
+                <p className="mk-moment-body">{moment.body}</p>
               </div>
             </article>
           ))}
         </section>
 
         {/* ------------------------------------------------------ Statement */}
-        {/* One sentence, alone, large, on cream. The page needs a place to
-            breathe between the photographs and the prices, and the thing worth
-            saying there is the one a directory cannot say. */}
+        {/* One sentence, alone, as large as the cover. The page needs a place
+            to breathe before the prices, and the thing worth saying there is
+            the one a directory cannot say. */}
         <section className="mk-claim">
           <div className="container">
             <p className="mk-claim-text">
@@ -231,7 +207,7 @@ export default async function BeautyPrestPage() {
         <section id="demo" className="mk-section mk-section-quiet">
           <div className="container">
             <div className="mk-head">
-              <p className="mk-eyebrow">Voir la démo</p>
+              <p className="mk-kicker">Voir la démo</p>
               <h2 className="mk-h2">Composez votre activité.</h2>
             </div>
 
@@ -248,10 +224,8 @@ export default async function BeautyPrestPage() {
         <section id="tarifs" className="mk-section mk-section-quiet">
           <div className="container">
             <div className="mk-head">
-              <p className="mk-eyebrow">Nos formules</p>
-              <h2 className="mk-h2">
-                Un abonnement, jamais une commission.
-              </h2>
+              <p className="mk-kicker">Nos formules</p>
+              <h2 className="mk-h2">Un abonnement, jamais une commission.</h2>
               <p className="mk-lead">
                 Réglez l&apos;année et profitez de{" "}
                 <strong>deux mois offerts</strong>.
@@ -297,36 +271,23 @@ export default async function BeautyPrestPage() {
         </section>
 
         {/* -------------------------------------------------- Qui sommes-nous */}
-        {/* Two sentences and a photograph. It was a statement, a lead, three
-            numbered promises and an aside; the promises are all said elsewhere
-            on the page, by the terms line and the claim. */}
+        {/* Two sentences. It was a statement, a lead, three numbered promises
+            and an aside; the promises are all said earlier by the terms line
+            and the claim, and saying them twice was the page insisting. */}
         <section id="nous" className="mk-closing">
           <div className="container">
-            <div className="mk-closing-grid">
-              <div className="mk-closing-copy">
-                <p className="mk-eyebrow">Qui sommes-nous</p>
-                <h2>
-                  Écrit à {CONTACT.city}, pour des salons d&apos;ici.
-                </h2>
-                <p>
-                  Une petite équipe béninoise, qui a construit cet outil avec
-                  des professionnelles de la beauté. Il nous arrive de dire à
-                  quelqu&apos;un que ce n&apos;est pas pour elle.
-                </p>
-                <a href={CONTACT.whatsapp} className="mk-btn">
-                  Parler à quelqu&apos;un
-                </a>
-              </div>
-
-              <div className="mk-closing-photo">
-                <img
-                  src={photo("nails", 900)}
-                  alt="Des mains aux ongles nude, posées sur une fourrure blanche"
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-            </div>
+            <p className="mk-kicker">Qui sommes-nous</p>
+            <h2 className="mk-closing-title">
+              Écrit à {CONTACT.city}, pour des salons d&apos;ici.
+            </h2>
+            <p className="mk-closing-body">
+              Une petite équipe béninoise, qui a construit cet outil avec des
+              professionnelles de la beauté. Il nous arrive de dire à
+              quelqu&apos;un que ce n&apos;est pas pour elle.
+            </p>
+            <a href={CONTACT.whatsapp} className="mk-btn">
+              Parler à quelqu&apos;un
+            </a>
           </div>
         </section>
       </main>
