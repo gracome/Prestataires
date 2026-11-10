@@ -29,23 +29,27 @@ export const metadata: Metadata = {
 /**
  * Platform landing page.
  *
- * Written to a brief, finally, and the brief is six questions a visitor has in
- * this order: what is it, who is it for, how is it used, what does it cost, how
- * do I get it, who do I talk to. Every section answers exactly one of them, in
- * that order, and the heading of each section is the question itself.
+ * The brief was six things a visitor needs to know, in this order: what it is,
+ * who it is for, how it is used, what it costs, how to get it, who answers.
+ * That is the order of the sections and it is all it is: an order. The version
+ * before this one printed the brief, first as six questions and then as six
+ * statements under six labels, each followed by a paragraph that said the
+ * heading again in other words. Six identical slabs read as a form being
+ * filled in, which is what was rejected.
  *
- * That ordering is the correction. The five arrangements before this one each
- * opened on a promise, a slogan or a photograph and left a visitor to work out
- * what she was looking at: "votre business mérite d'être beau" says nothing to
- * somebody who has not yet been told this is booking software. The promise is
- * the baseline, and it belongs on the logo, which is where it now is.
+ * So there are no labels, no restated leads, and no two blocks built the same
+ * way. Each section opens on one running sentence and then shows the thing
+ * itself: four cards, a line of trades set as type, two columns, the price
+ * list, a numbered path, a phone number. The sentence carries the voice, the
+ * block carries the information, and nothing says twice what it says once.
  *
  * Two standing constraints.
  *
  * No photographs: the library is borrowed stock, seven frames of which show
  * pale hands, which is not what a salon in Cotonou looks like. And no mock
  * screens: they read as a wireframe. What is left is type, large and well
- * spaced, plus the one real asset the brand has, its own logo.
+ * spaced, plus the one real asset the brand has, its own logo, which lives in
+ * the header.
  *
  * Nothing here is invented. The acquisition steps are the actual ones: there is
  * no public sign-up, provider creation is an administrator task (see
@@ -57,7 +61,7 @@ export const metadata: Metadata = {
  * lists are not a directory.
  */
 
-/** What she gets, in four nouns. The answer to "qu'est-ce que c'est". */
+/** What she gets, in four nouns. */
 const INCLUDED = [
   {
     title: "Un site de réservation",
@@ -78,7 +82,7 @@ const INCLUDED = [
 ] as const;
 
 /**
- * How it is used, from both sides.
+ * The working day, from both sides.
  *
  * Her side and her client's side, because a visitor is deciding two things at
  * once: whether she can work it, and whether her clients will.
@@ -132,6 +136,18 @@ const STEPS = [
  */
 const SHOWN_PLANS = PLAN_ORDER;
 
+/**
+ * "les coiffeuses, les maquilleuses et les barbiers".
+ *
+ * Built from the trades table rather than typed out, so a trade added there
+ * appears here. The last join is "et", not a comma, because this is a sentence
+ * a visitor reads and not a list she scans.
+ */
+function frenchList(items: readonly string[]): string {
+  if (items.length < 2) return items[0] ?? "";
+  return `${items.slice(0, -1).join(", ")} et ${items[items.length - 1]}`;
+}
+
 /** 48000 -> "48 000", with a narrow no-break space holding the groups together. */
 function fcfa(amount: number): string {
   return amount.toLocaleString("fr-FR").replace(/[  \s]/g, " ");
@@ -143,22 +159,17 @@ export default async function BeautyPrestPage() {
     .count({ where: { status: "ACTIVE" } })
     .catch(() => 0);
 
+  const trades = frenchList(TRADES.map((trade) => `les ${trade.plural}`));
+
   return (
     <div className="mk">
       <MarketingHeader />
 
       <main>
         {/* --------------------------------------------------------- Cover */}
-        {/* The mark is in the header and is not repeated here: the supplied
-            artwork was pasted on this spot as it came, photograph, plant and
-            all, and read as a screenshot rather than as a brand. It now sits
-            above, lifted out and transparent, which is the only place a logo
-            needs to be.
-
-            So the cover is one sentence, and it is the plain answer to "what
-            is this". Every earlier version spent its headline on a promise and
-            left the visitor guessing. Centred, because a left-aligned line
-            twenty words long leaves half a wide screen empty beside it. */}
+        {/* The mark is in the header and is not repeated here. One sentence,
+            the plain thing the product is, centred: a left-aligned line twenty
+            words long leaves half a wide screen empty beside it. */}
         <section className="mk-cover">
           <div className="container">
             <h1 className="mk-cover-title">
@@ -176,20 +187,17 @@ export default async function BeautyPrestPage() {
           </div>
         </section>
 
-        {/* ------------------------------------------- 1. Qu'est-ce que c'est */}
+        {/* ------------------------------------------------------ The thing */}
+        {/* Continues the cover sentence instead of announcing itself again.
+            The four cards are the whole answer; a paragraph introducing them
+            would only be the cards said badly first. */}
         <section id="produit" className="mk-q">
           <div className="container">
-            <div className="mk-q-head">
-              <p className="mk-kicker">Le produit</p>
-              <h2 className="mk-q-title">
-                Tout ce qu&apos;il faut pour prendre et tenir vos rendez-vous.
-              </h2>
-              <p className="mk-q-lead">
-                BeautyPrest est un logiciel de réservation pour les métiers de
-                la beauté. Il vous donne quatre choses, et ne prend aucune
-                commission sur vos rendez-vous.
-              </p>
-            </div>
+            <h2 className="mk-lede">
+              Vos clientes réservent depuis un lien, à l&apos;heure qui leur va,
+              et laissent leur acompte en réservant. Vous ouvrez votre
+              téléphone le matin : la journée est déjà écrite.
+            </h2>
 
             <ul className="mk-cards">
               {INCLUDED.map((item) => (
@@ -199,28 +207,23 @@ export default async function BeautyPrestPage() {
                 </li>
               ))}
             </ul>
+
+            <p className="mk-note">
+              Aucune commission n&apos;est prélevée sur vos rendez-vous.
+            </p>
           </div>
         </section>
 
-        {/* ------------------------------------------------ 2. C'est pour qui */}
+        {/* ---------------------------------------------------------- Who */}
+        {/* Nothing but a sentence here, the trades set large inside it. The
+            row of pills that used to follow said the same six words again in
+            a different shape. */}
         <section id="pour-qui" className="mk-q mk-q-tint">
           <div className="container">
-            <div className="mk-q-head">
-              <p className="mk-kicker">Pour qui</p>
-              <h2 className="mk-q-title">
-                Pour les métiers de la beauté qui travaillent sur rendez-vous.
-              </h2>
-              <p className="mk-q-lead">
-                Pour une professionnelle de la beauté qui prend des
-                rendez-vous, seule ou avec une équipe, en salon ou à domicile.
-              </p>
-            </div>
-
-            <ul className="mk-trades">
-              {TRADES.map((trade) => (
-                <li key={trade.id}>{trade.label}</li>
-              ))}
-            </ul>
+            <h2 className="mk-roll">
+              Pour {trades}.
+              <span> Seule ou avec une équipe, en salon ou à domicile.</span>
+            </h2>
 
             {/* Saying who it is not for is the only part of a landing page a
                 reader has no reason to disbelieve, so it buys the rest. */}
@@ -233,19 +236,13 @@ export default async function BeautyPrestPage() {
           </div>
         </section>
 
-        {/* -------------------------------------------- 3. Comment ça marche */}
+        {/* -------------------------------------------------------- The day */}
         <section id="utilisation" className="mk-q">
           <div className="container">
-            <div className="mk-q-head">
-              <p className="mk-kicker">L&apos;usage</p>
-              <h2 className="mk-q-title">
-                Rien à installer. Un navigateur suffit.
-              </h2>
-              <p className="mk-q-lead">
-                Vous n&apos;installez rien. Tout se passe dans un navigateur,
-                sur votre téléphone comme sur un ordinateur.
-              </p>
-            </div>
+            <h2 className="mk-lede">
+              Vous n&apos;installez rien : tout se passe dans un navigateur,
+              sur votre téléphone comme sur un ordinateur.
+            </h2>
 
             <div className="mk-two-up">
               <div>
@@ -269,20 +266,14 @@ export default async function BeautyPrestPage() {
           </div>
         </section>
 
-        {/* ------------------------------------------------- 4. Quels tarifs */}
+        {/* ------------------------------------------------------- The price */}
         <section id="tarifs" className="mk-q mk-q-tint">
           <div className="container">
-            <div className="mk-q-head">
-              <p className="mk-kicker">Les tarifs</p>
-              <h2 className="mk-q-title">
-                Un abonnement, jamais une commission.
-              </h2>
-              <p className="mk-q-lead">
-                Un abonnement, jamais une commission. Vos clientes vous paient
-                directement. Réglez l&apos;année et profitez de{" "}
-                <strong>deux mois offerts</strong>.
-              </p>
-            </div>
+            <h2 className="mk-lede">
+              Un abonnement, jamais une commission : vos clientes vous paient
+              directement, et l&apos;année réglée d&apos;avance vous fait{" "}
+              <strong>deux mois offerts</strong>.
+            </h2>
 
             <div className="mk-plans">
               {SHOWN_PLANS.map((plan) => (
@@ -336,21 +327,14 @@ export default async function BeautyPrestPage() {
           </div>
         </section>
 
-        {/* ------------------------------------------- 5. Comment l'obtenir */}
+        {/* --------------------------------------------------------- The way */}
         <section id="commencer" className="mk-q">
           <div className="container">
-            <div className="mk-q-head">
-              <p className="mk-kicker">Commencer</p>
-              <h2 className="mk-q-title">
-                Nous créons votre espace, vous le publiez quand vous êtes
-                prête.
-              </h2>
-              <p className="mk-q-lead">
-                Il n&apos;y a pas d&apos;inscription en ligne : nous créons
-                votre espace nous-mêmes, pour qu&apos;il soit juste dès le
-                premier jour.
-              </p>
-            </div>
+            <h2 className="mk-lede">
+              Il n&apos;y a pas d&apos;inscription en ligne. Nous ouvrons votre
+              espace nous-mêmes, pour qu&apos;il soit juste dès le premier jour,
+              et vous le publiez le jour où vous êtes prête.
+            </h2>
 
             <ol className="mk-path">
               {STEPS.map((step, index) => (
@@ -364,20 +348,14 @@ export default async function BeautyPrestPage() {
           </div>
         </section>
 
-        {/* ----------------------------------------------- 6. Qui contacter */}
+        {/* --------------------------------------------------------- The door */}
         <section id="nous" className="mk-q mk-q-close">
           <div className="container">
-            <div className="mk-q-head">
-              <p className="mk-kicker">Nous joindre</p>
-              <h2 className="mk-q-title">
-                C&apos;est nous qui avons fait l&apos;outil, et c&apos;est nous
-                qui répondons.
-              </h2>
-              <p className="mk-q-lead">
-                Une petite équipe béninoise, à {CONTACT.city}. En français, sur
-                WhatsApp, et pas par un formulaire.
-              </p>
-            </div>
+            <h2 className="mk-lede">
+              L&apos;outil est fait par une petite équipe béninoise, à{" "}
+              {CONTACT.city}, et c&apos;est elle qui répond. En français, sur
+              WhatsApp, pas par un formulaire.
+            </h2>
 
             <div className="mk-contact">
               <a

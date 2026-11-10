@@ -3444,37 +3444,67 @@ table.data tr:last-child td {
     var(--brand-cream);
 }
 
-.mk-q-head {
-  max-width: 58ch;
-  margin-bottom: clamp(2rem, 4vw, 2.75rem);
-}
+/* Each section opens on one running sentence, set as its heading.
 
-/* The question number. Bronze, tracked, small: the only place the gold is
-   allowed to be text, and it is darkened to carry at this size. */
-.mk-kicker {
-  margin: 0;
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.22em;
-  color: var(--mk-gold-ink);
-}
-
-.mk-q-title {
+   What came before was a label, a title and then a paragraph restating the
+   title: three ranks of type saying one thing, repeated identically six times
+   down the page, which read as a form being filled in. One sentence says it
+   once. It is a heading, so it is set in the serif, but light and at a size
+   that lets it run over two or three lines like prose rather than land like a
+   banner. */
+.mk-lede {
   font-family: var(--font-heading);
   font-weight: 400;
-  font-size: clamp(1.7rem, 4.2vw, 2.7rem);
-  line-height: 1.14;
-  letter-spacing: -0.02em;
-  margin: 0.6rem 0 0;
+  font-size: clamp(1.45rem, 3.1vw, 2.05rem);
+  line-height: 1.38;
+  letter-spacing: -0.015em;
+  margin: 0 0 clamp(2rem, 4.5vw, 3rem);
+  max-width: 34ch;
+  color: var(--mk-wine);
+  text-wrap: pretty;
+}
+
+.mk-lede strong {
+  font-weight: 600;
   color: var(--mk-wine);
 }
 
-.mk-q-lead {
-  margin: 1.1rem 0 0;
-  max-width: 54ch;
-  font-size: clamp(1rem, 2vw, 1.1rem);
-  line-height: 1.8;
+/* The trades, named inside the sentence instead of in a row of pills beneath
+   it. The pills repeated the same six words in another shape, and a list of
+   chips invites a visitor to look for her own and leave if she misses it;
+   a sentence is read to the end. Larger than a lede because it is the whole
+   section. */
+.mk-roll {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: clamp(1.6rem, 4vw, 2.6rem);
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+  margin: 0;
+  max-width: 26ch;
+  color: var(--mk-wine);
+  text-wrap: pretty;
+}
+
+/* The second clause steps back into the body face, so the eye sees one
+   sentence of trades and one aside, not a block of equal weight. */
+.mk-roll span {
+  display: block;
+  margin-top: 1.25rem;
+  font-family: var(--font-sans);
+  font-size: clamp(1rem, 2vw, 1.08rem);
+  font-weight: 400;
+  line-height: 1.7;
+  letter-spacing: 0;
   color: var(--brand-muted);
+}
+
+/* One line under a block, for the thing the block cannot say itself. */
+.mk-note {
+  margin: clamp(1.5rem, 3vw, 2rem) 0 0;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--mk-gold-ink);
 }
 
 .mk-q-aside {
@@ -3533,29 +3563,6 @@ table.data tr:last-child td {
   font-size: 0.92rem;
   line-height: 1.75;
   color: var(--brand-muted);
-}
-
-/* ------------------------------------------------------------------ Trades */
-
-/* Named, not pictured. Every photograph of a beauty business is a photograph
-   of one trade, and the first version of this page was shot entirely in a nail
-   salon, which quietly told every hairdresser that it was not for her. */
-.mk-trades {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-}
-
-.mk-trades li {
-  padding: 0.55rem 1.1rem;
-  border-radius: 999px;
-  background: var(--brand-surface);
-  border: 1px solid var(--mk-gold);
-  font-size: 0.92rem;
-  color: var(--mk-wine);
 }
 
 /* ------------------------------------------------------------------ Two up */
