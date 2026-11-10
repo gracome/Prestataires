@@ -3313,7 +3313,7 @@ table.data tr:last-child td {
  * ---------------------------------------------------------------------------
  * No photographs and no drawings. The photographic version was borrowed stock,
  * seven frames of which showed pale hands, which is not what a salon in
- * Porto-Novo looks like; the drawn mock screens before it read as a wireframe.
+ * Cotonou looks like; the drawn mock screens before it read as a wireframe.
  * A borrowed picture of somebody else's client is the one thing on a page a
  * visitor can tell is not real.
  *
@@ -3378,25 +3378,16 @@ table.data tr:last-child td {
   max-width: 17ch;
 }
 
-/* The hairline is the whole ornament: a rule the width of the paragraph,
-   under a title four times its size, is what makes the pair read as composed
-   rather than as two stacked blocks. */
-.mk-cover-sub {
-  margin: clamp(1.75rem, 3.5vw, 2.5rem) 0 0;
-  padding-top: clamp(1.5rem, 3vw, 2rem);
-  border-top: 1px solid var(--brand-border);
-  max-width: 42ch;
-  font-size: clamp(1rem, 2vw, 1.12rem);
-  line-height: 1.75;
-  color: var(--brand-muted);
-}
-
+/* The cover holds the promise and the way in, and nothing between them. There
+   was a kicker above the title and an explanatory line below it; both were the
+   page clearing its throat. The gap below is wide on purpose: it is the only
+   thing left separating the two, so it has to be unmistakably a pause. */
 .mk-cover-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 1.5rem;
-  margin-top: clamp(2rem, 4vw, 2.75rem);
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
 }
 
 /* The second action is a link, not a second button. Two buttons side by side

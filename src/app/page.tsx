@@ -42,7 +42,7 @@ export const metadata: Metadata = {
  * shout.
  *
  * And no photographs either. The library is eight Unsplash stand-ins, seven of
- * which show pale hands and pale skin, which is not what a salon in Porto-Novo
+ * which show pale hands and pale skin, which is not what a salon in Cotonou
  * looks like. A borrowed photograph of somebody else's client is worse than no
  * photograph: it is the one thing on the page a visitor can tell is not real.
  *
@@ -124,15 +124,16 @@ export default async function BeautyPrestPage() {
             does not have to guess. */}
         <section className="mk-cover">
           <div className="container">
-            <p className="mk-kicker">Réservation en ligne, {CONTACT.city}</p>
-
+            {/* No kicker here. A tracked pink line above the promise was the
+                page labelling itself before saying anything, and the baseline
+                does not need an introduction. The category is in the page
+                title, the heading of the first moment and the footer. */}
             <h1 className="mk-cover-title">{PRODUCT.tagline}</h1>
 
-            <p className="mk-cover-sub">
-              Un site de réservation à votre nom. Le nôtre n&apos;apparaît
-              nulle part dessus.
-            </p>
-
+            {/* The explanatory line that used to sit here is gone too. It said
+                "un site de réservation à votre nom", which the first moment
+                says better and at length a screen later; here it only stood
+                between the promise and the way in. */}
             <div className="mk-cover-actions">
               <Link href="/demo" className="mk-btn">
                 Voir une démonstration

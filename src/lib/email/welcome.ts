@@ -14,7 +14,7 @@ import { CONTACT, PRODUCT } from "@/lib/marketing/product";
 const SIGNATURE: Signature = {
   name: PRODUCT.name,
   line: PRODUCT.tagline,
-  contact: `Une question ? ${CONTACT.phone} — ${CONTACT.city}, ${CONTACT.country}`,
+  contact: `Une question ? ${CONTACT.phone}, ${CONTACT.city}, ${CONTACT.country}`,
 };
 
 /**

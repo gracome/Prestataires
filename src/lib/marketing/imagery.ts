@@ -13,7 +13,7 @@
  * table because the demo data points at them.
  *
  * They are stand-ins, and they are the wrong stand-ins. Seven of the eight
- * show pale hands and pale skin, which is not what a salon in Porto-Novo looks
+ * show pale hands and pale skin, which is not what a salon in Cotonou looks
  * like. The day there are real providers on the platform, their own
  * photographs belong here instead and will say far more.
  */

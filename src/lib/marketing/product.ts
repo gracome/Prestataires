@@ -34,6 +34,12 @@ export const CONTACT = {
   whatsapp: "https://wa.me/22969668879",
   /** Shown as text next to the WhatsApp link, so it can be dialled. */
   phone: "+229 69 66 88 79",
-  city: "Porto-Novo",
+  /**
+   * Where the team is, shown on the page and signed at the foot of every
+   * letter. Not to be confused with "Africa/Porto-Novo", which appears all
+   * over the codebase and is the IANA name for Benin's time zone: the
+   * database has no entry for Cotonou, so that identifier stays as it is.
+   */
+  city: "Cotonou",
   country: "Bénin",
 } as const;
