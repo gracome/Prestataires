@@ -2588,23 +2588,28 @@ table.data tr:last-child td {
   min-height: 66px;
 }
 
+/* The mark itself, not a stand-in for it. This used to be a rose diamond
+   next to the name set in Playfair, which was a second logo competing with
+   the real one, and the two looked nothing alike.
+
+   The lockup stacks the lotus over the word, so it is tall for its width: at
+   132px it stands 47px, which clears the 66px bar with air to spare. */
 .mk-logo {
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
-  font-family: var(--font-heading);
-  font-size: 1.15rem;
   text-decoration: none;
-  color: var(--brand-text);
-  white-space: nowrap;
 }
 
-.mk-logo-mark {
-  width: 11px;
-  height: 11px;
-  border-radius: 3px;
-  background: var(--brand-primary-strong);
-  transform: rotate(45deg);
+.mk-logo img {
+  display: block;
+  width: 132px;
+  height: auto;
+}
+
+@media (max-width: 520px) {
+  .mk-logo img {
+    width: 112px;
+  }
 }
 
 .mk-nav-links {
@@ -3369,19 +3374,10 @@ table.data tr:last-child td {
     var(--brand-cream);
 }
 
-/* The logo is used as a plate rather than as a mark, because the file has a
-   photograph baked into it and no transparency: the left edge and the bottom
-   right corner are not blush. Rounding the corners hides the bleed, and the
-   plate reads as deliberate. A version with a transparent ground would let
-   this be a mark in the header instead. */
-.mk-cover-logo {
-  display: block;
-  width: min(100%, 340px);
-  height: auto;
-  border-radius: 18px;
-  box-shadow:
-    0 1px 2px rgb(86 10 45 / 7%),
-    0 22px 48px -28px rgb(86 10 45 / 38%);
+/* Centred. The line runs to twenty words and left-aligning it left half of a
+   wide screen empty beside the full stop. */
+.mk-cover > .container {
+  text-align: center;
 }
 
 .mk-cover-title {
@@ -3392,8 +3388,9 @@ table.data tr:last-child td {
   font-size: clamp(1.9rem, 4.6vw, 3.4rem);
   line-height: 1.12;
   letter-spacing: -0.02em;
-  margin: clamp(1.75rem, 4vw, 2.5rem) 0 0;
-  max-width: 21ch;
+  margin: 0;
+  max-width: 20ch;
+  margin-inline: auto;
   color: var(--mk-wine);
 }
 
@@ -3401,6 +3398,7 @@ table.data tr:last-child td {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
+  justify-content: center;
   gap: 1.5rem;
   margin-top: clamp(1.75rem, 4vw, 2.5rem);
 }

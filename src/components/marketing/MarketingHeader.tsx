@@ -29,9 +29,17 @@ export function MarketingHeader({ inner }: { inner?: boolean }) {
   return (
     <header className="mk-nav" data-scrolled={scrolled ? "true" : undefined}>
       <div className="container">
-        <Link href="/" className="mk-logo">
-          <span aria-hidden="true" className="mk-logo-mark" />
-          {PRODUCT.name}
+        {/* The real mark, lifted out of the supplied artwork by
+            scripts/extract-logo.mjs. It replaced a rose diamond and the name
+            set in Playfair, which was a second logo competing with the one on
+            the page. */}
+        <Link href="/" className="mk-logo" aria-label={PRODUCT.name}>
+          <img
+            src="/beautyprest-mark.png"
+            alt={PRODUCT.name}
+            width={316}
+            height={113}
+          />
         </Link>
 
         {/* The same six questions the page answers, in the same order, minus

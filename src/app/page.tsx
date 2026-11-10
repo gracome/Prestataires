@@ -149,21 +149,18 @@ export default async function BeautyPrestPage() {
 
       <main>
         {/* --------------------------------------------------------- Cover */}
-        {/* The logo carries the name and the baseline, so the heading is free
-            to be the plain answer to "what is this". Every earlier version
-            spent its headline on a promise and left the visitor guessing. */}
+        {/* The mark is in the header and is not repeated here: the supplied
+            artwork was pasted on this spot as it came, photograph, plant and
+            all, and read as a screenshot rather than as a brand. It now sits
+            above, lifted out and transparent, which is the only place a logo
+            needs to be.
+
+            So the cover is one sentence, and it is the plain answer to "what
+            is this". Every earlier version spent its headline on a promise and
+            left the visitor guessing. Centred, because a left-aligned line
+            twenty words long leaves half a wide screen empty beside it. */}
         <section className="mk-cover">
           <div className="container">
-            <img
-              className="mk-cover-logo"
-              src="/logo-beautyprest.png"
-              alt={`${PRODUCT.name}. ${PRODUCT.tagline}`}
-              width={367}
-              height={175}
-              fetchPriority="high"
-              decoding="async"
-            />
-
             <h1 className="mk-cover-title">
               Le logiciel qui met votre salon en ligne et tient votre agenda.
             </h1>
@@ -183,12 +180,14 @@ export default async function BeautyPrestPage() {
         <section id="produit" className="mk-q">
           <div className="container">
             <div className="mk-q-head">
-              <p className="mk-kicker">01</p>
-              <h2 className="mk-q-title">Qu&apos;est-ce que c&apos;est ?</h2>
+              <p className="mk-kicker">Le produit</p>
+              <h2 className="mk-q-title">
+                Tout ce qu&apos;il faut pour prendre et tenir vos rendez-vous.
+              </h2>
               <p className="mk-q-lead">
-                Un logiciel de réservation pour les métiers de la beauté.
-                Il vous donne quatre choses, et il ne prend aucune commission
-                sur vos rendez-vous.
+                BeautyPrest est un logiciel de réservation pour les métiers de
+                la beauté. Il vous donne quatre choses, et ne prend aucune
+                commission sur vos rendez-vous.
               </p>
             </div>
 
@@ -207,8 +206,10 @@ export default async function BeautyPrestPage() {
         <section id="pour-qui" className="mk-q mk-q-tint">
           <div className="container">
             <div className="mk-q-head">
-              <p className="mk-kicker">02</p>
-              <h2 className="mk-q-title">C&apos;est pour qui ?</h2>
+              <p className="mk-kicker">Pour qui</p>
+              <h2 className="mk-q-title">
+                Pour les métiers de la beauté qui travaillent sur rendez-vous.
+              </h2>
               <p className="mk-q-lead">
                 Pour une professionnelle de la beauté qui prend des
                 rendez-vous, seule ou avec une équipe, en salon ou à domicile.
@@ -236,8 +237,10 @@ export default async function BeautyPrestPage() {
         <section id="utilisation" className="mk-q">
           <div className="container">
             <div className="mk-q-head">
-              <p className="mk-kicker">03</p>
-              <h2 className="mk-q-title">Comment ça s&apos;utilise ?</h2>
+              <p className="mk-kicker">L&apos;usage</p>
+              <h2 className="mk-q-title">
+                Rien à installer. Un navigateur suffit.
+              </h2>
               <p className="mk-q-lead">
                 Vous n&apos;installez rien. Tout se passe dans un navigateur,
                 sur votre téléphone comme sur un ordinateur.
@@ -270,8 +273,10 @@ export default async function BeautyPrestPage() {
         <section id="tarifs" className="mk-q mk-q-tint">
           <div className="container">
             <div className="mk-q-head">
-              <p className="mk-kicker">04</p>
-              <h2 className="mk-q-title">Quels sont les tarifs ?</h2>
+              <p className="mk-kicker">Les tarifs</p>
+              <h2 className="mk-q-title">
+                Un abonnement, jamais une commission.
+              </h2>
               <p className="mk-q-lead">
                 Un abonnement, jamais une commission. Vos clientes vous paient
                 directement. Réglez l&apos;année et profitez de{" "}
@@ -335,8 +340,11 @@ export default async function BeautyPrestPage() {
         <section id="commencer" className="mk-q">
           <div className="container">
             <div className="mk-q-head">
-              <p className="mk-kicker">05</p>
-              <h2 className="mk-q-title">Comment l&apos;obtenir ?</h2>
+              <p className="mk-kicker">Commencer</p>
+              <h2 className="mk-q-title">
+                Nous créons votre espace, vous le publiez quand vous êtes
+                prête.
+              </h2>
               <p className="mk-q-lead">
                 Il n&apos;y a pas d&apos;inscription en ligne : nous créons
                 votre espace nous-mêmes, pour qu&apos;il soit juste dès le
@@ -360,11 +368,14 @@ export default async function BeautyPrestPage() {
         <section id="nous" className="mk-q mk-q-close">
           <div className="container">
             <div className="mk-q-head">
-              <p className="mk-kicker">06</p>
-              <h2 className="mk-q-title">Qui contacter ?</h2>
+              <p className="mk-kicker">Nous joindre</p>
+              <h2 className="mk-q-title">
+                C&apos;est nous qui avons fait l&apos;outil, et c&apos;est nous
+                qui répondons.
+              </h2>
               <p className="mk-q-lead">
-                Une petite équipe béninoise, à {CONTACT.city}. C&apos;est nous
-                qui avons fait l&apos;outil, et c&apos;est nous qui répondons.
+                Une petite équipe béninoise, à {CONTACT.city}. En français, sur
+                WhatsApp, et pas par un formulaire.
               </p>
             </div>
 
