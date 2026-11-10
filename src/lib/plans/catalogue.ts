@@ -127,7 +127,7 @@ export const FEATURES: Record<PlanFeature, FeatureDefinition> = {
       "Demandez un acompte pour bloquer un créneau. La cliente vous paie directement, envoie sa capture, vous validez.",
     forProvider: [
       "Vous fixez un acompte fixe ou un pourcentage, prestation par prestation.",
-      "Vos instructions de paiement — MTN MoMo, Moov Money, virement — s'affichent à la cliente au bon moment.",
+      "Vos instructions de paiement (MTN MoMo, Moov Money, virement) s'affichent à la cliente au bon moment.",
       "Vous recevez la preuve de paiement et vous confirmez ou refusez.",
       "Un créneau non payé se libère tout seul au bout du délai que vous avez choisi.",
     ],
@@ -248,7 +248,7 @@ export const FEATURES: Record<PlanFeature, FeatureDefinition> = {
     forClient: [
       "Elle arrive sur votre adresse, pas sur un lien qui contient le nom d'un logiciel.",
     ],
-    needs: ["Acheter le domaine chez un registrar — environ 7 000 FCFA par an."],
+    needs: ["Acheter le domaine chez un registrar, environ 7 000 FCFA par an."],
   },
 };
 

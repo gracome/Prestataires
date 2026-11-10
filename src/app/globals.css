@@ -3309,44 +3309,48 @@ table.data tr:last-child td {
 }
 
 /* ---------------------------------------------------------------------------
- * The landing page, set in type
+ * The landing page
  * ---------------------------------------------------------------------------
- * No photographs and no drawings. The photographic version was borrowed stock,
- * seven frames of which showed pale hands, which is not what a salon in
- * Cotonou looks like; the drawn mock screens before it read as a wireframe.
- * A borrowed picture of somebody else's client is the one thing on a page a
- * visitor can tell is not real.
+ * Six sections, one question each, in the order a visitor asks them: what is
+ * it, who is it for, how is it used, what does it cost, how do I get it, who
+ * do I talk to. The heading of each section is the question.
  *
- * What is left has to carry the page on its own, and the earlier typographic
- * versions prove that type alone is not enough: they were bland because they
- * were set small and crowded, five bands of eyebrow, heading, paragraph and
- * card grid, every one at the same size in the same column.
+ * The palette is taken from the logo rather than chosen. Sampled from the
+ * file: the wordmark is #560a2d, a deep wine, not the plum this page used;
+ * the lotus runs around #c28e5e, a bronze the brand had nowhere else; and the
+ * ground it sits on is a blush between #f8e6e2 and #f2d8d4. The hot rose
+ * (#d6336c) that carried every accent is gone, which is most of why the page
+ * used to feel like it was shouting.
  *
- * Three rules, then.
+ * The bronze cannot be used for small text. Against cream it sits at about
+ * 2.8:1, which fails, so there are two: --mk-gold for rules, hairlines and
+ * anything purely decorative, and --mk-gold-ink, darkened to roughly 6:1, for
+ * the small tracked labels. This is the sort of thing that is invisible on the
+ * designer's screen and unreadable on a phone in daylight.
  *
- * Scale. The cover and the claim are set near 4.8rem on a wide screen, which
- * is roughly twice what this page used, and Playfair is kept at 400 there:
- * a light serif at a large size reads as composed, the same face bolded reads
- * as loud.
- *
- * Air. A band is allowed most of a screen for one sentence. The space is the
- * design, so the padding is deliberately larger than looks reasonable in the
- * stylesheet.
- *
- * Restraint. Cream, plum and one rose. The rose appears as a kicker, a numeral
- * and a hairline, never as a fill.
+ * These are scoped to .mk, the marketing skin, not to :root. A provider's own
+ * site reads the same --brand-* names, and overwriting the global defaults
+ * would repaint every site that has not chosen a palette.
  * ------------------------------------------------------------------------ */
 
-/* The small tracked line above a heading. The old .mk-eyebrow is still worn by
-   the module pages; this one is wider-tracked and quieter, which is what reads
-   as considered beside type this large. */
-.mk-kicker {
-  margin: 0;
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--brand-primary-strong);
+.mk {
+  --mk-wine: #560a2d;
+  --mk-wine-deep: #3d0720;
+  --mk-gold: #c28e5e;
+  --mk-gold-ink: #8a5a2b;
+  --mk-blush: #f8e6e2;
+  --mk-blush-deep: #f2d8d4;
+
+  /* The skin's own tokens, repointed at the logo. Everything already built
+     against --brand-* follows without being touched. */
+  --brand-primary: var(--mk-gold);
+  --brand-primary-strong: var(--mk-wine);
+  --brand-chocolate: var(--mk-wine);
+  --brand-text: #2b1521;
+  --brand-muted: #7a6069;
+  --brand-border: rgb(86 10 45 / 13%);
+  --brand-rose-light: var(--mk-blush);
+  --brand-rose-pale: #fdf4f1;
 }
 
 /* ------------------------------------------------------------------- Cover */
@@ -3354,40 +3358,51 @@ table.data tr:last-child td {
 .mk-cover {
   display: grid;
   align-items: center;
-  min-height: min(90vh, 840px);
-  padding-block: clamp(3.5rem, 11vw, 7rem);
-  /* The only gradient on the page, and it is nearly invisible: enough to keep
-     the top-left corner from being flat cream, not enough to notice. */
+  min-height: min(82vh, 760px);
+  padding-block: clamp(3rem, 9vw, 5.5rem);
   background:
     radial-gradient(
-      72ch 48ch at 16% -12%,
-      var(--brand-rose-light),
-      transparent 72%
+      70ch 46ch at 18% -10%,
+      var(--mk-blush),
+      transparent 70%
     ),
     var(--brand-cream);
 }
 
-.mk-cover-title {
-  font-family: var(--font-heading);
-  /* Light on purpose. Playfair at 700 and this size shouts. */
-  font-weight: 400;
-  font-size: clamp(2.35rem, 6.6vw, 4.8rem);
-  line-height: 1.04;
-  letter-spacing: -0.025em;
-  margin: clamp(1.1rem, 2.6vw, 1.75rem) 0 0;
-  max-width: 17ch;
+/* The logo is used as a plate rather than as a mark, because the file has a
+   photograph baked into it and no transparency: the left edge and the bottom
+   right corner are not blush. Rounding the corners hides the bleed, and the
+   plate reads as deliberate. A version with a transparent ground would let
+   this be a mark in the header instead. */
+.mk-cover-logo {
+  display: block;
+  width: min(100%, 340px);
+  height: auto;
+  border-radius: 18px;
+  box-shadow:
+    0 1px 2px rgb(86 10 45 / 7%),
+    0 22px 48px -28px rgb(86 10 45 / 38%);
 }
 
-/* The cover holds the promise and the way in, and nothing between them. There
-   was a kicker above the title and an explanatory line below it; both were the
-   page clearing its throat. The gap below is wide on purpose: it is the only
-   thing left separating the two, so it has to be unmistakably a pause. */
+.mk-cover-title {
+  font-family: var(--font-heading);
+  /* Light on purpose. The same face bolded at this size shouts, and the logo
+     beside it is already the loud thing. */
+  font-weight: 400;
+  font-size: clamp(1.9rem, 4.6vw, 3.4rem);
+  line-height: 1.12;
+  letter-spacing: -0.02em;
+  margin: clamp(1.75rem, 4vw, 2.5rem) 0 0;
+  max-width: 21ch;
+  color: var(--mk-wine);
+}
+
 .mk-cover-actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 1.5rem;
-  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  margin-top: clamp(1.75rem, 4vw, 2.5rem);
 }
 
 /* The second action is a link, not a second button. Two buttons side by side
@@ -3398,146 +3413,302 @@ table.data tr:last-child td {
   color: var(--brand-text);
   text-decoration: none;
   padding-bottom: 0.3rem;
-  border-bottom: 1px solid
-    color-mix(in srgb, var(--brand-text) 32%, transparent);
-  transition: border-color 0.2s ease;
+  border-bottom: 1px solid var(--mk-gold);
+  transition: border-color 0.2s ease, color 0.2s ease;
 }
 
 .mk-link:hover {
-  border-bottom-color: var(--brand-text);
+  color: var(--mk-wine);
+  border-bottom-color: var(--mk-wine);
 }
 
-/* ------------------------------------------------------------------- Terms */
+/* --------------------------------------------------------------- Questions */
 
-/* Three figures on one quiet line. They are the whole commercial argument and
-   they take eleven words, so they get a rule rather than a section. */
-.mk-terms {
-  background: var(--brand-surface);
-  border-block: 1px solid var(--brand-border);
-}
-
-.mk-terms dl {
-  display: grid;
-  gap: 1.1rem 2rem;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  margin: 0;
-  padding-block: clamp(1.5rem, 3.5vw, 2.25rem);
-}
-
-.mk-terms dt {
-  margin: 0;
-  font-size: 0.76rem;
-  line-height: 1.4;
-  color: var(--brand-muted);
-}
-
-.mk-terms dd {
-  margin: 0.35rem 0 0;
-  font-family: var(--font-heading);
-  font-weight: 400;
-  font-size: clamp(1.25rem, 2.8vw, 1.6rem);
-  line-height: 1.1;
-}
-
-/* ----------------------------------------------------------------- Moments */
-
-/* One statement to a band, three bands, a great deal of room around each. */
-.mk-moment {
-  padding-block: clamp(3.5rem, 10vw, 7rem);
-}
-
-.mk-moment + .mk-moment {
+.mk-q {
+  padding-block: clamp(3rem, 7.5vw, 5rem);
   border-top: 1px solid var(--brand-border);
 }
 
-/* The second one steps in from the margin. Three identical left-aligned bands
-   is the sameness that made every earlier version of this page feel flat, and
-   an indent breaks it without adding a thing to look at. */
-@media (min-width: 900px) {
-  .mk-moment:nth-child(2) > .container {
-    padding-left: calc(1.15rem + 30%);
+/* Alternating ground, so six sections of the same shape still have a rhythm.
+   Blush rather than white: the cards inside are drawn in white and need
+   something to sit on. */
+.mk-q-tint {
+  background: var(--brand-rose-pale);
+}
+
+.mk-q-close {
+  background:
+    radial-gradient(
+      60ch 40ch at 85% 115%,
+      var(--mk-blush),
+      transparent 68%
+    ),
+    var(--brand-cream);
+}
+
+.mk-q-head {
+  max-width: 58ch;
+  margin-bottom: clamp(2rem, 4vw, 2.75rem);
+}
+
+/* The question number. Bronze, tracked, small: the only place the gold is
+   allowed to be text, and it is darkened to carry at this size. */
+.mk-kicker {
+  margin: 0;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  color: var(--mk-gold-ink);
+}
+
+.mk-q-title {
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: clamp(1.7rem, 4.2vw, 2.7rem);
+  line-height: 1.14;
+  letter-spacing: -0.02em;
+  margin: 0.6rem 0 0;
+  color: var(--mk-wine);
+}
+
+.mk-q-lead {
+  margin: 1.1rem 0 0;
+  max-width: 54ch;
+  font-size: clamp(1rem, 2vw, 1.1rem);
+  line-height: 1.8;
+  color: var(--brand-muted);
+}
+
+.mk-q-aside {
+  margin: clamp(2rem, 4vw, 2.75rem) 0 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--brand-border);
+  max-width: 62ch;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--brand-muted);
+}
+
+/* ------------------------------------------------------------------- Cards */
+
+.mk-cards {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+}
+
+.mk-card {
+  padding: 1.6rem 1.5rem;
+  border-radius: 18px;
+  background: var(--brand-surface);
+  border: 1px solid var(--brand-border);
+}
+
+/* The hairline above the title is the bronze's main job on this page. */
+.mk-card h3 {
+  position: relative;
+  margin: 0 0 0.7rem;
+  padding-top: 1rem;
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 1.25rem;
+  line-height: 1.25;
+  color: var(--mk-wine);
+}
+
+.mk-card h3::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--mk-gold);
+}
+
+.mk-card p {
+  margin: 0;
+  font-size: 0.92rem;
+  line-height: 1.75;
+  color: var(--brand-muted);
+}
+
+/* ------------------------------------------------------------------ Trades */
+
+/* Named, not pictured. Every photograph of a beauty business is a photograph
+   of one trade, and the first version of this page was shot entirely in a nail
+   salon, which quietly told every hairdresser that it was not for her. */
+.mk-trades {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.mk-trades li {
+  padding: 0.55rem 1.1rem;
+  border-radius: 999px;
+  background: var(--brand-surface);
+  border: 1px solid var(--mk-gold);
+  font-size: 0.92rem;
+  color: var(--mk-wine);
+}
+
+/* ------------------------------------------------------------------ Two up */
+
+.mk-two-up {
+  display: grid;
+  gap: clamp(2rem, 5vw, 3rem);
+}
+
+@media (min-width: 820px) {
+  .mk-two-up {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(2.5rem, 6vw, 4rem);
   }
 }
 
-/* Roman, because a decorative numeral is the only ornament this page allows
-   itself, and a roman one reads as a chapter rather than as step 2 of 3. */
-.mk-moment-numeral {
-  display: block;
+.mk-sub {
+  margin: 0 0 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--mk-gold);
   font-family: var(--font-heading);
   font-weight: 400;
-  font-size: clamp(2.25rem, 6vw, 3.75rem);
-  line-height: 1;
-  letter-spacing: 0.02em;
-  margin-bottom: clamp(1.25rem, 3vw, 2rem);
-  color: color-mix(in srgb, var(--brand-primary) 42%, transparent);
+  font-size: 1.2rem;
+  color: var(--mk-wine);
 }
 
-.mk-moment-title {
-  font-family: var(--font-heading);
-  font-weight: 400;
-  font-size: clamp(1.8rem, 4.8vw, 3.2rem);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-  margin: 0.85rem 0 1.35rem;
-  max-width: 20ch;
-}
-
-.mk-moment-body {
+.mk-steps {
   margin: 0;
-  max-width: 44ch;
-  font-size: clamp(1rem, 2vw, 1.08rem);
-  line-height: 1.8;
+  padding: 0;
+  list-style: none;
+  counter-reset: mk-step;
+  display: grid;
+  gap: 1rem;
+}
+
+.mk-steps li {
+  counter-increment: mk-step;
+  position: relative;
+  padding-left: 2.25rem;
+  font-size: 0.97rem;
+  line-height: 1.75;
   color: var(--brand-muted);
 }
 
-/* ------------------------------------------------------------------- Claim */
-
-/* One sentence, alone, as large as the cover. The page needs a place to
-   breathe before the prices, and the thing worth saying there is the one a
-   directory cannot say. */
-.mk-claim {
-  padding-block: clamp(4.5rem, 12vw, 8rem);
-  background: var(--brand-rose-pale);
-  border-block: 1px solid var(--brand-border);
+.mk-steps li::before {
+  content: counter(mk-step);
+  position: absolute;
+  left: 0;
+  top: 0.05rem;
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--mk-gold);
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  color: var(--mk-gold-ink);
 }
 
-.mk-claim-text {
-  margin: 0 auto;
-  max-width: 24ch;
-  text-align: center;
+/* -------------------------------------------------------------------- Path */
+
+/* The five steps to an account. A rule down the left, because they happen in
+   an order and a grid of cards would say they do not. */
+.mk-path {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: clamp(1.75rem, 3.5vw, 2.25rem);
+}
+
+.mk-path li {
+  position: relative;
+  padding-left: 3.5rem;
+}
+
+.mk-path li::after {
+  content: "";
+  position: absolute;
+  left: 1.1rem;
+  top: 2.5rem;
+  bottom: calc(-1 * clamp(1.75rem, 3.5vw, 2.25rem));
+  width: 1px;
+  background: color-mix(in srgb, var(--mk-gold) 55%, transparent);
+}
+
+.mk-path li:last-child::after {
+  display: none;
+}
+
+.mk-path li > span {
+  position: absolute;
+  left: 0;
+  top: 0;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  background: var(--brand-cream);
+  border: 1px solid var(--mk-gold);
+  font-family: var(--font-heading);
+  font-size: 0.9rem;
+  color: var(--mk-gold-ink);
+}
+
+.mk-path h3 {
+  margin: 0.25rem 0 0.5rem;
   font-family: var(--font-heading);
   font-weight: 400;
-  font-size: clamp(1.8rem, 5vw, 3.4rem);
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  color: var(--brand-chocolate);
+  font-size: clamp(1.15rem, 2.6vw, 1.4rem);
+  line-height: 1.25;
+  color: var(--mk-wine);
 }
 
-/* ----------------------------------------------------------------- Closing */
+.mk-path p {
+  margin: 0;
+  max-width: 54ch;
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--brand-muted);
+}
 
-/* Cream, which is the page's own ground: the demo and the prices above it are
-   both white, and a third white band would make the bottom third of the page
-   one undifferentiated sheet. */
-.mk-closing {
-  padding-block: clamp(4rem, 10vw, 7rem);
+/* --------------------------------------------------------------- Simulator */
+
+.mk-sim {
+  margin-top: clamp(2.5rem, 5vw, 3.5rem);
+  padding-top: clamp(2rem, 4vw, 2.5rem);
   border-top: 1px solid var(--brand-border);
 }
 
-.mk-closing-title {
-  font-family: var(--font-heading);
-  font-weight: 400;
-  font-size: clamp(1.8rem, 4.6vw, 3rem);
-  line-height: 1.12;
-  letter-spacing: -0.02em;
-  margin: 0.85rem 0 1.35rem;
-  max-width: 18ch;
+/* ----------------------------------------------------------------- Contact */
+
+.mk-contact {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem 2rem;
 }
 
-.mk-closing-body {
-  margin: 0 0 2.25rem;
-  max-width: 50ch;
-  font-size: clamp(1rem, 2vw, 1.08rem);
-  line-height: 1.8;
+.mk-contact-phone {
+  font-family: var(--font-heading);
+  font-size: clamp(1.2rem, 2.8vw, 1.5rem);
+  color: var(--mk-wine);
+  text-decoration: none;
+  border-bottom: 1px solid var(--mk-gold);
+}
+
+.mk-contact-where {
+  font-size: 0.92rem;
   color: var(--brand-muted);
 }
 

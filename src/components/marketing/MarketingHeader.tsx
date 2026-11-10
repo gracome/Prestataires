@@ -34,11 +34,14 @@ export function MarketingHeader({ inner }: { inner?: boolean }) {
           {PRODUCT.name}
         </Link>
 
+        {/* The same six questions the page answers, in the same order, minus
+            the two a visitor never clicks for. Linking to "Démo" and "Modules"
+            pointed at things she has to already know the product to want. */}
         <nav aria-label="Navigation principale" className="mk-nav-links">
-          <a href={`${prefix}#demo`}>Démo</a>
+          <a href={`${prefix}#produit`}>Le produit</a>
+          <a href={`${prefix}#pour-qui`}>Pour qui</a>
           <a href={`${prefix}#tarifs`}>Tarifs</a>
-          <a href={`${prefix}#modules`}>Modules</a>
-          <a href={`${prefix}#nous`}>Qui sommes-nous</a>
+          <a href={`${prefix}#commencer`}>Commencer</a>
         </nav>
 
         <div className="mk-nav-actions">
