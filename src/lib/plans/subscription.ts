@@ -4,7 +4,7 @@ import { sendMail } from "@/lib/email/mailer";
 import { renderEmail } from "@/lib/email/layout";
 import { appUrl } from "@/lib/env";
 import { formatMoney } from "@/lib/money";
-import { monthsInPeriod, planLabel, priceFor } from "./catalogue";
+import { monthsInPeriod, planLabel, PLAN_ORDER, PLANS, priceFor } from "./catalogue";
 
 /**
  * The subscription lifecycle.
@@ -178,6 +178,7 @@ export async function sendRenewalNotices(
       billingPeriod: true,
       extraModules: true,
       subscriptionEndsAt: true,
+      _count: { select: { subscriptionPayments: true } },
     },
     take: 100,
   });
@@ -188,54 +189,17 @@ export async function sendRenewalNotices(
     const endsAt = provider.subscriptionEndsAt;
     if (!endsAt) continue;
 
-    const amount = priceFor(
-      provider.plan,
-      provider.billingPeriod,
-      provider.extraModules,
-    );
-
-    const { html, text } = renderEmail({
-      title: "Votre abonnement arrive à échéance",
-      preheader: `Formule ${planLabel(provider.plan)} — à renouveler avant le ${formatDate(endsAt)}.`,
+    const { subject, html, text } = renewalNoticeEmail({
       businessName: provider.businessName,
-      blocks: [
-        { kind: "paragraph", text: `Bonjour ${provider.ownerName},` },
-        {
-          kind: "paragraph",
-          text:
-            "Votre abonnement arrive à échéance. Sans renouvellement, votre " +
-            "site et vos réservations en ligne seront suspendus à cette date.",
-        },
-        {
-          kind: "facts",
-          rows: [
-            ["Formule", planLabel(provider.plan)],
-            [
-              "Échéance",
-              formatDate(endsAt),
-            ],
-            [
-              "Montant",
-              `${formatMoney(amount, provider.currency)} / ${
-                provider.billingPeriod === "YEARLY" ? "an" : "mois"
-              }`,
-            ],
-          ],
-        },
-        {
-          kind: "paragraph",
-          text: "Vos données sont conservées : un règlement rétablit tout en l'état.",
-        },
-        { kind: "button", label: "Ouvrir mon espace", url: appUrl("/dashboard") },
-      ],
+      ownerName: provider.ownerName,
+      currency: provider.currency,
+      plan: provider.plan,
+      endsAt,
+      // No payment ever recorded: the period ending is the free trial.
+      trial: provider._count.subscriptionPayments === 0,
     });
 
-    const result = await sendMail({
-      to: provider.email,
-      subject: "Votre abonnement arrive à échéance",
-      html,
-      text,
-    });
+    const result = await sendMail({ to: provider.email, subject, html, text });
 
     if (result.ok) {
       await prisma.provider.update({
@@ -249,6 +213,64 @@ export async function sendRenewalNotices(
   }
 
   return sent;
+}
+
+/**
+ * The warning before a period ends.
+ *
+ * It lists every package with its price and links to the full comparison,
+ * rather than quoting only the current one: at the end of a trial on the top
+ * package, she is choosing, not renewing, and the cheaper packages are a
+ * reason to stay rather than to leave.
+ */
+export function renewalNoticeEmail(input: {
+  businessName: string;
+  ownerName: string;
+  currency: string;
+  plan: Plan;
+  endsAt: Date;
+  trial: boolean;
+}): { subject: string; html: string; text: string } {
+  const date = formatDate(input.endsAt);
+  const current = planLabel(input.plan);
+
+  const subject = input.trial
+    ? "Votre essai gratuit se termine bientôt"
+    : "Votre abonnement arrive à échéance";
+
+  const intro = input.trial
+    ? `Votre essai gratuit de l'offre ${current} se termine le ${date}. Pour continuer à recevoir vos réservations, choisissez l'offre qui vous convient.`
+    : `Votre abonnement ${current} arrive à échéance le ${date}. Renouvelez-le pour garder votre site et vos réservations en ligne, ou changez d'offre si vos besoins ont évolué.`;
+
+  const { html, text } = renderEmail({
+    title: input.trial ? "Votre essai gratuit se termine" : "Votre abonnement arrive à échéance",
+    preheader: `Plus que 7 jours, jusqu'au ${date}. Les offres et leurs tarifs à l'intérieur.`,
+    businessName: input.businessName,
+    blocks: [
+      { kind: "paragraph", text: `Bonjour ${input.ownerName},` },
+      { kind: "paragraph", text: intro },
+      { kind: "heading", text: "Nos offres" },
+      {
+        kind: "facts",
+        rows: PLAN_ORDER.map((plan): [string, string] => [
+          `${PLANS[plan].emoji} ${PLANS[plan].name}${plan === input.plan ? (input.trial ? " (votre essai)" : " (votre offre)") : ""}`,
+          `${formatMoney(priceFor(plan, "MONTHLY"), input.currency)} / mois`,
+        ]),
+      },
+      {
+        kind: "paragraph",
+        text: PLAN_ORDER.map((plan) => `${PLANS[plan].name} : ${PLANS[plan].pitch}`).join(" "),
+      },
+      { kind: "button", label: "Comparer les offres", url: appUrl("/#tarifs") },
+      {
+        kind: "callout",
+        text: `Sans paiement d'ici le ${date}, votre site et vos réservations en ligne seront suspendus. Vos données sont conservées : un règlement rétablit tout en l'état.`,
+      },
+      { kind: "button", label: "Ouvrir mon espace", url: appUrl("/dashboard") },
+    ],
+  });
+
+  return { subject, html, text };
 }
 
 function formatDate(date: Date): string {
