@@ -42,12 +42,18 @@ export function MarketingHeader({ inner }: { inner?: boolean }) {
           />
         </Link>
 
-        {/* The bands of the landing page, in the order they appear on it. */}
+        {/* Destinations, not section titles.
+
+            These used to be named after the bands of the landing page, "Le
+            site" and "L'agenda", which only mean something once the page has
+            been read: on a website, a link called "Le site" points at the
+            page the visitor is already standing on. A navigation bar names
+            what somebody is looking for. */}
         <nav aria-label="Navigation principale" className="mk-nav-links">
-          <a href={`${prefix}#site`}>Le site</a>
-          <a href={`${prefix}#agenda`}>L&apos;agenda</a>
-          <a href={`${prefix}#metiers`}>Les métiers</a>
+          <a href={`${prefix}#fonctionnalites`}>Fonctionnalités</a>
+          <a href={`${prefix}#metiers`}>Métiers</a>
           <a href={`${prefix}#tarifs`}>Tarifs</a>
+          <Link href="/demo">Démo</Link>
         </nav>
 
         {/* The button opens an account rather than opening the demo. The demo

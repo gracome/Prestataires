@@ -137,7 +137,7 @@ export default async function BeautyPrestPage() {
         </section>
 
         {/* ---------------------------------------------------- Her own site */}
-        <section id="site" className="bp-band bp-band-white">
+        <section id="fonctionnalites" className="bp-band bp-band-white">
           <div className="container bp-duo">
             <div className="bp-said">
               <h2>Votre site, à votre adresse.</h2>
