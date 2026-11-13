@@ -231,6 +231,51 @@ textarea:focus-visible,
   width: 100%;
 }
 
+/* --- Booking step actions ------------------------------------------------ */
+
+/*
+ * The pair of buttons under each step of the booking flow.
+ *
+ * They used to be a wrapping flex row with a 180px floor on the primary. On a
+ * phone that left "Confirmer ma réservation" about 170px of text space beside
+ * a short "Retour", so the label broke onto three lines and the button grew
+ * into a tall block next to a small one. Below 480px the pair stacks instead,
+ * reversed, so the action that matters is full width and sits first under the
+ * thumb, and going back stays available without competing with it.
+ */
+.step-actions {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1.5rem;
+}
+
+/* Narrower than the default button padding: the labels here are sentences,
+   not words, and the side padding was eating the room they needed. */
+.step-actions .btn {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.step-actions-back {
+  flex: 0 0 auto;
+}
+
+.step-actions-go {
+  flex: 1;
+  /* Without this a flex item refuses to shrink below its text. */
+  min-width: 0;
+}
+
+@media (max-width: 480px) {
+  .step-actions {
+    flex-direction: column-reverse;
+  }
+
+  .step-actions .btn {
+    width: 100%;
+  }
+}
+
 /* --- Surfaces ------------------------------------------------------------ */
 
 .card {

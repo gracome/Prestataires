@@ -867,21 +867,20 @@ function StepActions({
   continueType?: "button" | "submit";
 }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        gap: ".6rem",
-        marginTop: "1.5rem",
-        flexWrap: "wrap",
-      }}
-    >
-      <button type="button" className="btn btn-secondary" onClick={onBack}>
+    // Laid out in the stylesheet rather than here: on a phone the pair stacks
+    // and the long label needs the full width, which an inline style cannot
+    // express.
+    <div className="step-actions">
+      <button
+        type="button"
+        className="btn btn-secondary step-actions-back"
+        onClick={onBack}
+      >
         Retour
       </button>
       <button
         type={continueType}
-        className="btn btn-primary"
-        style={{ flex: 1, minWidth: 180 }}
+        className="btn btn-primary step-actions-go"
         onClick={continueType === "button" ? onContinue : undefined}
         disabled={continueDisabled}
       >
