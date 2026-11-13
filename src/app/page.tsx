@@ -7,16 +7,15 @@ import {
   PLAN_ORDER,
   planHighlights,
   expandRequirements,
-  requirementLabels,
   sellableFeatures,
   yearlyPrice,
 } from "@/lib/plans/catalogue";
 import type { Plan, PlanFeature } from "@prisma/client";
 import { MarketingHeader } from "@/components/marketing/MarketingHeader";
 import { MarketingFooter } from "@/components/marketing/MarketingFooter";
+import { SignupForm } from "@/components/marketing/SignupForm";
 import { CONTACT, PRODUCT } from "@/lib/marketing/product";
-import { DemoStudio } from "@/components/marketing/DemoStudio";
-import { TRADES } from "@/lib/marketing/trades";
+import { TRADES, humanDuration } from "@/lib/marketing/trades";
 
 export const dynamic = "force-dynamic";
 
@@ -29,128 +28,78 @@ export const metadata: Metadata = {
 /**
  * Platform landing page.
  *
- * The brief was six things a visitor needs to know, in this order: what it is,
- * who it is for, how it is used, what it costs, how to get it, who answers.
- * That is the order of the sections and it is all it is: an order. The version
- * before this one printed the brief, first as six questions and then as six
- * statements under six labels, each followed by a paragraph that said the
- * heading again in other words. Six identical slabs read as a form being
- * filled in, which is what was rejected.
+ * Built as a platform page and not as a text. Every band is a short title
+ * ending in a full stop, at most one line under it, and then the thing
+ * itself drawn at full fidelity. There is no paragraph on this page: where an
+ * explanation was wanted, the screen it describes is shown instead.
  *
- * So there are no labels, no restated leads, and no two blocks built the same
- * way. Each section opens on one running sentence and then shows the thing
- * itself: four cards, a line of trades set as type, two columns, the price
- * list, a numbered path, a phone number. The sentence carries the voice, the
- * block carries the information, and nothing says twice what it says once.
+ * That is the correction, and it took several attempts to get to. The
+ * arrangements before this one were an essay, then a FAQ, then a sequence of
+ * six topics each announcing itself and answering itself. All three read as
+ * something to be read rather than as a product to be looked at.
  *
- * Two standing constraints.
+ * The audience is the professional buying the software, so every object on
+ * the page is something she ends up owning: her site, her Tuesday, her
+ * deposit, her month. The sample figures are drawn from the trades table, so
+ * the prices on screen are the ones her own catalogue starts with.
  *
- * No photographs: the library is borrowed stock, seven frames of which show
- * pale hands, which is not what a salon in Cotonou looks like. And no mock
- * screens: they read as a wireframe. What is left is type, large and well
- * spaced, plus the one real asset the brand has, its own logo, which lives in
- * the header.
+ * No photographs, by instruction. The stock library is borrowed and several
+ * frames show pale hands, which is not what a salon in Cotonou looks like.
+ * What replaces them is the product itself.
  *
- * Nothing here is invented. The acquisition steps are the actual ones: there is
- * no public sign-up, provider creation is an administrator task (see
- * src/app/onboarding/page.tsx), the credentials arrive by letter and the site
- * goes live when she publishes it from Paramètres. If that flow ever changes,
- * this section has to change with it.
- *
- * It deliberately does not list the providers on the platform: their client
- * lists are not a directory.
+ * The page keeps the `mk` class so the header and footer still read the
+ * marketing palette, and adds `bp` for everything below, which is styled by
+ * its own block in globals.css. The older `mk-` landing classes stay where
+ * they are because the demo and the module pages are still drawn with them.
  */
 
-/** What she gets, in four nouns. */
-const INCLUDED = [
-  {
-    title: "Un site de réservation",
-    body: "À votre nom, avec vos prestations, vos tarifs et vos photos. Une adresse à envoyer en story.",
-  },
-  {
-    title: "Un agenda",
-    body: "Vos vraies disponibilités, et deux clientes qui ne peuvent pas prendre la même heure.",
-  },
-  {
-    title: "Des acomptes",
-    body: "Réglés au moment de réserver, sur votre compte. La plateforme n'y touche pas.",
-  },
-  {
-    title: "Vos chiffres",
-    body: "Ce que vous avez encaissé, les prestations qui marchent, les clientes qui reviennent.",
-  },
+/** The sample salon the page is illustrated with: the first trade's. */
+const SAMPLE = TRADES[0];
+
+/**
+ * A Tuesday that is already full.
+ *
+ * Invented, and marked as an example on screen. The names are initials
+ * because a landing page showing what looks like real customers of a real
+ * salon would be claiming something it cannot show.
+ */
+const DAY = [
+  { hour: "08:30", who: "Ama D.", what: SAMPLE.services[0].name, paid: true },
+  { hour: "10:30", who: "Sèna K.", what: SAMPLE.services[1].name, paid: true },
+  { hour: "14:00", who: "Flore A.", what: SAMPLE.services[3].name, paid: true },
+  { hour: "16:00", who: "Inès B.", what: SAMPLE.services[2].name, paid: false },
+] as const;
+
+/** One Saturday's availability, which is what a client is actually shown. */
+const SLOTS = [
+  { hour: "09:00", taken: true, note: "Tresses collées" },
+  { hour: "11:00", taken: false, note: "2 h disponibles" },
+  { hour: "14:00", taken: true, note: "Pose de tissage" },
+  { hour: "17:00", taken: false, note: "1 h disponible" },
 ] as const;
 
 /**
- * The working day, from both sides.
+ * How an account is opened, beside the form rather than on a band of its own.
  *
- * Her side and her client's side, because a visitor is deciding two things at
- * once: whether she can work it, and whether her clients will.
- */
-const USE_HER = [
-  "Vous réglez vos prestations, vos tarifs et vos horaires une fois.",
-  "Vous publiez votre site. Il est en ligne à votre adresse.",
-  "Vous ouvrez votre agenda le matin : les rendez-vous y sont déjà.",
-] as const;
-
-const USE_CLIENT = [
-  "Elle ouvre votre lien, depuis une story ou votre statut WhatsApp.",
-  "Elle choisit sa prestation et une heure réellement libre.",
-  "Elle verse son acompte et reçoit sa confirmation.",
-] as const;
-
-/**
- * How to get an account. These are the real steps, not a funnel.
- *
- * There is no public sign-up. A platform administrator creates the space, the
- * password is mailed once and never stored in the clear, and the site stays
- * unpublished until she publishes it herself.
+ * These are the real steps. The first four happen in the next two minutes;
+ * the fifth is hers to take whenever she wants, which is the point of it.
  */
 const STEPS = [
-  {
-    title: "Vous nous écrivez",
-    body: "Sur WhatsApp. Dites-nous votre métier et comment vous travaillez aujourd'hui.",
-  },
-  {
-    title: "On crée votre espace",
-    body: "Avec le nom de votre salon et la formule qui correspond à ce que vous faites.",
-  },
-  {
-    title: "Vous recevez vos identifiants",
-    body: "Par e-mail. Le mot de passe n'est enregistré nulle part en clair : changez-le à la première connexion.",
-  },
-  {
-    title: "Vous préparez votre site",
-    body: "Prestations, tarifs, horaires, photos. Prenez le temps, rien n'est visible encore.",
-  },
-  {
-    title: "Vous le publiez",
-    body: "Depuis Paramètres, quand vous êtes prête. C'est vous qui décidez du jour.",
-  },
+  { title: "Vous choisissez votre formule", body: "Changeable plus tard, sans perdre votre travail." },
+  { title: "Vous ouvrez votre espace", body: "Le nom du salon, votre métier, votre ville, votre numéro." },
+  { title: "Vous entrez tout de suite", body: "Pas d'attente, pas de validation, pas de paiement." },
+  { title: "Vous préparez votre site", body: "Prestations, tarifs, horaires, photos. Rien n'est visible encore." },
+  { title: "Vous le publiez", body: "Depuis Paramètres, le jour où vous êtes prête." },
 ] as const;
 
-/**
- * The offer itself lives in src/lib/plans/catalogue.ts, which the guard and
- * the administration screens read too: a price quoted to a prospect here and
- * the features actually granted after payment come from one table.
- */
-const SHOWN_PLANS = PLAN_ORDER;
-
-/**
- * "les coiffeuses, les maquilleuses et les barbiers".
- *
- * Built from the trades table rather than typed out, so a trade added there
- * appears here. The last join is "et", not a comma, because this is a sentence
- * a visitor reads and not a list she scans.
- */
-function frenchList(items: readonly string[]): string {
-  if (items.length < 2) return items[0] ?? "";
-  return `${items.slice(0, -1).join(", ")} et ${items[items.length - 1]}`;
-}
-
-/** 48000 -> "48 000", with a narrow no-break space holding the groups together. */
+/** 48000 -> "48 000", grouped so a price never wraps mid-number. */
 function fcfa(amount: number): string {
   return amount.toLocaleString("fr-FR").replace(/[  \s]/g, " ");
+}
+
+/** The cheapest thing a trade sells, which is where its card starts. */
+function fromPrice(services: readonly { price: number }[]): number {
+  return services.reduce((low, service) => Math.min(low, service.price), Infinity);
 }
 
 export default async function BeautyPrestPage() {
@@ -159,208 +108,183 @@ export default async function BeautyPrestPage() {
     .count({ where: { status: "ACTIVE" } })
     .catch(() => 0);
 
-  const trades = frenchList(TRADES.map((trade) => `les ${trade.plural}`));
-
   return (
-    <div className="mk">
+    <div className="mk bp">
       <MarketingHeader />
 
       <main>
-        {/* --------------------------------------------------------- Cover */}
-        {/* The mark is in the header and is not repeated here. One sentence,
-            the plain thing the product is, centred: a left-aligned line twenty
-            words long leaves half a wide screen empty beside it. */}
-        <section className="mk-cover">
-          <div className="container">
-            <h1 className="mk-cover-title">
-              Le logiciel qui met votre salon en ligne et tient votre agenda.
-            </h1>
-
-            <div className="mk-cover-actions">
-              <a href="#commencer" className="mk-btn">
-                Comment commencer
-              </a>
-              <a href="#tarifs" className="mk-link">
-                Voir les tarifs
-              </a>
+        {/* ---------------------------------------------------------- Hero */}
+        <section className="bp-hero">
+          <div className="container bp-hero-grid">
+            <div>
+              <h1 className="bp-h1">Votre salon en ligne. Votre agenda à jour.</h1>
+              <p className="bp-one">
+                Le logiciel de réservation des métiers de la beauté. Sans
+                commission sur vos rendez-vous.
+              </p>
+              <div className="bp-acts">
+                <a href="#inscription" className="bp-btn">
+                  Créer mon espace
+                </a>
+                <Link href="/demo" className="bp-btn bp-btn-quiet">
+                  Voir la démo
+                </Link>
+              </div>
             </div>
+
+            <DayCard />
           </div>
         </section>
 
-        {/* ------------------------------------------------------ The thing */}
-        {/* Continues the cover sentence instead of announcing itself again.
-            The four cards are the whole answer; a paragraph introducing them
-            would only be the cards said badly first. */}
-        <section id="produit" className="mk-q">
-          <div className="container">
-            <h2 className="mk-lede">
-              Vos clientes réservent depuis un lien, à l&apos;heure qui leur va,
-              et laissent leur acompte en réservant. Vous ouvrez votre
-              téléphone le matin : la journée est déjà écrite.
-            </h2>
+        {/* ---------------------------------------------------- Her own site */}
+        <section id="site" className="bp-band bp-band-white">
+          <div className="container bp-duo">
+            <div className="bp-said">
+              <h2>Votre site, à votre adresse.</h2>
+              <p className="bp-one">
+                Vos prestations, vos tarifs, vos photos, vos horaires.
+              </p>
+            </div>
 
-            <ul className="mk-cards">
-              {INCLUDED.map((item) => (
-                <li key={item.title} className="mk-card">
-                  <h3>{item.title}</h3>
-                  <p>{item.body}</p>
+            <SitePreview />
+          </div>
+        </section>
+
+        {/* ------------------------------------------------------ Her agenda */}
+        <section id="agenda" className="bp-band">
+          <div className="container bp-duo bp-duo-flip">
+            <div className="bp-said">
+              <h2>Un créneau pris disparaît.</h2>
+              <p className="bp-one">
+                Pour tout le monde, au moment où il part.
+              </p>
+            </div>
+
+            <SlotsCard />
+          </div>
+        </section>
+
+        {/* ------------------------------------------------------ Her money */}
+        <section className="bp-band bp-band-white">
+          <div className="container bp-duo">
+            <div className="bp-said">
+              <h2>L&apos;acompte avant la cliente.</h2>
+              <p className="bp-one">
+                Versé à la réservation, sur votre compte.
+              </p>
+            </div>
+
+            <ReceiptCard />
+          </div>
+        </section>
+
+        {/* ------------------------------------------------------ Her month */}
+        <section className="bp-band">
+          <div className="container bp-duo bp-duo-flip">
+            <div className="bp-said">
+              <h2>Votre mois, en chiffres.</h2>
+              <p className="bp-one">
+                Ce qui est entré, ce qui se vend, qui revient.
+              </p>
+            </div>
+
+            <FiguresCard />
+          </div>
+        </section>
+
+        {/* --------------------------------------------------------- Trades */}
+        <section id="metiers" className="bp-band bp-band-white">
+          <div className="container">
+            <h2 className="bp-wide-title">Six métiers, un même outil.</h2>
+            <p className="bp-one bp-wide-one">
+              Seule ou en équipe, en salon ou à domicile.
+            </p>
+
+            <ul className="bp-trades">
+              {TRADES.map((trade) => (
+                <li key={trade.id} className="bp-trade">
+                  <b>{trade.label}</b>
+                  <span>
+                    {trade.services.map((service) => service.name).join(", ")}
+                  </span>
+                  <em>à partir de {fcfa(fromPrice(trade.services))} F</em>
                 </li>
               ))}
             </ul>
-
-            <p className="mk-note">
-              Aucune commission n&apos;est prélevée sur vos rendez-vous.
-            </p>
           </div>
         </section>
 
-        {/* ---------------------------------------------------------- Who */}
-        {/* Nothing but a sentence here, the trades set large inside it. The
-            row of pills that used to follow said the same six words again in
-            a different shape. */}
-        <section id="pour-qui" className="mk-q mk-q-tint">
+        {/* --------------------------------------------------------- Prices */}
+        <section id="tarifs" className="bp-band">
           <div className="container">
-            <h2 className="mk-roll">
-              Pour {trades}.
-              <span> Seule ou avec une équipe, en salon ou à domicile.</span>
-            </h2>
+            <h2 className="bp-wide-title">Un abonnement, jamais une commission.</h2>
+            <p className="bp-one bp-wide-one">Deux mois offerts à l&apos;année.</p>
 
-            {/* Saying who it is not for is the only part of a landing page a
-                reader has no reason to disbelieve, so it buys the rest. */}
-            <p className="mk-q-aside">
-              Ce n&apos;est pas pour vous si vous travaillez sans rendez-vous,
-              ou si votre carnet vous suffit. Un carnet qui tourne bien vaut
-              mieux qu&apos;un abonnement dont on ne se sert pas, et il nous
-              arrive de le dire.
-            </p>
-          </div>
-        </section>
-
-        {/* -------------------------------------------------------- The day */}
-        <section id="utilisation" className="mk-q">
-          <div className="container">
-            <h2 className="mk-lede">
-              Vous n&apos;installez rien : tout se passe dans un navigateur,
-              sur votre téléphone comme sur un ordinateur.
-            </h2>
-
-            <div className="mk-two-up">
-              <div>
-                <h3 className="mk-sub">De votre côté</h3>
-                <ol className="mk-steps">
-                  {USE_HER.map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-                </ol>
-              </div>
-
-              <div>
-                <h3 className="mk-sub">Du côté de votre cliente</h3>
-                <ol className="mk-steps">
-                  {USE_CLIENT.map((line) => (
-                    <li key={line}>{line}</li>
-                  ))}
-                </ol>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ------------------------------------------------------- The price */}
-        <section id="tarifs" className="mk-q mk-q-tint">
-          <div className="container">
-            <h2 className="mk-lede">
-              Un abonnement, jamais une commission : vos clientes vous paient
-              directement, et l&apos;année réglée d&apos;avance vous fait{" "}
-              <strong>deux mois offerts</strong>.
-            </h2>
-
-            <div className="mk-plans">
-              {SHOWN_PLANS.map((plan) => (
+            <div className="bp-plans">
+              {PLAN_ORDER.map((plan) => (
                 <PlanCard key={plan} plan={plan} />
               ))}
             </div>
 
-            <div id="modules" className="mk-extras">
-              <div className="mk-extras-head">
-                <h3>Modules à la carte</h3>
-                <p>À ajouter à n&apos;importe quelle formule.</p>
+            <div id="modules" className="bp-extras">
+              <div className="bp-extras-top">
+                <b>Modules à la carte</b>
+                <span>À ajouter à n&apos;importe quelle formule.</span>
               </div>
-
-              <ul className="mk-modules">
+              <ul>
                 {sellableFeatures().map((feature) => (
                   <li key={feature}>
                     <Link href={`/modules/${FEATURES[feature].slug}`}>
-                      <span className="mk-modules-name">
-                        {FEATURES[feature].label}
-                        {requirementLabels(feature).length > 0 ? (
-                          <small>
-                            avec {requirementLabels(feature).join(" et ")}
-                          </small>
-                        ) : null}
-                      </span>
-                      <span className="mk-modules-price">
-                        <b>{fcfa(moduleMonthly(feature))} F</b>
-                        <small>
-                          {fcfa(yearlyPrice(moduleMonthly(feature)))} F / an
-                        </small>
-                      </span>
+                      <span>{FEATURES[feature].label}</span>
+                      <b>{fcfa(moduleMonthly(feature))} F / mois</b>
                     </Link>
                   </li>
                 ))}
               </ul>
             </div>
+          </div>
+        </section>
 
-            {/* The simulator answers the question the price list cannot: what
-                it costs against what she actually makes. It sits inside the
-                prices rather than in a section of its own, because on its own
-                it was a second thing to decide about. */}
-            <div id="demo" className="mk-sim">
-              <h3 className="mk-sub">Ce que ça donne pour votre activité</h3>
-              <DemoStudio
-                plans={SHOWN_PLANS.map((plan) => ({
-                  name: PLANS[plan].name,
-                  monthly: PLANS[plan].monthly,
-                }))}
-              />
+        {/* ------------------------------------------------------- Signing up */}
+        <section id="inscription" className="bp-band bp-band-white">
+          <div className="container">
+            <h2 className="bp-wide-title">Créez votre espace.</h2>
+            <p className="bp-one bp-wide-one">
+              Vous entrez tout de suite. Vous publiez quand vous voulez.
+            </p>
+
+            <div className="bp-enroll">
+              <ol className="bp-steps">
+                {STEPS.map((step) => (
+                  <li key={step.title}>
+                    <b>{step.title}</b>
+                    {step.body}
+                  </li>
+                ))}
+              </ol>
+
+              <div className="bp-enroll-form">
+                <SignupForm />
+              </div>
             </div>
           </div>
         </section>
 
-        {/* --------------------------------------------------------- The way */}
-        <section id="commencer" className="mk-q">
-          <div className="container">
-            <h2 className="mk-lede">
-              Il n&apos;y a pas d&apos;inscription en ligne. Nous ouvrons votre
-              espace nous-mêmes, pour qu&apos;il soit juste dès le premier jour,
-              et vous le publiez le jour où vous êtes prête.
-            </h2>
+        {/* ---------------------------------------------------------- Close */}
+        <section className="bp-close">
+          <div className="container bp-close-grid">
+            <div>
+              <h2>Une question avant de commencer ?</h2>
+              <p className="bp-one">
+                Écrivez-nous votre métier en une phrase. On répond avec la
+                formule qui correspond.
+              </p>
+            </div>
 
-            <ol className="mk-path">
-              {STEPS.map((step, index) => (
-                <li key={step.title}>
-                  <span aria-hidden="true">{index + 1}</span>
-                  <h3>{step.title}</h3>
-                  <p>{step.body}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        {/* --------------------------------------------------------- The door */}
-        <section id="nous" className="mk-q mk-q-close">
-          <div className="container">
-            <h2 className="mk-lede">
-              L&apos;outil est fait par une petite équipe béninoise, à{" "}
-              {CONTACT.city}, et c&apos;est elle qui répond. En français, sur
-              WhatsApp, pas par un formulaire.
-            </h2>
-
-            <div className="mk-contact">
+            <div className="bp-close-acts">
               <a
                 href={CONTACT.whatsapp}
-                className="mk-btn"
+                className="bp-btn bp-btn-light"
                 target="_blank"
                 rel="noreferrer noopener"
               >
@@ -368,13 +292,10 @@ export default async function BeautyPrestPage() {
               </a>
               <a
                 href={`tel:${CONTACT.phone.replace(/\s/g, "")}`}
-                className="mk-contact-phone"
+                className="bp-tel"
               >
                 {CONTACT.phone}
               </a>
-              <span className="mk-contact-where">
-                {CONTACT.city}, {CONTACT.country}
-              </span>
             </div>
           </div>
         </section>
@@ -391,48 +312,228 @@ export default async function BeautyPrestPage() {
   );
 }
 
+/* ------------------------------------------------------------------ Pieces */
+
+/** Her Tuesday, already written. The first thing the page shows. */
+function DayCard() {
+  const paid = DAY.filter((slot) => slot.paid).length;
+
+  return (
+    <div className="bp-card bp-day" aria-label="Exemple d'agenda">
+      <div className="bp-day-top">
+        <b>Mardi 11 novembre</b>
+        <span>{DAY.length} rendez-vous</span>
+      </div>
+
+      {DAY.map((slot) => (
+        <div key={slot.hour} className="bp-slot">
+          <span className="bp-hour">{slot.hour}</span>
+          <span className="bp-who">
+            <b>{slot.who}</b>
+            <span>{slot.what}</span>
+          </span>
+          <span className={slot.paid ? "bp-chip" : "bp-chip bp-chip-grey"}>
+            {slot.paid ? "Acompte reçu" : "À confirmer"}
+          </span>
+        </div>
+      ))}
+
+      <div className="bp-day-foot">
+        <span>
+          {SAMPLE.sampleName}, exemple
+        </span>
+        <span>
+          {paid} acompte{paid > 1 ? "s" : ""} reçu{paid > 1 ? "s" : ""}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/** What she publishes: her own address, her own prices, her own button. */
+function SitePreview() {
+  return (
+    <div className="bp-card bp-browser">
+      <div className="bp-browser-bar">
+        <span className="bp-dots" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </span>
+        <span className="bp-url">
+          <b>{SAMPLE.id === "ongles" ? "studio-amara" : SAMPLE.id}</b>
+          .beautyprest.com
+        </span>
+      </div>
+
+      <div className="bp-site">
+        <div className="bp-site-head">
+          <b>{SAMPLE.sampleName}</b>
+          <span>{SAMPLE.tagline}</span>
+        </div>
+
+        <ul className="bp-site-list">
+          {SAMPLE.services.map((service) => (
+            <li key={service.name}>
+              <span>
+                {service.name}
+                <em>{humanDuration(service.minutes)}</em>
+              </span>
+              <b>{fcfa(service.price)} F</b>
+            </li>
+          ))}
+        </ul>
+
+        <span className="bp-btn bp-btn-sm">Réserver</span>
+      </div>
+    </div>
+  );
+}
+
+/** A Saturday, from the side her client sees it. */
+function SlotsCard() {
+  return (
+    <div className="bp-card bp-day">
+      <div className="bp-day-top">
+        <b>Samedi 15 novembre</b>
+        <span>Disponibilités</span>
+      </div>
+
+      {SLOTS.map((slot) => (
+        <div
+          key={slot.hour}
+          className={slot.taken ? "bp-slot bp-slot-taken" : "bp-slot"}
+        >
+          <span className="bp-hour">{slot.hour}</span>
+          <span className="bp-who">
+            <b>{slot.taken ? "Pris" : "Libre"}</b>
+            <span>{slot.note}</span>
+          </span>
+          <span className={slot.taken ? "bp-chip bp-chip-grey" : "bp-chip"}>
+            {slot.taken ? "Confirmé" : "Réservable"}
+          </span>
+        </div>
+      ))}
+
+      <div className="bp-day-foot">
+        <span>Synchronisé avec Google Calendar</span>
+        <span>Rappel envoyé la veille</span>
+      </div>
+    </div>
+  );
+}
+
+/** The deposit, with the arithmetic shown rather than described. */
+function ReceiptCard() {
+  const service = SAMPLE.services[0];
+  const deposit = Math.round(service.price * 0.2);
+
+  return (
+    <div className="bp-card bp-panel">
+      <ul className="bp-receipt">
+        <li>
+          <span>{service.name}</span>
+          <b>{fcfa(service.price)} F</b>
+        </li>
+        <li>
+          <span>Acompte demandé, 20 %</span>
+          <b>{fcfa(deposit)} F</b>
+        </li>
+        <li className="bp-receipt-total">
+          <span>Reçu</span>
+          <b>{fcfa(deposit)} F</b>
+        </li>
+      </ul>
+      <p className="bp-receipt-note">
+        Mobile Money et carte bancaire. La plateforme n&apos;y touche pas.
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Her month.
+ *
+ * The figures are an example and the curve is drawn to them, not to a shape
+ * chosen for looking good: seven points, the last one highest, each plotted
+ * from the same scale.
+ */
+function FiguresCard() {
+  const months = [148, 162, 155, 198, 236, 274, 312];
+  const top = Math.max(...months);
+  const points = months
+    .map((value, index) => {
+      const x = 4 + (index * 312) / (months.length - 1);
+      const y = 42 - (value / top) * 36;
+      return `${x.toFixed(0)},${y.toFixed(0)}`;
+    })
+    .join(" ");
+
+  return (
+    <div className="bp-card bp-panel">
+      <div className="bp-figures">
+        <div>
+          <b>312 000 F</b>
+          <span>encaissés en octobre</span>
+        </div>
+        <div>
+          <b>41</b>
+          <span>rendez-vous tenus</span>
+        </div>
+        <div>
+          <b>63 %</b>
+          <span>de clientes qui reviennent</span>
+        </div>
+      </div>
+
+      <svg
+        className="bp-spark"
+        viewBox="0 0 320 46"
+        preserveAspectRatio="none"
+        role="img"
+        aria-label="Encaissements des sept derniers mois, en hausse"
+      >
+        <polyline
+          points={points}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </div>
+  );
+}
+
 function PlanCard({ plan }: { plan: Plan }) {
   const definition = PLANS[plan];
   const monthly = definition.monthly;
 
   return (
-    // The recommended plan carries a ring rather than a different background,
-    // so all three stay equally readable.
-    <div className="mk-plan" data-pick={definition.recommended ? "true" : undefined}>
-      <div className="mk-plan-head">
-        <span className="mk-plan-name">{definition.name}</span>
-        {definition.recommended ? (
-          <span className="mk-plan-tag">Recommandé</span>
-        ) : null}
+    <div className="bp-plan" data-pick={definition.recommended ? "true" : undefined}>
+      <div className="bp-plan-top">
+        <b>{definition.name}</b>
+        {definition.recommended ? <span className="bp-reco">Conseillé</span> : null}
       </div>
 
-      <p className="mk-plan-price">
-        {fcfa(monthly)} F<small> / mois</small>
+      <p className="bp-amount">
+        {fcfa(monthly)} F<em> / mois</em>
       </p>
+      <p className="bp-year">{fcfa(yearlyPrice(monthly))} F par an</p>
 
-      <div className="mk-plan-year">
-        <p>
-          ou <strong>{fcfa(yearlyPrice(monthly))} F</strong> par an
-        </p>
-        <p className="mk-plan-save">
-          2 mois offerts, vous économisez{" "}
-          {fcfa(monthly * 12 - yearlyPrice(monthly))} F
-        </p>
-      </div>
-
-      <p className="mk-plan-pitch">{definition.pitch}</p>
-
-      {definition.extends ? (
-        <p className="mk-plan-extends">
-          Tout {PLANS[definition.extends].name}, plus :
-        </p>
-      ) : null}
-
-      <ul className="mk-list">
+      <ul>
+        {definition.extends ? (
+          <li className="bp-from">Tout {PLANS[definition.extends].name}, plus :</li>
+        ) : null}
         {planHighlights(plan).map((feature) => (
           <li key={feature}>{feature}</li>
         ))}
       </ul>
+
+      <a href="#inscription" className="bp-btn bp-btn-sm bp-plan-pick">
+        Choisir {definition.name}
+      </a>
     </div>
   );
 }

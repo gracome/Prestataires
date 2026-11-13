@@ -114,6 +114,49 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Mot de passe requis.").max(200),
 });
 
+/**
+ * Opening an account from the public page.
+ *
+ * Short on purpose: everything else about the salon is asked later, inside
+ * the dashboard, where she can see what her answers change. What cannot wait
+ * is what the account itself is made of, plus the trade, which decides her
+ * starter catalogue and her colours, and the package, which decides which
+ * screens exist.
+ *
+ * The password is hers from the start. The administrator path still generates
+ * one and mails it, because somebody else is creating that account; here
+ * nobody else ever knows it.
+ */
+export const signUpSchema = z
+  .object({
+    businessName: z.string().trim().min(2, "Nom du salon requis.").max(80),
+    ownerName: z.string().trim().min(2, "Votre nom est requis.").max(80),
+    email,
+    phone: z
+      .string()
+      .trim()
+      .min(6, "Numéro WhatsApp requis.")
+      .max(30, "30 caractères au maximum."),
+    city: z.string().trim().min(2, "Votre ville est requise.").max(60),
+    activity: z.enum([
+      "ongles",
+      "coiffure",
+      "cils-sourcils",
+      "esthetique",
+      "barbier",
+      "tatouage",
+      "bien-etre",
+      "autre",
+    ]),
+    plan: z.enum(["ESSENTIEL", "RENDEZ_VOUS", "BUSINESS"]),
+    password: z.string().min(10, "Au moins 10 caractères.").max(200),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Les deux mots de passe ne correspondent pas.",
+    path: ["confirmPassword"],
+  });
+
 export const changePasswordSchema = z
   .object({
     currentPassword: z.string().min(1, "Mot de passe actuel requis."),

@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth/session";
 import { LoginForm } from "./LoginForm";
 
 export const metadata: Metadata = {
-  title: "Connexion — espace prestataire",
+  title: "Connexion à votre espace prestataire",
   robots: { index: false, follow: false },
 };
 
@@ -42,9 +43,19 @@ export default async function LoginPage({
           <LoginForm next={next} />
         </div>
 
+        {/* The way in for somebody who has arrived at the wrong door. Until
+            accounts could be opened from the public page there was nothing to
+            point at here, so the screen simply had no answer for a visitor
+            without an account. */}
         <p style={{ marginTop: "1.25rem", fontSize: ".82rem", color: "var(--admin-muted)", lineHeight: 1.6 }}>
           Vous avez oublié votre mot de passe ? Contactez l&apos;administrateur de
           la plateforme pour le réinitialiser.
+          <br />
+          Vous n&apos;avez pas encore de compte ?{" "}
+          <Link href="/inscription" style={{ color: "var(--admin-accent)", fontWeight: 600 }}>
+            Créez votre espace
+          </Link>
+          .
         </p>
       </div>
     </div>

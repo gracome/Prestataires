@@ -84,7 +84,67 @@ export function providerWelcome(input: WelcomeInput): RenderedEmail {
       "Vous recevez ce message parce qu'un espace professionnel vient d'être créé à votre nom. Si vous n'attendiez rien de tel, ignorez-le et prévenez-nous.",
   });
 
-  return { subject: `Vos identifiants — ${input.businessName}`, ...rendered };
+  return { subject: `Vos identifiants pour ${input.businessName}`, ...rendered };
+}
+
+/**
+ * The letter a provider gets when she opened the account herself.
+ *
+ * It carries no password, because she chose it and already knows it. Sending
+ * it back would put in a mailbox the one thing the database deliberately does
+ * not keep. What it does carry is where to go next: the account exists, the
+ * site does not yet, and nothing happens until she publishes it.
+ */
+export function providerSignedUp(input: {
+  businessName: string;
+  ownerName: string;
+  email: string;
+  planName: string;
+  loginUrl: string;
+  siteUrl: string;
+}): RenderedEmail {
+  const firstName = input.ownerName.trim().split(/\s+/)[0] || input.ownerName;
+
+  const blocks: Block[] = [
+    {
+      kind: "paragraph",
+      text: `Bonjour ${firstName}, votre espace ${input.businessName} est ouvert. Vous vous connectez avec l'adresse ci-dessous et le mot de passe que vous venez de choisir.`,
+    },
+    {
+      kind: "facts",
+      rows: [
+        ["Identifiant", input.email],
+        ["Formule", input.planName],
+      ],
+    },
+    { kind: "button", label: "Ouvrir mon espace", url: input.loginUrl },
+    { kind: "divider" },
+    { kind: "heading", text: "Vos premières minutes" },
+    {
+      kind: "paragraph",
+      text: "Votre site est créé mais pas encore visible. Vérifiez vos prestations et vos tarifs, réglez vos horaires, ajoutez vos photos, puis publiez-le depuis Paramètres le jour où vous êtes prête.",
+    },
+    {
+      kind: "facts",
+      rows: [["Adresse de votre site", input.siteUrl]],
+    },
+    {
+      kind: "callout",
+      text: `Une question pendant la mise en route ? Écrivez-nous au ${CONTACT.phone}, on répond.`,
+    },
+  ];
+
+  const rendered = renderEmail({
+    title: "Votre espace est ouvert",
+    preheader: `Bienvenue chez ${PRODUCT.name}`,
+    businessName: PRODUCT.name,
+    signature: SIGNATURE,
+    blocks,
+    footerNote:
+      "Vous recevez ce message parce qu'un espace professionnel vient d'être ouvert avec cette adresse. Si ce n'est pas vous, prévenez-nous.",
+  });
+
+  return { subject: `Bienvenue chez ${PRODUCT.name}`, ...rendered };
 }
 
 /**

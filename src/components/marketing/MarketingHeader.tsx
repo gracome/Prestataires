@@ -42,22 +42,23 @@ export function MarketingHeader({ inner }: { inner?: boolean }) {
           />
         </Link>
 
-        {/* The same six questions the page answers, in the same order, minus
-            the two a visitor never clicks for. Linking to "Démo" and "Modules"
-            pointed at things she has to already know the product to want. */}
+        {/* The bands of the landing page, in the order they appear on it. */}
         <nav aria-label="Navigation principale" className="mk-nav-links">
-          <a href={`${prefix}#produit`}>Le produit</a>
-          <a href={`${prefix}#pour-qui`}>Pour qui</a>
+          <a href={`${prefix}#site`}>Le site</a>
+          <a href={`${prefix}#agenda`}>L&apos;agenda</a>
+          <a href={`${prefix}#metiers`}>Les métiers</a>
           <a href={`${prefix}#tarifs`}>Tarifs</a>
-          <a href={`${prefix}#commencer`}>Commencer</a>
         </nav>
 
+        {/* The button opens an account rather than opening the demo. The demo
+            is one click further down, in the opening screen, where somebody
+            who is not ready to sign up will look for it. */}
         <div className="mk-nav-actions">
           <Link href="/login" className="mk-nav-login">
             Se connecter
           </Link>
-          <Link href="/demo" className="mk-btn mk-btn-sm">
-            Voir la démo
+          <Link href="/inscription" className="mk-btn mk-btn-sm">
+            Créer mon espace
           </Link>
         </div>
       </div>

@@ -85,6 +85,9 @@ export function clientIp(headers: Headers): string {
 
 export const LIMITS = {
   login: { limit: 8, windowSeconds: 15 * 60 },
+  /** Opening an account writes a provider, a user and a whole catalogue, so
+   *  this one is tighter than the rest: nobody signs up five salons an hour. */
+  signUp: { limit: 5, windowSeconds: 60 * 60 },
   booking: { limit: 12, windowSeconds: 60 * 60 },
   proofUpload: { limit: 10, windowSeconds: 60 * 60 },
   quoteRequest: { limit: 6, windowSeconds: 60 * 60 },

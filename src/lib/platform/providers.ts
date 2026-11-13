@@ -1,6 +1,6 @@
 import bcrypt from "bcryptjs";
 import { randomBytes } from "node:crypto";
-import type { Provider, ProviderStatus } from "@prisma/client";
+import type { Plan, Provider, ProviderStatus } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { toMinorUnits } from "@/lib/money";
 import { appUrl } from "@/lib/env";
@@ -33,6 +33,15 @@ export type CreateProviderInput = {
   /** Left out, one is generated and returned once. */
   password?: string;
 
+  /**
+   * The package she is signing up for.
+   *
+   * Left out, the account starts on the cheapest one. It is set at creation
+   * rather than afterwards because the guard reads it to decide which screens
+   * exist, and an account created on the wrong package shows her a dashboard
+   * with half its doors locked on the first morning.
+   */
+  plan?: Plan;
   /** Trade, which decides the palette, the wording and the starter catalogue. */
   activity?: ActivityId;
   /** Overrides on top of the trade's palette, when she already has colours. */
@@ -82,6 +91,41 @@ export function slugify(value: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "")
     .slice(0, 60);
+}
+
+/**
+ * The first free address derived from a name.
+ *
+ * An administrator typing a name that is already taken gets told so and picks
+ * another one, which is the right behaviour for a screen with a human in
+ * front of it. A public sign-up has nobody to ask: two salons called "Studio
+ * Amara" both have to get in, so the second one becomes studio-amara-2.
+ *
+ * The loop is bounded. Past the bound the caller is being probed rather than
+ * used, and an error is the correct answer.
+ */
+export async function freeSlug(base: string): Promise<string> {
+  const root = slugify(base);
+  if (!root) {
+    throw new PlatformError(
+      "Ce nom ne donne aucune adresse de site utilisable. Essayez un autre nom.",
+      "businessName",
+    );
+  }
+
+  for (let suffix = 0; suffix < 50; suffix += 1) {
+    const candidate = suffix === 0 ? root : `${root}-${suffix + 1}`;
+    const taken = await prisma.provider.findUnique({
+      where: { slug: candidate },
+      select: { id: true },
+    });
+    if (!taken) return candidate;
+  }
+
+  throw new PlatformError(
+    "Ce nom est trop courant pour en déduire une adresse. Choisissez-en un autre.",
+    "businessName",
+  );
 }
 
 /**
@@ -142,6 +186,7 @@ export async function createProvider(
       slug,
       // Starts as a draft: the provider publishes it once the content is ready.
       status: "DRAFT",
+      plan: input.plan ?? "ESSENTIEL",
       businessName,
       ownerName,
       email,

@@ -33,6 +33,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const marketing: MetadataRoute.Sitemap = [
     { url: appUrl("/"), changeFrequency: "monthly" as const, priority: 1 },
+    // The page an account is opened on. Second only to the landing page: it
+    // is the one somebody searching for us by name wants to land on.
+    { url: appUrl("/inscription"), changeFrequency: "monthly" as const, priority: 0.9 },
     ...sellableFeatures().map((feature) => ({
       url: appUrl(`/modules/${FEATURES[feature].slug}`),
       changeFrequency: "monthly" as const,
