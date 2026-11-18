@@ -45,6 +45,7 @@ const NAV: NavEntry[] = [
   { href: "/dashboard/paiement", label: "Paiement et acompte", icon: "sliders", section: "payment" },
   { href: "/dashboard/devis", label: "Demandes de devis", icon: "quote", section: "quotes", badgeKey: "devis" },
   { href: "/dashboard/notifications", label: "Notifications", icon: "bell", section: "notifications" },
+  { href: "/dashboard/abonnement", label: "Mon abonnement", icon: "wallet", section: "subscription" },
   { href: "/dashboard/parametres", label: "Paramètres", icon: "sliders", section: "settings" },
 ];
 

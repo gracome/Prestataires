@@ -256,6 +256,7 @@ model Provider {
   quoteSettings        QuoteSettings?
   notifications        NotificationLog[]
   subscriptionPayments SubscriptionPayment[]
+  subscriptionCheckouts SubscriptionCheckout[]
   auditLogs            AuditLog[]
   reviews              Review[]
 
@@ -1225,4 +1226,40 @@ model Review {
 
   @@index([providerId, hidden, createdAt])
   @@map("reviews")
+}
+
+enum CheckoutStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+/// A provider paying her own subscription online, through the platform's
+/// FedaPay account.
+///
+/// One row per attempt. It holds what was chosen and the amount asked, so the
+/// payment recorded at the end is the one she agreed to on the page, whatever
+/// the prices became since. The move from PENDING to PAID is a guarded update:
+/// FedaPay calls back, the customer comes back, and the page reloads, and only
+/// the first of those may record the payment.
+model SubscriptionCheckout {
+  id         String   @id @default(cuid())
+  providerId String
+  provider   Provider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+
+  plan          Plan
+  billingPeriod BillingPeriod
+  extraModules  PlanFeature[]
+  amount        Int
+  currency      String
+
+  gatewayTransactionId String?        @unique
+  status               CheckoutStatus @default(PENDING)
+  paidAt               DateTime?      @db.Timestamptz(3)
+
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([providerId, createdAt])
+  @@map("subscription_checkouts")
 }

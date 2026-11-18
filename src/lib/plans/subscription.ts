@@ -266,7 +266,7 @@ export function renewalNoticeEmail(input: {
         kind: "callout",
         text: `Sans paiement d'ici le ${date}, votre site et vos réservations en ligne seront suspendus. Vos données sont conservées : un règlement rétablit tout en l'état.`,
       },
-      { kind: "button", label: "Ouvrir mon espace", url: appUrl("/dashboard") },
+      { kind: "button", label: "Payer mon abonnement", url: appUrl("/dashboard/abonnement") },
     ],
   });
 

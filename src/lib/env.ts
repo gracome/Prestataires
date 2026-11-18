@@ -87,6 +87,15 @@ const schema = z.object({
   GOOGLE_CLIENT_ID: z.string().optional(),
   GOOGLE_CLIENT_SECRET: z.string().optional(),
   GOOGLE_REDIRECT_URI: z.string().optional(),
+
+  // --- Subscription payments ----------------------------------------------
+  // The platform's own FedaPay account, which receives what providers pay for
+  // their subscription. Distinct from each provider's account, which receives
+  // her customers' deposits. Left empty, the subscription page explains how
+  // to pay instead of offering a button that would fail.
+  PLATFORM_FEDAPAY_SECRET_KEY: z.string().optional(),
+  PLATFORM_FEDAPAY_MODE: z.enum(["SANDBOX", "LIVE"]).default("SANDBOX"),
+  PLATFORM_FEDAPAY_WEBHOOK_SECRET: z.string().optional(),
 });
 
 export type Env = z.infer<typeof schema>;

@@ -4740,3 +4740,162 @@ table.data tr:last-child td {
 }
 
 .bp-tel:hover { color: #ece7e4; }
+
+/* --- Subscription: package picker in the dashboard ---------------------- */
+
+.plan-picker {
+  display: grid;
+  gap: 1rem;
+}
+
+.plan-period {
+  display: inline-flex;
+  justify-self: start;
+  gap: 0.25rem;
+  padding: 0.25rem;
+  border: 1px solid var(--admin-border);
+  border-radius: 999px;
+  background: var(--admin-surface);
+}
+
+.plan-period-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.95rem;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--admin-text);
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.plan-period-option[data-on] {
+  background: var(--admin-accent);
+  color: var(--admin-accent-fg);
+}
+
+.plan-period-badge {
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  background: var(--tone-success-bg);
+  color: var(--tone-success-fg);
+  font-size: 0.72rem;
+}
+
+.plan-cards {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+
+.plan-card {
+  display: grid;
+  align-content: start;
+  gap: 0.45rem;
+  padding: 1.1rem;
+  border: 1.5px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  background: var(--admin-surface);
+  color: var(--admin-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.plan-card:hover {
+  border-color: color-mix(in srgb, var(--admin-accent) 50%, var(--admin-border));
+}
+
+.plan-card[data-on] {
+  border-color: var(--admin-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--admin-accent) 18%, transparent);
+}
+
+.plan-card-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.plan-card-name {
+  font-weight: 700;
+}
+
+.plan-card-current {
+  padding: 0.1rem 0.5rem;
+  border-radius: 999px;
+  background: var(--tone-info-bg);
+  color: var(--tone-info-fg);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.plan-card-price {
+  font-size: 1.35rem;
+  font-weight: 700;
+}
+
+.plan-card-unit {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--admin-muted);
+}
+
+.plan-card-saving {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--tone-success-fg);
+}
+
+.plan-card-pitch {
+  font-size: 0.86rem;
+  color: var(--admin-muted);
+}
+
+.plan-card-list {
+  margin: 0.2rem 0 0;
+  padding-left: 1.1rem;
+  display: grid;
+  gap: 0.2rem;
+  font-size: 0.83rem;
+}
+
+.plan-error {
+  margin: 0;
+  color: var(--tone-danger-fg);
+  font-size: 0.88rem;
+}
+
+.plan-pay {
+  display: grid;
+  gap: 0.45rem;
+  justify-items: start;
+}
+
+.plan-pay-button {
+  padding: 0.75rem 1.4rem;
+  border: 0;
+  border-radius: var(--admin-radius);
+  background: var(--admin-accent);
+  color: var(--admin-accent-fg);
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.plan-pay-button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.plan-pay-hint {
+  font-size: 0.8rem;
+  color: var(--admin-muted);
+}

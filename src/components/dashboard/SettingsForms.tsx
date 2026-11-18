@@ -1,5 +1,7 @@
 "use client";
 
+
+import Link from "next/link";
 import { useActionState, useTransition, useState } from "react";
 import { PasswordInput } from "@/components/ui/PasswordInput";
 import { IDLE, type ActionState } from "@/lib/validation";
@@ -273,8 +275,10 @@ export function SiteStatusPanel({ status }: { status: "ACTIVE" | "DRAFT" | "SUSP
     return (
       <div className="card">
         <p style={{ margin: 0, color: "var(--tone-danger-fg)", fontSize: ".92rem", lineHeight: 1.6 }}>
-          Ce compte est suspendu. Contactez l&apos;administrateur de la
-          plateforme.
+          Ce compte est suspendu : votre site et vos réservations en ligne ne
+          sont plus visibles. Vos données sont intactes.{" "}
+          <Link href="/dashboard/abonnement">Payer mon abonnement</Link> rétablit tout
+          aussitôt.
         </p>
       </div>
     );

@@ -27,6 +27,7 @@ export type Section =
   | "payment"
   | "notifications"
   | "reviews"
+  | "subscription"
   | "settings";
 
 /** What an employee account may reach. Everything else is the owner's. */
