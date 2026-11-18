@@ -2,7 +2,7 @@ import { requireSection } from "@/lib/auth/guard";
 import { prisma } from "@/lib/db";
 import { formatMoney } from "@/lib/money";
 import { formatLongDateFr } from "@/lib/time";
-import { PLAN_ORDER, PLANS, planLabel, priceFor } from "@/lib/plans/catalogue";
+import { FEATURES, PLAN_ORDER, PLANS, planLabel, priceFor } from "@/lib/plans/catalogue";
 import { onlineSubscriptionPaymentAvailable, settleSubscriptionCheckout } from "@/lib/plans/checkout";
 import { CONTACT } from "@/lib/marketing/product";
 import { Callout, PageHeader, Section } from "@/components/dashboard/ui";
@@ -61,7 +61,9 @@ export default async function SubscriptionPage({
   ]);
 
   const online = onlineSubscriptionPaymentAvailable();
-  const trial = payments.length === 0;
+  // A trial is a period with an end and nothing paid yet. An account with no
+  // end date at all is not on trial, it is simply not limited.
+  const trial = payments.length === 0 && current.subscriptionEndsAt !== null;
   const money = (amount: number) => formatMoney(amount, current.currency);
   const endsAt = current.subscriptionEndsAt;
   const daysLeft = endsAt ? Math.ceil((endsAt.getTime() - Date.now()) / 86_400_000) : null;
@@ -75,7 +77,7 @@ export default async function SubscriptionPage({
       name: PLANS[id].name,
       emoji: PLANS[id].emoji,
       pitch: PLANS[id].pitch,
-      highlights: PLANS[id].extras.slice(0, 4),
+      highlights: highlightsFor(id),
       monthlyLabel: money(monthly),
       yearlyLabel: money(yearly),
       yearlySavingLabel: saving > 0 ? money(saving) : null,
@@ -176,4 +178,22 @@ export default async function SubscriptionPage({
       ) : null}
     </>
   );
+}
+
+/**
+ * What a package card lists. A package that builds on another opens with
+ * "Tout <the one below>, plus :" and then names its own modules: listing only
+ * the extras made the most complete package look like the emptiest card.
+ */
+function highlightsFor(plan: (typeof PLAN_ORDER)[number]): string[] {
+  const definition = PLANS[plan];
+  const parent = definition.extends;
+  if (!parent) return definition.extras.slice(0, 4);
+
+  const inherited = new Set(PLANS[parent].grants);
+  const added = definition.grants
+    .filter((feature) => !inherited.has(feature))
+    .map((feature) => FEATURES[feature].label);
+
+  return [`Tout ${PLANS[parent].name}, plus :`, ...added, ...definition.extras].slice(0, 5);
 }
