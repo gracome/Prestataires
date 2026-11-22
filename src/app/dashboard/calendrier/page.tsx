@@ -169,7 +169,7 @@ async function CalendrierContent({
                 </h2>
                 <span style={{ fontSize: ".82rem", color: "var(--admin-muted)" }}>
                   {rule?.active
-                    ? `${formatMinuteOfDay(rule.openMinute)} – ${formatMinuteOfDay(rule.closeMinute)}`
+                    ? `${formatMinuteOfDay(rule.openMinute)} à ${formatMinuteOfDay(rule.closeMinute)}`
                     : "Fermé"}
                 </span>
               </div>
@@ -197,7 +197,7 @@ async function CalendrierContent({
                       <span style={{ fontVariantNumeric: "tabular-nums", fontWeight: 600, flexShrink: 0 }}>
                         {block.allDay
                           ? "Journée"
-                          : `${formatLocalTime(block.startsAt, tz)}–${formatLocalTime(block.endsAt, tz)}`}
+                          : `${formatLocalTime(block.startsAt, tz)} à ${formatLocalTime(block.endsAt, tz)}`}
                       </span>
                       <span>
                         {block.type === "EXTERNAL_CALENDAR" ? "Google Calendar" : "Indisponible"}

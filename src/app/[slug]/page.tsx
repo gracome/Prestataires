@@ -685,14 +685,14 @@ function Hours({ site }: { site: PublicSite }) {
                     {open && rule ? (
                       hasBreak ? (
                         <>
-                          {formatMinuteOfDay(rule.openMinute)}–
+                          {formatMinuteOfDay(rule.openMinute)}{" à "}
                           {formatMinuteOfDay(rule.breakStartMinute as number)}
                           <br />
-                          {formatMinuteOfDay(rule.breakEndMinute as number)}–
+                          {formatMinuteOfDay(rule.breakEndMinute as number)}{" à "}
                           {formatMinuteOfDay(rule.closeMinute)}
                         </>
                       ) : (
-                        `${formatMinuteOfDay(rule.openMinute)}–${formatMinuteOfDay(rule.closeMinute)}`
+                        `${formatMinuteOfDay(rule.openMinute)} à ${formatMinuteOfDay(rule.closeMinute)}`
                       )
                     ) : (
                       "Fermé"
@@ -782,7 +782,7 @@ function Location({ site }: { site: PublicSite }) {
           <div className="location-map">
             <iframe
               src={mapSrc}
-              title={`Carte — ${site.businessName}`}
+              title={`Carte · ${site.businessName}`}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
             />

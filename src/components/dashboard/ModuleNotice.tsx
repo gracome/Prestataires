@@ -37,7 +37,7 @@ export function ModuleNotice({ feature }: { feature?: string }) {
           color: "var(--admin-muted, #6b5f5a)",
         }}
       >
-        {definition.covers}. Contactez-nous pour ajouter ce module — vos données
+        {definition.covers}. Contactez-nous pour ajouter ce module : vos données
         et vos réglages sont conservés.
       </p>
     </div>

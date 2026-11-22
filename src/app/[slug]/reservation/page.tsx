@@ -16,7 +16,7 @@ export async function generateMetadata({
   const site = await getPublicSiteOrNotFound(slug);
 
   return {
-    title: `Prendre rendez-vous — ${site.businessName}`,
+    title: `Prendre rendez-vous · ${site.businessName}`,
     description: `Réservez votre créneau en ligne chez ${site.businessName}.`,
     // A booking form has nothing to rank on and should not compete with the
     // provider's home page in search results.
@@ -71,6 +71,7 @@ export default async function BookingPage({
       name: service.name,
       description: service.description,
       category: service.category?.name ?? null,
+      imageUrl: service.imageUrl ?? null,
       durationLabel: formatDurationFr(service.durationMinutes),
       priceLabel:
         service.priceType === "STARTING_FROM"

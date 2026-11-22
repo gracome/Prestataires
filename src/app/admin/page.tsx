@@ -264,7 +264,7 @@ async function Board({ query }: { query: Query }) {
                           {ACTION_LABELS[entry.action] ?? entry.action}
                         </span>
                         <span className="pf-meta">
-                          {entry.provider?.businessName ?? "—"} ·{" "}
+                          {entry.provider?.businessName ?? "-"} ·{" "}
                           {entry.user?.name ?? "compte supprimé"} ·{" "}
                           {formatMoment(entry.createdAt)}
                         </span>

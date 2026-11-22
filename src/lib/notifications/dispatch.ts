@@ -60,12 +60,14 @@ export type AppointmentNotification = Extract<
   TemplateName,
   | "provider.booking.created"
   | "provider.booking.cancelled"
+  | "provider.booking.rescheduled"
   | "provider.proof.submitted"
   | "customer.booking.awaiting_payment"
   | "customer.booking.confirmed"
   | "customer.payment.rejected"
   | "customer.booking.expired"
   | "customer.booking.cancelled"
+  | "customer.booking.rescheduled"
   | "customer.reminder"
   | "customer.review.request"
 >;
@@ -77,7 +79,7 @@ export type AppointmentNotification = Extract<
 export async function notifyAppointment(
   template: AppointmentNotification,
   appointmentId: string,
-  options: { discriminator?: string } = {},
+  options: { discriminator?: string; previousStartsAt?: Date } = {},
 ): Promise<DispatchResult> {
   const appointment = await prisma.appointment.findUnique({
     where: { id: appointmentId },
@@ -109,6 +111,7 @@ export async function notifyAppointment(
         : template === "provider.proof.submitted"
           ? provider.bookingSettings?.verificationDeadlineMinutes
           : undefined,
+    previousStartsAt: options.previousStartsAt,
   };
 
   const rendered = renderFor(template, ctx);
@@ -166,6 +169,8 @@ function renderFor(
       return templates.providerBookingCreated(ctx);
     case "provider.booking.cancelled":
       return templates.providerBookingCancelled(ctx);
+    case "provider.booking.rescheduled":
+      return templates.providerBookingRescheduled(ctx);
     case "provider.proof.submitted":
       return templates.providerProofSubmitted(ctx);
     case "customer.booking.awaiting_payment":
@@ -178,6 +183,8 @@ function renderFor(
       return templates.customerExpired(ctx);
     case "customer.booking.cancelled":
       return templates.customerCancelled(ctx);
+    case "customer.booking.rescheduled":
+      return templates.customerRescheduled(ctx);
     case "customer.reminder":
       return templates.customerReminder(ctx);
     case "customer.review.request":

@@ -56,9 +56,9 @@ export function PaymentGatewayForm({
         >
           {account.enabled
             ? account.mode === "LIVE"
-              ? "Actif — vos clientes règlent leur acompte en ligne."
-              : "Actif en mode test — aucun argent réel n'est encaissé."
-            : "Inactif — les acomptes passent par dépôt et envoi de reçu."}
+              ? "Actif : vos clientes règlent leur acompte en ligne."
+              : "Actif en mode test : aucun argent réel n'est encaissé."
+            : "Inactif : les acomptes passent par dépôt et envoi de reçu."}
         </p>
       ) : null}
 
@@ -72,8 +72,8 @@ export function PaymentGatewayForm({
         <label style={label}>
           Environnement
           <select name="mode" defaultValue={account?.mode ?? "SANDBOX"} className="select">
-            <option value="SANDBOX">Test — pour essayer sans argent réel</option>
-            <option value="LIVE">Réel — encaisse vraiment</option>
+            <option value="SANDBOX">Test, pour essayer sans argent réel</option>
+            <option value="LIVE">Réel, encaisse vraiment</option>
           </select>
         </label>
 

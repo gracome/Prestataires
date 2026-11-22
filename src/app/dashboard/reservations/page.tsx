@@ -154,7 +154,7 @@ async function ReservationsContent({
                       {formatLongDateFr(appointment.startsAt, tz)}
                     </Link>
                     <span style={{ display: "block", color: "var(--admin-muted)", fontSize: ".82rem" }}>
-                      {formatLocalTime(appointment.startsAt, tz)} –{" "}
+                      {formatLocalTime(appointment.startsAt, tz)} à{" "}
                       {formatLocalTime(appointment.serviceEndsAt, tz)}
                     </span>
                   </td>

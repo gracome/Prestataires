@@ -27,7 +27,7 @@ export async function generateMetadata({
 
   const title =
     site.siteSettings?.seoTitle?.trim() ||
-    `${site.businessName}${site.city ? ` — ${site.city}` : ""}`;
+    `${site.businessName}${site.city ? `, ${site.city}` : ""}`;
 
   const description =
     site.siteSettings?.seoDescription?.trim() ||

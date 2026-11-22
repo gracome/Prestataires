@@ -19,7 +19,7 @@ import { enterDemoDashboard } from "./actions";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Voir la démonstration — BeautyPrest",
+  title: "Voir la démonstration · BeautyPrest",
   description:
     "Parcourez un site de prestataire et son tableau de bord, remplis de données fictives. Rien à installer, aucun compte à créer.",
   // A demonstration account competing with real providers in search results
@@ -58,7 +58,7 @@ export default async function DemoPage({
               Entrez, regardez, touchez à tout.
             </h1>
             <p className="mk-lead">
-              Voici une vraie activité — <strong>{demo.businessName}</strong> —
+              Voici une vraie activité, <strong>{demo.businessName}</strong>,
               avec ses prestations, ses photos, ses horaires et plusieurs mois
               de rendez-vous. Tout est inventé, rien n&apos;est fragile : vous
               pouvez réserver, confirmer, encaisser, modifier.
@@ -108,7 +108,7 @@ export default async function DemoPage({
             La démonstration est partagée : ce que vous y changez, quelqu&apos;un
             d&apos;autre le verra, et ce qu&apos;il a changé avant vous est
             peut-être déjà là. Si vous réservez en donnant votre adresse, la
-            confirmation vous arrivera pour de vrai — c&apos;est le même envoi
+            confirmation vous arrivera pour de vrai : c&apos;est le même envoi
             que celui que recevraient vos clientes.
           </p>
         </div>

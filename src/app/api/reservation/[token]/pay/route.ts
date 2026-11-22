@@ -95,7 +95,7 @@ export async function POST(
     const checkout = await createCheckout(account, {
       amount: appointment.depositAmount,
       currency: appointment.currency,
-      description: `Acompte ${appointment.reference} — ${appointment.service.name}`,
+      description: `Acompte ${appointment.reference}, ${appointment.service.name}`,
       callbackUrl: appUrl(`/reservation/${token}?paiement=retour`),
       customer: {
         firstname,

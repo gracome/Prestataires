@@ -96,6 +96,13 @@ export const cancelBookingSchema = z.object({
   reason: z.string().trim().max(500).optional(),
 });
 
+export const rescheduleBookingSchema = z.object({
+  startsAt: z
+    .string()
+    .datetime({ offset: true })
+    .or(z.string().datetime()),
+});
+
 export const reviewSchema = z.object({
   rating: z.coerce.number().int().min(1, "Choisissez une note.").max(5),
   comment: z

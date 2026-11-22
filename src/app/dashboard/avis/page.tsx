@@ -41,7 +41,7 @@ export default async function ReviewsPage() {
       ) : (
         <>
           <div style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", marginBottom: "2rem" }}>
-            <StatCard label="Note moyenne" value={shown.length ? `${average.toLocaleString("fr-FR")} / 5` : "–"} />
+            <StatCard label="Note moyenne" value={shown.length ? `${average.toLocaleString("fr-FR")} / 5` : "-"} />
             <StatCard label="Avis affichés" value={String(shown.length)} />
             <StatCard label="Avis masqués" value={String(reviews.length - shown.length)} />
           </div>

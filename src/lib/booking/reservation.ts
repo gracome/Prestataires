@@ -550,6 +550,123 @@ export async function cancelAppointment(params: {
   });
 }
 
+/**
+ * The customer moves her confirmed appointment to another start time.
+ *
+ * Same service, same price, same deposit: only the window changes, so the
+ * money already received stays attached to the booking and the status stays
+ * CONFIRMED. The new time goes through exactly the checks a new booking would
+ * (opening hours, lead time, other bookings, time blocks), with her own
+ * current window left out of the busy time. The exclusion constraint still
+ * settles a race against a simultaneous booking.
+ */
+/** Event reason that marks a move, read back by the reminder job. */
+export const RESCHEDULED_BY_CUSTOMER = "Moved by the customer";
+
+export async function rescheduleAppointment(params: {
+  appointmentId: string;
+  startsAt: Date;
+  now?: Date;
+}): Promise<{ appointment: Appointment; previousStartsAt: Date }> {
+  const now = params.now ?? new Date();
+
+  const current = await prisma.appointment.findUnique({
+    where: { id: params.appointmentId },
+  });
+  if (!current) {
+    throw new BookingError("Appointment not found", "NOT_FOUND", 404);
+  }
+  if (current.status !== "CONFIRMED") {
+    throw new BookingError(
+      "Only a confirmed appointment can be moved",
+      "INVALID_STATE",
+      409,
+    );
+  }
+  if (current.startsAt.getTime() === params.startsAt.getTime()) {
+    throw new BookingError("This is already the booked time", "SLOT_INVALID", 400);
+  }
+
+  const context = await loadAvailabilityContext(
+    current.providerId,
+    current.serviceId,
+  );
+  const window = computeWindow(params.startsAt, context.service, context.rules);
+
+  try {
+    const appointment = await prisma.$transaction(async (tx) => {
+      await expireOverlappingHolds(tx, {
+        providerId: current.providerId,
+        from: window.startsAt,
+        to: window.endsAt,
+        now,
+      });
+
+      const free = await verifySlotStillFree(context, params.startsAt, {
+        now,
+        tx,
+        excludeAppointmentId: current.id,
+      });
+      if (!free) {
+        throw new BookingError(
+          "This slot is no longer available",
+          "SLOT_TAKEN",
+          409,
+        );
+      }
+
+      // Guarded on the status and the old start, so two moves sent at once
+      // cannot both apply, and a provider cancelling meanwhile wins.
+      const moved = await tx.appointment.updateMany({
+        where: {
+          id: current.id,
+          status: "CONFIRMED",
+          startsAt: current.startsAt,
+        },
+        data: {
+          startsAt: window.startsAt,
+          serviceEndsAt: window.serviceEndsAt,
+          endsAt: window.endsAt,
+        },
+      });
+      if (moved.count === 0) {
+        throw new BookingError(
+          "The appointment changed while this action was running",
+          "INVALID_STATE",
+          409,
+        );
+      }
+
+      await tx.appointmentEvent.create({
+        data: {
+          appointmentId: current.id,
+          fromStatus: "CONFIRMED",
+          toStatus: "CONFIRMED",
+          actor: "customer",
+          reason: RESCHEDULED_BY_CUSTOMER,
+          metadata: {
+            from: current.startsAt.toISOString(),
+            to: window.startsAt.toISOString(),
+          },
+        },
+      });
+
+      return tx.appointment.findUniqueOrThrow({ where: { id: current.id } });
+    });
+
+    return { appointment, previousStartsAt: current.startsAt };
+  } catch (error) {
+    if (isSlotConflictError(error)) {
+      throw new BookingError(
+        "This slot was taken by another customer",
+        "SLOT_TAKEN",
+        409,
+      );
+    }
+    throw error;
+  }
+}
+
 export async function markCompleted(params: {
   appointmentId: string;
   userId: string;

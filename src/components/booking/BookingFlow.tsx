@@ -20,6 +20,8 @@ export type FlowService = {
   name: string;
   description: string | null;
   category: string | null;
+  /** The prestation's own photo, if the provider added one. */
+  imageUrl: string | null;
   durationLabel: string;
   priceLabel: string;
   depositLabel: string | null;
@@ -402,34 +404,66 @@ function ServiceStep({
               cursor: "pointer",
               font: "inherit",
               color: "inherit",
+              display: "flex",
+              gap: ".9rem",
+              alignItems: "flex-start",
             }}
           >
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                gap: ".75rem",
-                flexWrap: "wrap",
-              }}
-            >
-              <span style={{ fontWeight: 700 }}>{service.name}</span>
-              <span style={{ fontWeight: 700, whiteSpace: "nowrap" }}>
-                {service.priceLabel}
-              </span>
-            </div>
-            <p style={{ margin: ".25rem 0 0", fontSize: ".85rem", color: "var(--brand-muted)" }}>
-              {service.durationLabel}
-              {service.depositLabel ? ` · acompte ${service.depositLabel}` : ""}
-            </p>
-            {service.description ? (
-              <p style={{ margin: ".6rem 0 0", fontSize: ".88rem", lineHeight: 1.6, color: "var(--brand-muted)" }}>
-                {service.description}
+            <ServiceThumb service={service} size={84} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  gap: ".75rem",
+                  flexWrap: "wrap",
+                }}
+              >
+                <span style={{ fontWeight: 700 }}>{service.name}</span>
+                <span style={{ fontWeight: 700, whiteSpace: "nowrap" }}>
+                  {service.priceLabel}
+                </span>
+              </div>
+              <p style={{ margin: ".25rem 0 0", fontSize: ".85rem", color: "var(--brand-muted)" }}>
+                {service.durationLabel}
+                {service.depositLabel ? ` · acompte ${service.depositLabel}` : ""}
               </p>
-            ) : null}
+              {service.description ? (
+                <p style={{ margin: ".6rem 0 0", fontSize: ".88rem", lineHeight: 1.6, color: "var(--brand-muted)" }}>
+                  {service.description}
+                </p>
+              ) : null}
+            </div>
           </button>
         </li>
       ))}
     </ul>
+  );
+}
+
+/**
+ * The prestation's photo, when the provider has added one. Many customers know
+ * a style by sight rather than by name, so the picture is what they choose by.
+ */
+function ServiceThumb({ service, size }: { service: FlowService; size: number }) {
+  if (!service.imageUrl) return null;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={service.imageUrl}
+      alt=""
+      loading="lazy"
+      width={size}
+      height={size}
+      style={{
+        width: size,
+        height: size,
+        flex: "none",
+        objectFit: "cover",
+        borderRadius: 12,
+        background: "var(--brand-border)",
+      }}
+    />
   );
 }
 
@@ -468,12 +502,18 @@ function SlotStep({
 
   return (
     <div>
-      <div className="card" style={{ marginBottom: "1.25rem" }}>
-        <p style={{ margin: 0, fontWeight: 700 }}>{service.name}</p>
-        <p style={{ margin: ".2rem 0 0", fontSize: ".85rem", color: "var(--brand-muted)" }}>
-          {service.durationLabel} · {service.priceLabel}
-          {service.depositLabel ? ` · acompte ${service.depositLabel}` : ""}
-        </p>
+      <div
+        className="card"
+        style={{ marginBottom: "1.25rem", display: "flex", gap: ".85rem", alignItems: "center" }}
+      >
+        <ServiceThumb service={service} size={56} />
+        <div style={{ minWidth: 0 }}>
+          <p style={{ margin: 0, fontWeight: 700 }}>{service.name}</p>
+          <p style={{ margin: ".2rem 0 0", fontSize: ".85rem", color: "var(--brand-muted)" }}>
+            {service.durationLabel} · {service.priceLabel}
+            {service.depositLabel ? ` · acompte ${service.depositLabel}` : ""}
+          </p>
+        </div>
       </div>
 
       <div
@@ -705,7 +745,7 @@ function SummaryStep({
       <div className="card">
         <Row label="Prestation" value={service.name} />
         <Row label="Date" value={longDate(date)} />
-        <Row label="Heure" value={`${slot.label} – ${slot.endLabel}`} />
+        <Row label="Heure" value={`${slot.label} à ${slot.endLabel}`} />
         <Row label="Durée" value={service.durationLabel} />
         <Row label="Prix" value={service.priceLabel} />
         {service.depositLabel ? (

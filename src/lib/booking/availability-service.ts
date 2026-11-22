@@ -178,6 +178,7 @@ export async function getAvailability(
   serviceId: string,
   range: AvailabilityRange,
   now = new Date(),
+  options: { excludeAppointmentId?: string } = {},
 ): Promise<{ timezone: string; days: DayAvailability[] }> {
   await releaseExpiredAppointments({ providerId, now });
 
@@ -187,7 +188,11 @@ export async function getAvailability(
   const windowStart = localDateTimeToUtc(range.from, 0, context.timezone);
   const windowEnd = localDateTimeToUtc(addDays(range.to, 1), 0, context.timezone);
 
-  const busy = await loadBusyIntervals(providerId, windowStart, windowEnd);
+  // When a customer moves her own appointment, the time it currently holds
+  // must not count against her: moving it half an hour later is legitimate.
+  const busy = await loadBusyIntervals(providerId, windowStart, windowEnd, {
+    excludeAppointmentId: options.excludeAppointmentId,
+  });
 
   const days = computeAvailability({
     dates,
@@ -220,7 +225,11 @@ export function defaultRange(
 export async function verifySlotStillFree(
   context: AvailabilityContext,
   startsAt: Date,
-  options: { now?: Date; tx?: Prisma.TransactionClient } = {},
+  options: {
+    now?: Date;
+    tx?: Prisma.TransactionClient;
+    excludeAppointmentId?: string;
+  } = {},
 ): Promise<boolean> {
   const now = options.now ?? new Date();
   const windowStart = addMinutes(startsAt, -24 * 60);
@@ -230,7 +239,7 @@ export async function verifySlotStillFree(
     context.providerId,
     windowStart,
     windowEnd,
-    { tx: options.tx },
+    { tx: options.tx, excludeAppointmentId: options.excludeAppointmentId },
   );
 
   return isSlotBookable(startsAt, {

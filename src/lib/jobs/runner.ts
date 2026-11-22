@@ -8,6 +8,7 @@ import {
   completePastAppointments,
   releaseExpiredAppointments,
 } from "@/lib/booking/expiration";
+import { RESCHEDULED_BY_CUSTOMER } from "@/lib/booking/reservation";
 import { notifyAppointment } from "@/lib/notifications/dispatch";
 import { purgeExpiredSessions } from "@/lib/auth/session";
 import { syncBusyPeriods } from "@/lib/google/calendar";
@@ -217,13 +218,26 @@ async function sendReminders(now: Date, errors: string[]): Promise<number> {
         // Only for providers who subscribe to reminders.
         provider: featureWhere("REMINDERS"),
       },
-      select: { id: true },
+      select: {
+        id: true,
+        startsAt: true,
+        events: {
+          where: { reason: RESCHEDULED_BY_CUSTOMER },
+          select: { id: true },
+          take: 1,
+        },
+      },
       take: 200,
     });
 
     for (const appointment of appointments) {
+      // A moved appointment is reminded again for its new time. Unmoved ones
+      // keep the original key, so reminders already sent are not repeated.
+      const moved = appointment.events.length > 0;
       const result = await notifyAppointment("customer.reminder", appointment.id, {
-        discriminator: window.label,
+        discriminator: moved
+          ? `${window.label}@${appointment.startsAt.toISOString()}`
+          : window.label,
       });
       if (result.status === "SENT") sent += 1;
       else if (result.status === "FAILED") {

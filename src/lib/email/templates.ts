@@ -24,6 +24,7 @@ import { renderEmail, type Block } from "./layout";
 export type TemplateName =
   | "provider.booking.created"
   | "provider.booking.cancelled"
+  | "provider.booking.rescheduled"
   | "provider.proof.submitted"
   | "provider.quote.received"
   | "customer.booking.awaiting_payment"
@@ -31,6 +32,7 @@ export type TemplateName =
   | "customer.payment.rejected"
   | "customer.booking.expired"
   | "customer.booking.cancelled"
+  | "customer.booking.rescheduled"
   | "customer.reminder"
   | "customer.review.request";
 
@@ -47,11 +49,17 @@ export type AppointmentContext = {
   primaryColor?: string;
   paymentInstructions?: PaymentInstruction[];
   deadlineMinutes?: number;
+  /** For a moved appointment: where it was before. */
+  previousStartsAt?: Date;
 };
 
 function when(ctx: AppointmentContext): string {
+  return whenAt(ctx, ctx.appointment.startsAt);
+}
+
+function whenAt(ctx: AppointmentContext, instant: Date): string {
   const tz = ctx.provider.timezone;
-  return `${formatLongDateFr(ctx.appointment.startsAt, tz)} à ${formatLocalTime(ctx.appointment.startsAt, tz)}`;
+  return `${formatLongDateFr(instant, tz)} à ${formatLocalTime(instant, tz)}`;
 }
 
 function appointmentFacts(ctx: AppointmentContext): Array<[string, string]> {
@@ -132,13 +140,13 @@ export function providerBookingCreated(
 
   const rendered = renderEmail({
     title: "Nouvelle demande de rendez-vous",
-    preheader: `${appointment.customerName} — ${when(ctx)}`,
+    preheader: `${appointment.customerName}, ${when(ctx)}`,
     businessName: provider.businessName,
     primaryColor: ctx.primaryColor,
     blocks,
   });
 
-  return { subject: `Nouvelle demande de rendez-vous — ${when(ctx)}`, ...rendered };
+  return { subject: `Nouvelle demande de rendez-vous : ${when(ctx)}`, ...rendered };
 }
 
 export function providerBookingCancelled(
@@ -176,14 +184,66 @@ export function providerBookingCancelled(
 
   const rendered = renderEmail({
     title: "Un rendez-vous a été annulé",
-    preheader: `${appointment.customerName} — ${when(ctx)}`,
+    preheader: `${appointment.customerName}, ${when(ctx)}`,
     businessName: provider.businessName,
     primaryColor: ctx.primaryColor,
     blocks,
   });
 
   return {
-    subject: `Rendez-vous annulé — ${appointment.customerName}, ${when(ctx)}`,
+    subject: `Rendez-vous annulé : ${appointment.customerName}, ${when(ctx)}`,
+    ...rendered,
+  };
+}
+
+export function providerBookingRescheduled(
+  ctx: AppointmentContext,
+): RenderedEmail {
+  const { appointment, provider } = ctx;
+
+  const blocks: Block[] = [
+    {
+      kind: "paragraph",
+      text: `${appointment.customerName} a déplacé son rendez-vous. Son acompte reste attaché à la réservation, et l'ancien créneau est de nouveau libre.`,
+    },
+  ];
+
+  if (ctx.previousStartsAt) {
+    blocks.push({
+      kind: "facts",
+      rows: [
+        ["Ancien créneau", whenAt(ctx, ctx.previousStartsAt)],
+        ["Nouveau créneau", when(ctx)],
+      ],
+    });
+  }
+
+  blocks.push(
+    { kind: "facts", rows: appointmentFacts(ctx) },
+    {
+      kind: "facts",
+      rows: [
+        ["Cliente", appointment.customerName],
+        ["Téléphone", appointment.customerPhone],
+      ],
+    },
+    {
+      kind: "button",
+      label: "Ouvrir la réservation",
+      url: providerLink(appointment),
+    },
+  );
+
+  const rendered = renderEmail({
+    title: "Un rendez-vous a été déplacé",
+    preheader: `${appointment.customerName} : ${when(ctx)}`,
+    businessName: provider.businessName,
+    primaryColor: ctx.primaryColor,
+    blocks,
+  });
+
+  return {
+    subject: `Rendez-vous déplacé : ${appointment.customerName}, ${when(ctx)}`,
     ...rendered,
   };
 }
@@ -195,7 +255,7 @@ export function providerProofSubmitted(
 
   const rendered = renderEmail({
     title: "Une preuve de paiement vient d'être envoyée",
-    preheader: `${appointment.customerName} — acompte à vérifier`,
+    preheader: `${appointment.customerName} : acompte à vérifier`,
     businessName: provider.businessName,
     primaryColor: ctx.primaryColor,
     blocks: [
@@ -221,7 +281,7 @@ export function providerProofSubmitted(
   });
 
   return {
-    subject: `Preuve de paiement à vérifier — ${appointment.customerName}`,
+    subject: `Preuve de paiement à vérifier : ${appointment.customerName}`,
     ...rendered,
   };
 }
@@ -297,7 +357,7 @@ export function providerQuoteReceived(params: {
     blocks,
   });
 
-  return { subject: `Demande de devis — ${quote.customerName}`, ...rendered };
+  return { subject: `Demande de devis : ${quote.customerName}`, ...rendered };
 }
 
 export type EstimateAnswerLine = { question: string; choice: string };
@@ -377,7 +437,7 @@ export function customerAwaitingPayment(
     blocks,
   });
 
-  return { subject: `Votre réservation du ${when(ctx)} — acompte à envoyer`, ...rendered };
+  return { subject: `Votre réservation du ${when(ctx)} : acompte à envoyer`, ...rendered };
 }
 
 export function customerConfirmed(ctx: AppointmentContext): RenderedEmail {
@@ -424,7 +484,7 @@ export function customerConfirmed(ctx: AppointmentContext): RenderedEmail {
     blocks,
   });
 
-  return { subject: `Rendez-vous confirmé — ${when(ctx)}`, ...rendered };
+  return { subject: `Rendez-vous confirmé : ${when(ctx)}`, ...rendered };
 }
 
 export function customerPaymentRejected(
@@ -526,6 +586,46 @@ export function customerCancelled(ctx: AppointmentContext): RenderedEmail {
   return { subject: "Votre rendez-vous a été annulé", ...rendered };
 }
 
+export function customerRescheduled(ctx: AppointmentContext): RenderedEmail {
+  const { appointment, provider } = ctx;
+
+  const blocks: Block[] = [
+    {
+      kind: "paragraph",
+      text: `Bonjour ${appointment.customerName}, votre rendez-vous a bien été déplacé. Il reste confirmé, et votre acompte est conservé.`,
+    },
+  ];
+
+  if (ctx.previousStartsAt) {
+    blocks.push({
+      kind: "facts",
+      rows: [
+        ["Ancien créneau", whenAt(ctx, ctx.previousStartsAt)],
+        ["Nouveau créneau", when(ctx)],
+      ],
+    });
+  }
+
+  blocks.push(
+    { kind: "facts", rows: appointmentFacts(ctx) },
+    {
+      kind: "button",
+      label: "Voir ma réservation",
+      url: customerLink(appointment),
+    },
+  );
+
+  const rendered = renderEmail({
+    title: "Votre rendez-vous a été déplacé",
+    preheader: when(ctx),
+    businessName: provider.businessName,
+    primaryColor: ctx.primaryColor,
+    blocks,
+  });
+
+  return { subject: `Rendez-vous déplacé au ${when(ctx)}`, ...rendered };
+}
+
 export function customerReminder(ctx: AppointmentContext): RenderedEmail {
   const { appointment, provider } = ctx;
 
@@ -563,7 +663,7 @@ export function customerReminder(ctx: AppointmentContext): RenderedEmail {
     blocks,
   });
 
-  return { subject: `Rappel — votre rendez-vous ${when(ctx)}`, ...rendered };
+  return { subject: `Rappel : votre rendez-vous ${when(ctx)}`, ...rendered };
 }
 
 /**

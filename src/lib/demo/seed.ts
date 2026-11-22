@@ -122,7 +122,7 @@ export async function seedDemoProvider(): Promise<void> {
       "Chaque photo est un travail réalisé au studio. Touchez une image pour l'agrandir, puis suivez le lien vers la prestation correspondante.",
     showQuoteRequest: true,
     showRealisations: true,
-    seoTitle: "Belle Mains Studio — pose d'ongles et nail art à Cotonou",
+    seoTitle: "Belle Mains Studio : pose d'ongles et nail art à Cotonou",
     seoDescription:
       "Prothésiste ongulaire à Cotonou. Pose gel, semi-permanent, nail art et soins des mains. Réservation en ligne, acompte par Mobile Money.",
   };

@@ -87,7 +87,7 @@ export async function upsertAppointmentEvent(
     .join("\n");
 
   const body = {
-    summary: `${service.name} — ${appointment.customerName}`,
+    summary: `${service.name} · ${appointment.customerName}`,
     description,
     location:
       [provider.addressLine, provider.city].filter(Boolean).join(", ") || undefined,

@@ -90,7 +90,7 @@ async function HorairesContent({ providerId }: { providerId: string }) {
       ? sameDay(block.startsAt, block.endsAt, tz)
         ? formatLongDateFr(block.startsAt, tz)
         : `${formatLongDateFr(block.startsAt, tz)} → ${formatLongDateFr(new Date(block.endsAt.getTime() - 60_000), tz)}`
-      : `${formatLongDateFr(block.startsAt, tz)} · ${formatLocalTime(block.startsAt, tz)} – ${formatLocalTime(block.endsAt, tz)}`,
+      : `${formatLongDateFr(block.startsAt, tz)} · ${formatLocalTime(block.startsAt, tz)} à ${formatLocalTime(block.endsAt, tz)}`,
     reason: block.reason,
     editable: block.type !== "EXTERNAL_CALENDAR",
   }));

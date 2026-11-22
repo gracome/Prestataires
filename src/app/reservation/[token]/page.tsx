@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   canCustomerCancel,
+  canCustomerReschedule,
   canSubmitProof,
   getBookingByToken,
 } from "@/lib/booking/customer-view";
@@ -13,6 +14,7 @@ import {
   formatLocalTime,
   formatLongDateFr,
   minutesBetween,
+  toLocalDate,
 } from "@/lib/time";
 import { googleFontsHref, themeStyle } from "@/lib/theme";
 import { whatsappLink } from "@/lib/providers/public-site";
@@ -20,6 +22,7 @@ import { ProofUpload } from "@/components/booking/ProofUpload";
 import { PayOnline } from "@/components/booking/PayOnline";
 import { settleReturnFromGateway } from "@/lib/payments/gateway";
 import { CancelBooking } from "@/components/booking/CancelBooking";
+import { RescheduleBooking } from "@/components/booking/RescheduleBooking";
 import { ReviewForm } from "@/components/booking/ReviewForm";
 import { canLeaveReview } from "@/lib/reviews";
 
@@ -108,7 +111,7 @@ export default async function CustomerBookingPage({
           <Row label="Date" value={formatLongDateFr(booking.startsAt, tz)} />
           <Row
             label="Heure"
-            value={`${formatLocalTime(booking.startsAt, tz)} – ${formatLocalTime(booking.serviceEndsAt, tz)}`}
+            value={`${formatLocalTime(booking.startsAt, tz)} à ${formatLocalTime(booking.serviceEndsAt, tz)}`}
           />
           <Row label="Durée" value={formatDurationFr(service.durationMinutes)} />
           {booking.totalAmount > 0 ? (
@@ -292,6 +295,12 @@ export default async function CustomerBookingPage({
               Réserver un nouveau créneau
             </Link>
           </section>
+        ) : null}
+
+        {canCustomerReschedule(booking, now) ? (
+          <div style={{ marginTop: "1.5rem" }}>
+            <RescheduleBooking token={token} today={toLocalDate(now, tz)} />
+          </div>
         ) : null}
 
         {canCustomerCancel(booking, now) ? (

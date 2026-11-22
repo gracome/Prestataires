@@ -114,6 +114,28 @@ export function canCustomerCancel(
   return now <= cutoff;
 }
 
+/**
+ * Whether the customer may move her appointment to another time herself.
+ *
+ * Only a confirmed appointment moves: one still waiting for its deposit has a
+ * payment deadline tied to its start, and is simpler to cancel and book again.
+ * The provider's cancellation settings apply unchanged: moving an appointment
+ * frees the old time just as surely as cancelling it does.
+ */
+export function canCustomerReschedule(
+  booking: CustomerBooking,
+  now = new Date(),
+): boolean {
+  if (booking.provider.bookingSettings?.allowCustomerCancellation === false) {
+    return false;
+  }
+  if (booking.status !== "CONFIRMED") return false;
+
+  const noticeHours = booking.provider.bookingSettings?.cancellationNoticeHours ?? 24;
+  const cutoff = new Date(booking.startsAt.getTime() - noticeHours * 3_600_000);
+  return now <= cutoff;
+}
+
 export function canSubmitProof(
   booking: CustomerBooking,
   now = new Date(),

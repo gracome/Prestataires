@@ -108,7 +108,7 @@ export async function runBackup(): Promise<BackupReport> {
 
     const result = await sendMail({
       to: recipient,
-      subject: `Sauvegarde ${PRODUCT.name} — ${archive.takenAt.slice(0, 10)}`,
+      subject: `Sauvegarde ${PRODUCT.name} du ${archive.takenAt.slice(0, 10)}`,
       text,
       html: `<pre style="font:13px/1.6 ui-monospace,monospace">${escape(text)}</pre>`,
       attachments: [

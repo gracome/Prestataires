@@ -9,6 +9,7 @@ import {
   formatLongDateFr,
   minutesBetween,
 } from "@/lib/time";
+import { RESCHEDULED_BY_CUSTOMER } from "@/lib/booking/reservation";
 import { statusLabelFr } from "@/lib/booking/state-machine";
 import { PageHeader, Section, StatusPill, Callout } from "@/components/dashboard/ui";
 import { AppointmentActions } from "@/components/dashboard/AppointmentActions";
@@ -81,7 +82,7 @@ export default async function AppointmentDetailPage({
             <Row label="Date" value={formatLongDateFr(appointment.startsAt, tz)} />
             <Row
               label="Heure"
-              value={`${formatLocalTime(appointment.startsAt, tz)} – ${formatLocalTime(appointment.serviceEndsAt, tz)}`}
+              value={`${formatLocalTime(appointment.startsAt, tz)} à ${formatLocalTime(appointment.serviceEndsAt, tz)}`}
             />
             <Row label="Durée" value={formatDurationFr(appointment.service.durationMinutes)} />
             <Row label="Référence" value={appointment.reference} />
@@ -246,7 +247,11 @@ export default async function AppointmentDetailPage({
                   }}
                 >
                   <div style={{ display: "flex", justifyContent: "space-between", gap: ".75rem", flexWrap: "wrap" }}>
-                    <span style={{ fontWeight: 600 }}>{statusLabelFr(event.toStatus)}</span>
+                    <span style={{ fontWeight: 600 }}>
+                      {event.reason === RESCHEDULED_BY_CUSTOMER
+                        ? "Rendez-vous déplacé"
+                        : statusLabelFr(event.toStatus)}
+                    </span>
                     <span style={{ color: "var(--admin-muted)", fontSize: ".82rem" }}>
                       {formatLongDateFr(event.createdAt, tz)} à{" "}
                       {formatLocalTime(event.createdAt, tz)}
@@ -254,7 +259,11 @@ export default async function AppointmentDetailPage({
                   </div>
                   <p style={{ margin: ".2rem 0 0", color: "var(--admin-muted)", fontSize: ".82rem" }}>
                     {actorLabel(event.actor)}
-                    {event.reason ? ` · ${event.reason}` : ""}
+                    {event.reason === RESCHEDULED_BY_CUSTOMER
+                      ? movedDetail(event.metadata, tz)
+                      : event.reason
+                        ? ` · ${event.reason}`
+                        : ""}
                   </p>
                 </li>
               ))}
@@ -343,4 +352,15 @@ function actorLabel(actor: string): string {
     default:
       return actor;
   }
+}
+
+/** The old and new times of a move, read from the event metadata. */
+function movedDetail(metadata: unknown, tz: string): string {
+  const data = (metadata ?? {}) as { from?: string; to?: string };
+  if (!data.from || !data.to) return "";
+  const at = (iso: string) => {
+    const instant = new Date(iso);
+    return `${formatLongDateFr(instant, tz)} à ${formatLocalTime(instant, tz)}`;
+  };
+  return ` · avant : ${at(data.from)}, maintenant : ${at(data.to)}`;
 }

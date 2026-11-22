@@ -184,7 +184,7 @@ export function providerPasswordReset(
   });
 
   return {
-    subject: `Nouveau mot de passe — ${input.businessName}`,
+    subject: `Nouveau mot de passe : ${input.businessName}`,
     ...rendered,
   };
 }

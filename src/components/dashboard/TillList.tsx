@@ -58,7 +58,7 @@ export function TillList({ rows }: { rows: Row[] }) {
               <span className="till-meta">
                 {[row.customerName, row.methodLabel, row.note]
                   .filter(Boolean)
-                  .join(" · ") || "—"}
+                  .join(" · ") || "-"}
               </span>
             </span>
 

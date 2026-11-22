@@ -167,7 +167,7 @@ export async function pushAppointmentAlert(
     kind === "booking.created"
       ? {
           title: "Nouvelle réservation",
-          body: `${appointment.customerName} — ${appointment.service.name}`,
+          body: `${appointment.customerName} · ${appointment.service.name}`,
         }
       : {
           title: "Reçu de paiement à vérifier",

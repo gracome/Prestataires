@@ -21,7 +21,7 @@ export async function generateMetadata({
   const site = await getPublicSite(slug);
   if (!site) return { title: "Page introuvable" };
 
-  const title = `Réalisations — ${site.businessName}`;
+  const title = `Réalisations · ${site.businessName}`;
   const description =
     site.siteSettings?.realisationsIntro?.trim() ||
     `Les réalisations de ${site.businessName}${site.city ? ` à ${site.city}` : ""}.`;

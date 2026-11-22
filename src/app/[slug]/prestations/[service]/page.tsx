@@ -29,7 +29,7 @@ export async function generateMetadata({
   const service = site.services.find((s) => s.slug === serviceSlug);
   if (!service) return { title: "Prestation introuvable" };
 
-  const title = `${service.name} — ${site.businessName}`;
+  const title = `${service.name} · ${site.businessName}`;
   const description =
     service.shortDescription?.trim() ||
     service.description?.slice(0, 160) ||
@@ -516,7 +516,7 @@ function BulletList({ text, check }: { text: string; check?: boolean }) {
             aria-hidden="true"
             style={{ color: "var(--brand-primary)", fontWeight: 700, flexShrink: 0 }}
           >
-            {check ? "✓" : "—"}
+            {check ? "✓" : "-"}
           </span>
           <span>{item}</span>
         </li>

@@ -20,7 +20,7 @@ export async function generateMetadata({
   if (!site) return { title: "Page introuvable" };
 
   return {
-    title: `Estimer et demander un devis — ${site.businessName}`,
+    title: `Estimer et demander un devis · ${site.businessName}`,
     description: `Estimez votre projet en quelques clics et recevez une proposition de ${site.businessName}.`,
     alternates: { canonical: appUrl(`/${site.slug}/devis`) },
     robots: { index: false, follow: true },

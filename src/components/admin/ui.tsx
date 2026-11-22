@@ -56,7 +56,7 @@ export function StatusTag({ status }: { status: ProviderStatus }) {
 
 /** Dates on the platform are absolute: "il y a 3 jours" hides the year. */
 export function formatMoment(value: Date | null, timezone = "Africa/Porto-Novo"): string {
-  if (!value) return "—";
+  if (!value) return "-";
   return new Intl.DateTimeFormat("fr-FR", {
     dateStyle: "medium",
     timeStyle: "short",
@@ -65,7 +65,7 @@ export function formatMoment(value: Date | null, timezone = "Africa/Porto-Novo")
 }
 
 export function formatDay(value: Date | null, timezone = "Africa/Porto-Novo"): string {
-  if (!value) return "—";
+  if (!value) return "-";
   return new Intl.DateTimeFormat("fr-FR", {
     dateStyle: "medium",
     timeZone: timezone,

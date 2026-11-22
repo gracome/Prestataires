@@ -23,7 +23,7 @@ export async function generateMetadata({
   const site = await getPublicSite(slug);
   if (!site) return { title: "Page introuvable" };
 
-  const title = `Prestations et tarifs — ${site.businessName}`;
+  const title = `Prestations et tarifs · ${site.businessName}`;
   const description =
     site.siteSettings?.servicesIntro?.trim() ||
     `Toutes les prestations de ${site.businessName}${site.city ? ` à ${site.city}` : ""} : durée, tarif et déroulé détaillé.`;

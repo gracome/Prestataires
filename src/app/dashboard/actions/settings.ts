@@ -592,7 +592,7 @@ export async function addTeamMemberAction(
 
   return {
     status: "success",
-    message: `Compte créé pour ${parsed.data.name}. Mot de passe : ${password} — transmettez-le en privé, il ne sera plus affiché.`,
+    message: `Compte créé pour ${parsed.data.name}. Mot de passe : ${password}. Transmettez-le en privé, il ne sera plus affiché.`,
   };
 }
 
@@ -668,7 +668,7 @@ export async function resetTeamPasswordAction(
 
   return {
     status: "success",
-    message: `Nouveau mot de passe pour ${target.name} : ${password} — ses sessions ouvertes sont fermées.`,
+    message: `Nouveau mot de passe pour ${target.name} : ${password}. Ses sessions ouvertes sont fermées.`,
   };
 }
 

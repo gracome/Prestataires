@@ -91,7 +91,7 @@ async function DevisContent({ providerId }: { providerId: string }) {
       quote.estimateMin !== null && quote.estimateMax !== null
         ? quote.estimateMin === quote.estimateMax
           ? money(quote.estimateMin)
-          : `${money(quote.estimateMin)} – ${money(quote.estimateMax)}`
+          : `${money(quote.estimateMin)} à ${money(quote.estimateMax)}`
         : null,
     estimateDurationLabel: quote.estimateMinutes
       ? formatDurationFr(quote.estimateMinutes)
@@ -106,7 +106,7 @@ async function DevisContent({ providerId }: { providerId: string }) {
     sample && sample.complete
       ? sample.min === sample.max
         ? money(sample.total)
-        : `${money(sample.min)} – ${money(sample.max)}`
+        : `${money(sample.min)} à ${money(sample.max)}`
       : null;
 
   return (

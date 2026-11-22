@@ -41,7 +41,7 @@ export function CustomDomainForm({
         </label>
 
         <p style={muted}>
-          Sans le <code>www.</code> ni le <code>https://</code> — nous acceptons
+          Sans le <code>www.</code> ni le <code>https://</code> : nous acceptons
           les deux formes automatiquement. Laissez vide pour revenir à votre
           adresse actuelle.
         </p>
@@ -72,11 +72,11 @@ export function CustomDomainForm({
           </p>
           <ul style={{ margin: 0, paddingLeft: "1.1rem", display: "grid", gap: ".3rem" }}>
             <li style={item}>
-              <code>CNAME</code> — nom <code>www</code>, valeur{" "}
+              <code>CNAME</code>, nom <code>www</code>, valeur{" "}
               <code>{platformHost}</code>
             </li>
             <li style={item}>
-              <code>CNAME</code> ou <code>ALIAS</code> — nom <code>@</code>,
+              <code>CNAME</code> ou <code>ALIAS</code>, nom <code>@</code>,
               valeur <code>{platformHost}</code>
             </li>
           </ul>

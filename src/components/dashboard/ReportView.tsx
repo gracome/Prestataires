@@ -168,7 +168,7 @@ export function RevenueChart({
         {points.map((point) => (
           <div
             key={point.date}
-            title={`${formatDate(point.date)} — ${formatAmount(valueOf(point))}`}
+            title={`${formatDate(point.date)} : ${formatAmount(valueOf(point))}`}
             style={{
               flex: 1,
               minWidth: 2,

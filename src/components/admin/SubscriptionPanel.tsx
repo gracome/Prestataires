@@ -81,7 +81,7 @@ export function SubscriptionPanel({
           <select name="plan" defaultValue={plan} className="select">
             {PLAN_ORDER.map((key) => (
               <option key={key} value={key}>
-                {PLANS[key].name} — {formatMoney(PLANS[key].monthly, currency)}/mois
+                {PLANS[key].name} · {formatMoney(PLANS[key].monthly, currency)}/mois
               </option>
             ))}
           </select>
@@ -91,7 +91,7 @@ export function SubscriptionPanel({
           Périodicité
           <select name="billingPeriod" defaultValue={billingPeriod} className="select">
             <option value="MONTHLY">Mensuelle</option>
-            <option value="YEARLY">Annuelle — 2 mois offerts</option>
+            <option value="YEARLY">Annuelle, 2 mois offerts</option>
           </select>
         </label>
 
@@ -110,11 +110,11 @@ export function SubscriptionPanel({
                 <span style={{ opacity: included ? 0.55 : 1 }}>
                   {FEATURES[feature].label}
                   {included ? (
-                    <em style={hint}> — déjà dans la formule</em>
+                    <em style={hint}> (déjà dans la formule)</em>
                   ) : (
                     <em style={hint}>
                       {" "}
-                      — {formatMoney(FEATURES[feature].monthly, currency)}/mois
+                      · {formatMoney(FEATURES[feature].monthly, currency)}/mois
                     </em>
                   )}
                 </span>

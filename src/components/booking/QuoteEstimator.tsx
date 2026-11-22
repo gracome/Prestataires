@@ -222,7 +222,7 @@ export function QuoteEstimator({
               >
                 {estimate.min === estimate.max
                   ? money(estimate.total)
-                  : `${money(estimate.min)} – ${money(estimate.max)}`}
+                  : `${money(estimate.min)} à ${money(estimate.max)}`}
               </p>
               <p style={{ margin: ".35rem 0 0", fontSize: ".84rem", color: "var(--brand-muted)", lineHeight: 1.55 }}>
                 {disclaimer ??

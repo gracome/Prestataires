@@ -45,7 +45,7 @@ export async function generateMetadata({
   if (!feature) return { title: "Module introuvable" };
 
   return {
-    title: `${FEATURES[feature].label} — BeautyPrest`,
+    title: `${FEATURES[feature].label} · BeautyPrest`,
     description: FEATURES[feature].intro,
   };
 }
@@ -108,7 +108,7 @@ export default async function ModulePage({
                 {fcfa(monthly)} F<small> / mois</small>
               </span>
               <span className="mk-price-year">
-                ou {fcfa(yearlyPrice(monthly))} F par an — 2 mois offerts
+                ou {fcfa(yearlyPrice(monthly))} F par an, 2 mois offerts
               </span>
             </div>
 
