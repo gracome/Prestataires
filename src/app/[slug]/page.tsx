@@ -127,7 +127,6 @@ function Hero({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean })
     "";
 
   const openState = currentOpenState(site.workingHours, site.timezone);
-  const whatsapp = whatsappLink(site);
   const ctaLabel = settings?.heroCtaLabel?.trim() || "Prendre rendez-vous";
 
   // Her cover leads, then the gallery. Duplicates are dropped so the same
@@ -153,7 +152,6 @@ function Hero({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean })
           headline={headline}
           sub={sub}
           ctaLabel={ctaLabel}
-          whatsapp={whatsapp}
           openState={openState}
           bookingOpen={bookingOpen}
         />
@@ -169,7 +167,6 @@ function Hero({ site, bookingOpen }: { site: PublicSite; bookingOpen: boolean })
         headline={headline}
         sub={sub}
         ctaLabel={ctaLabel}
-        whatsapp={whatsapp}
         openState={openState}
         bookingOpen={bookingOpen}
       />
@@ -184,7 +181,6 @@ function HeroWords({
   headline,
   sub,
   ctaLabel,
-  whatsapp,
   openState,
   bookingOpen,
 }: {
@@ -193,7 +189,6 @@ function HeroWords({
   headline: string;
   sub: string;
   ctaLabel: string;
-  whatsapp: string | null;
   openState: ReturnType<typeof currentOpenState>;
   bookingOpen: boolean;
 }) {
@@ -210,11 +205,6 @@ function HeroWords({
             <Link href={`/${site.slug}/reservation`} className="btn btn-primary">
               {ctaLabel} →
             </Link>
-          ) : null}
-          {whatsapp ? (
-            <a href={whatsapp} className="btn site-hero-ghost">
-              WhatsApp
-            </a>
           ) : null}
         </div>
 

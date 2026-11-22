@@ -2073,6 +2073,45 @@ table.data tr:last-child td {
   font-weight: 600;
 }
 
+/* WhatsApp, floating in the corner. Its own green whatever her colours: it is
+   the sign people look for, and a pink one would not read as WhatsApp. On a
+   phone it sits just above the tab bar. */
+.site-whatsapp {
+  position: fixed;
+  right: 1.25rem;
+  bottom: calc(1.25rem + var(--tabbar-h, 0px));
+  z-index: 44;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #25d366;
+  color: #fff;
+  box-shadow: 0 10px 24px -8px rgb(0 0 0 / 45%);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.site-whatsapp:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px -8px rgb(0 0 0 / 50%);
+}
+
+@media (max-width: 899px) {
+  .site-whatsapp {
+    right: 1rem;
+    bottom: calc(0.9rem + var(--tabbar-h, 0px));
+    width: 52px;
+    height: 52px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-whatsapp {
+    transition: none;
+  }
+}
+
 .site-burger {
   display: inline-flex;
   align-items: center;

@@ -1,10 +1,16 @@
 import type { Metadata } from "next";
-import { getPublicSite, getPublicSiteOrNotFound, bookingSubscribed } from "@/lib/providers/public-site";
+import {
+  getPublicSite,
+  getPublicSiteOrNotFound,
+  bookingSubscribed,
+  whatsappLink,
+} from "@/lib/providers/public-site";
 import { googleFontsHref, themeStyle } from "@/lib/theme";
 import { asLayoutVariant } from "@/lib/site/sections";
 import { SiteHeader, type NavItem } from "@/components/public/SiteHeader";
 import { SiteFooter } from "@/components/public/SiteFooter";
 import { SiteTabBar, type TabItem } from "@/components/public/SiteTabBar";
+import { WhatsAppButton } from "@/components/public/WhatsAppButton";
 import { appUrl } from "@/lib/env";
 
 type Params = { slug: string };
@@ -111,6 +117,7 @@ export default async function ProviderSiteLayout({
       : null,
   ].filter((item): item is TabItem => item !== null);
 
+  const whatsapp = whatsappLink(site);
   const fontsHref = googleFontsHref(site.theme);
 
   return (
@@ -147,6 +154,8 @@ export default async function ProviderSiteLayout({
       <SiteFooter site={site} />
 
       <SiteTabBar items={tabs} homeHref={`/${site.slug}`} />
+
+      {whatsapp ? <WhatsAppButton href={whatsapp} /> : null}
     </div>
   );
 }
