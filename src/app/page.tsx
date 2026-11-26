@@ -92,6 +92,37 @@ const STEPS = [
   { title: "Vous le publiez", body: "Depuis Paramètres, le jour où vous êtes prête." },
 ] as const;
 
+/**
+ * The questions a professional asks before handing her bookings to software.
+ *
+ * Each answer is what the product actually does today: deposits land on her
+ * own Mobile Money number or her own FedaPay account, the notice period is
+ * hers to set (24 hours until she changes it), and a lapsed subscription
+ * suspends the site without deleting anything.
+ */
+const FAQ = [
+  {
+    q: "Est-ce que vous touchez à mon argent ?",
+    a: "Non. Les acomptes arrivent sur votre numéro Mobile Money ou sur votre propre compte FedaPay. Vous payez votre abonnement, rien d'autre : aucune commission sur vos rendez-vous.",
+  },
+  {
+    q: "Faut-il des papiers pour commencer ?",
+    a: "Non. Le nom du salon, votre métier, votre ville et votre numéro suffisent. Si vous voulez le paiement par carte, FedaPay fait ses propres vérifications quand vous ouvrez votre compte chez eux.",
+  },
+  {
+    q: "Ça marche sur un simple téléphone ?",
+    a: "Oui. Votre espace s'ajoute à l'écran d'accueil comme une application, et vous prévient à chaque nouvelle réservation.",
+  },
+  {
+    q: "Et la cliente qui ne vient pas ?",
+    a: "Elle a versé un acompte pour réserver, et reçoit un rappel la veille. Elle peut annuler ou déplacer son rendez-vous jusqu'au délai que vous choisissez, 24 heures avant par défaut. Après, le créneau reste payé.",
+  },
+  {
+    q: "Et si j'arrête de payer ?",
+    a: "Votre site et vos réservations en ligne sont mis en pause. Rien n'est effacé : un règlement remet tout en l'état, le jour où vous revenez.",
+  },
+] as const;
+
 /** 48000 -> "48 000", grouped so a price never wraps mid-number. */
 function fcfa(amount: number): string {
   return amount.toLocaleString("fr-FR").replace(/[  \s]/g, " ");
@@ -241,6 +272,23 @@ export default async function BeautyPrestPage() {
                   </li>
                 ))}
               </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* -------------------------------------------------------- Questions */}
+        <section id="questions" className="bp-band bp-band-white">
+          <div className="container">
+            <h2 className="bp-wide-title">Ce qu&apos;on nous demande.</h2>
+            <p className="bp-one bp-wide-one">Avant de s&apos;inscrire.</p>
+
+            <div className="bp-faq">
+              {FAQ.map((item) => (
+                <details key={item.q}>
+                  <summary>{item.q}</summary>
+                  <p>{item.a}</p>
+                </details>
+              ))}
             </div>
           </div>
         </section>

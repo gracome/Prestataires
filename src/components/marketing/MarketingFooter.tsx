@@ -49,6 +49,9 @@ export function MarketingFooter({ note }: { note?: string }) {
                 <Link href="/#modules">Modules</Link>
               </li>
               <li>
+                <Link href="/#questions">Questions fréquentes</Link>
+              </li>
+              <li>
                 <Link href="/demo">Voir une démonstration</Link>
               </li>
             </ul>

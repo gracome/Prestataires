@@ -4520,6 +4520,29 @@ table.data tr:last-child td {
 .bp-trade span { display: block; font-size: 0.82rem; color: var(--bp-muted); margin-top: 0.35rem; }
 .bp-trade em { display: block; font-style: normal; font-size: 0.76rem; color: var(--bp-faint); margin-top: 0.6rem; font-variant-numeric: tabular-nums; }
 
+/* --- Questions ----------------------------------------------------------- */
+
+.bp-faq { max-width: 760px; border-top: 1px solid var(--bp-line); }
+.bp-faq details { border-bottom: 1px solid var(--bp-line); }
+.bp-faq summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 1.05rem 0;
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--bp-ink);
+}
+.bp-faq summary::-webkit-details-marker { display: none; }
+.bp-faq summary::after { content: "+"; flex: none; color: var(--bp-wine); font-size: 1.2rem; line-height: 1; }
+.bp-faq details[open] summary::after { content: "\2212"; }
+.bp-faq summary:focus-visible { outline: 2px solid var(--bp-wine); outline-offset: 2px; }
+.bp-faq p { margin: 0 0 1.15rem; max-width: 62ch; font-size: 0.92rem; line-height: 1.6; color: var(--bp-muted); }
+
 /* --- Prices -------------------------------------------------------------- */
 
 .bp-plans { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; }
